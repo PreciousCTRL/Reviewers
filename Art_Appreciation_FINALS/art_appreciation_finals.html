@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Appreciation Reviewer - Final Exam</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Lato", "Helvetica Neue", Arial, sans-serif; background: #f5f5f5; color: #2d3b45; line-height: 1.5; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: #fff; border: 1px solid #c7cdd1; border-radius: 3px; overflow: clip; }
+        .header { background: linear-gradient(135deg, #2d3b45 0%, #394b59 100%); color: #fff; padding: 24px 30px; }
+        .header h1 { font-size: 24px; margin-bottom: 4px; font-weight: 500; }
+        .header .subtitle { font-size: 13px; color: #c7cdd1; }
+        .header .meta { margin-top: 10px; font-size: 12px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .header .meta span { background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 3px; }
+
+        .instructions { background: #f0f8ff; border-left: 4px solid #008eea; padding: 14px 20px; font-size: 14px; color: #2d3b45; }
+
+        .section-nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; z-index: 101; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .section-nav .nav-home { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #e5e5e5; color: #2d3b45; text-decoration: none; border-radius: 3px; font-size: 13px; font-weight: 500; transition: background 0.15s; }
+        .section-nav .nav-home:hover { background: #d0d0d0; }
+        .section-nav .nav-home::before { content: "\2190"; font-size: 14px; }
+        .section-nav .nav-divider { width: 1px; height: 22px; background: #e5e5e5; margin: 0 4px; }
+        .section-nav .nav-info { font-size: 13px; color: #6b7780; font-weight: 500; }
+        .section-nav .spacer { flex: 1; }
+
+        .quiz-progress { display: none; padding: 12px 30px; background: #fafafa; border-bottom: 1px solid #e5e5e5; align-items: center; gap: 16px; flex-wrap: wrap; }
+        body.quiz-mode .quiz-progress { display: flex; }
+        .quiz-progress .qp-tag { font-size: 11px; background: #008eea; color: #fff; padding: 3px 10px; border-radius: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; }
+        .quiz-progress .qp-label { font-size: 13px; color: #6b7780; font-weight: 500; white-space: nowrap; }
+        .quiz-progress .qp-label strong { color: #2d3b45; }
+        .quiz-progress .qp-bar { flex: 1; min-width: 120px; height: 6px; background: #e5e5e5; border-radius: 3px; overflow: hidden; }
+        .quiz-progress .qp-fill { height: 100%; background: #008eea; transition: width 0.25s ease; width: 0%; }
+
+        .score-bar { position: sticky; top: 44px; background: #fff; border-bottom: 2px solid #008eea; padding: 12px 30px; z-index: 100; justify-content: space-between; align-items: center; display: none; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .score-bar.show { display: flex; }
+        .score-bar .score { font-size: 16px; font-weight: bold; }
+        .score-bar .score.pass { color: #0b874b; }
+        .score-bar .score.fail { color: #ee3a3a; }
+        .score-bar .percentage { font-size: 24px; font-weight: bold; }
+
+        .section { border-top: 1px solid #e5e5e5; padding: 20px 30px; }
+        .section-header { display: flex; align-items: center; margin-bottom: 14px; gap: 10px; }
+        .section-icon { width: 32px; height: 32px; background: #008eea; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+        .section-title { font-size: 18px; font-weight: 500; color: #2d3b45; }
+        .section-points { margin-left: auto; font-size: 12px; background: #e5e5e5; padding: 4px 10px; border-radius: 3px; color: #2d3b45; }
+
+        .question { background: #fafafa; border: 1px solid #e5e5e5; border-radius: 3px; padding: 14px 18px; margin-bottom: 10px; position: relative; }
+        .question.correct { border-left: 4px solid #0b874b; background: #effdf3; }
+        .question.wrong { border-left: 4px solid #ee3a3a; background: #fff0f0; }
+        .q-num { color: #6b7780; font-size: 11px; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; }
+        .q-text { font-size: 14px; margin-bottom: 10px; color: #2d3b45; line-height: 1.6; }
+        .q-points { position: absolute; top: 12px; right: 16px; font-size: 11px; color: #6b7780; background: #e5e5e5; padding: 2px 8px; border-radius: 10px; }
+        .feedback { margin-top: 8px; padding: 9px 12px; font-size: 13px; border-radius: 3px; display: none; line-height: 1.55; }
+        .feedback strong { font-weight: 700; }
+        .feedback .explain { display: block; margin-top: 5px; font-style: normal; color: #2d3b45; font-size: 12.5px; padding-top: 5px; border-top: 1px dashed currentColor; opacity: 0.92; }
+        .question.correct .feedback { display: block; background: #d4f4dd; color: #0b874b; }
+        .question.wrong .feedback { display: block; background: #fbd9d9; color: #a72a2a; }
+
+        .choices label { display: block; padding: 7px 12px; margin: 3px 0; border-radius: 3px; cursor: pointer; font-size: 13px; line-height: 1.5; border: 1px solid transparent; }
+        .choices label:hover { background: #f0f0f0; }
+        .choices input[type="radio"] { margin-right: 8px; }
+        .choices label.correct-answer { background: #d4f4dd; color: #0b874b; font-weight: 500; border-color: #0b874b; }
+        .choices label.user-wrong { background: #fbd9d9; color: #a72a2a; border-color: #ee3a3a; }
+
+        body.quiz-mode .section .question { display: none; }
+        body.quiz-mode .section .question.active-question { display: block; }
+        body.quiz-mode .section .section-points { display: none; }
+
+        .quiz-controls { display: none; padding: 16px 30px; background: #fff; border-top: 1px solid #e5e5e5; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        body.quiz-mode .quiz-controls { display: flex; }
+        .quiz-controls .q-counter { font-size: 13px; color: #6b7780; font-weight: 500; }
+        .quiz-controls .q-counter strong { color: #008eea; font-size: 15px; }
+        .quiz-controls .goto-wrap { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #6b7780; }
+        .quiz-controls .goto-input { width: 60px; padding: 5px 8px; border: 1px solid #c7cdd1; border-radius: 3px; font-size: 13px; text-align: center; font-family: inherit; }
+
+        .actions { padding: 20px 30px; background: #f5f5f5; border-top: 1px solid #c7cdd1; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+        .btn { padding: 10px 22px; border: none; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #008eea; color: #fff; }
+        .btn-primary:hover { background: #0072bd; }
+        .btn-secondary { background: #e5e5e5; color: #2d3b45; }
+        .btn-secondary:hover { background: #d0d0d0; }
+
+        .results-banner { padding: 22px 30px; text-align: center; display: none; }
+        .results-banner.show { display: block; }
+        .results-banner h2 { font-size: 26px; margin-bottom: 4px; }
+        .results-banner.pass { background: #effdf3; border-top: 3px solid #0b874b; }
+        .results-banner.pass h2 { color: #0b874b; }
+        .results-banner.fail { background: #fff0f0; border-top: 3px solid #ee3a3a; }
+        .results-banner.fail h2 { color: #a72a2a; }
+        .results-banner .detail { font-size: 13px; color: #6b7780; margin-top: 4px; }
+        .results-banner .breakdown { margin-top: 10px; font-size: 12px; color: #2d3b45; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>Art Appreciation Reviewer</h1>
+    <div class="subtitle">ZGE 1101 &middot; Final Exam &middot; Dr. Allan C. Orate, UE-Manila</div>
+    <div class="meta">
+        <span>140 Questions</span>
+        <span>Multiple Choice</span>
+        <span>Auto-scored</span>
+        <span>Unlimited attempts</span>
+    </div>
+</div>
+
+<div class="instructions">
+    <strong>Instructions:</strong> From the given options, choose the correct or best answer. Answer one question at a time &mdash; use <b>Next</b> / <b>Prev</b> (or left/right arrow keys) to navigate, or jump to any question via <b>Go to</b>. Each question is worth <b>1 point</b>. Click <b>Submit Quiz</b> on the last question (or the bottom button anytime) to see your score.
+</div>
+
+<nav class="section-nav" id="sectionNav">
+    <a class="nav-home" href="../index.html" title="Back to Home">Home</a>
+    <div class="nav-divider"></div>
+    <div class="nav-info">140 Questions &middot; 140 pts</div>
+    <div class="spacer"></div>
+</nav>
+
+<div class="quiz-progress" id="quizProgress">
+    <span class="qp-tag"><span id="qpTagText">Art Appreciation</span></span>
+    <span class="qp-label">Question <strong id="qpCurrent">1</strong> of <strong id="qpTotal">140</strong></span>
+    <div class="qp-bar"><div class="qp-fill" id="qpFill"></div></div>
+</div>
+
+<div class="score-bar" id="scoreBar">
+    <div>Your Score: <span class="score" id="scoreText">0 / 0</span></div>
+    <div class="percentage" id="percentText">0%</div>
+</div>
+
+<div class="section" id="section-mc">
+    <div class="section-header">
+        <div class="section-icon">?</div>
+        <div class="section-title">Multiple Choice</div>
+        <div class="section-points">140 questions &middot; 1 pt each</div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 1</div><div class="q-points">1 pt</div>
+        <div class="q-text">The aesthetic sense of the Japanese is that the small is beautiful, as exemplified by the <em>bonsai</em>. Which other example of Japanese cultural element expresses this sense of beauty?</div>
+        <div class="choices"><label><input type="radio" name="q1" value="a"> a) Haiku</label><label><input type="radio" name="q1" value="b"> b) Hentai</label><label><input type="radio" name="q1" value="c"> c) Kamikaze</label><label><input type="radio" name="q1" value="d"> d) Geisha</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 2</div><div class="q-points">1 pt</div>
+        <div class="q-text">The kind of aesthetics formulated by Dennis Dutton in his book <em>The Art Instinct</em> is based on which scientific theory?</div>
+        <div class="choices"><label><input type="radio" name="q2" value="a"> a) Theory of Evolution</label><label><input type="radio" name="q2" value="b"> b) Heliocentric Theory</label><label><input type="radio" name="q2" value="c"> c) Quantum Theory</label><label><input type="radio" name="q2" value="d"> d) Theory of Relativity</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 3</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which one among these religious traditions prohibits the figurative representation of the divine?</div>
+        <div class="choices"><label><input type="radio" name="q3" value="a"> a) Buddhism</label><label><input type="radio" name="q3" value="b"> b) Catholicism</label><label><input type="radio" name="q3" value="c"> c) Hinduism</label><label><input type="radio" name="q3" value="d"> d) Islam</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 4</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which indicates the beauty of the woman's body according to the sculpture <em>Venus of Willendorf</em>?</div>
+        <div class="choices"><label><input type="radio" name="q4" value="a"> a) The body's vital statistics of 36-24-36</label><label><input type="radio" name="q4" value="b"> b) The woman's smaller body compared to the man's body</label><label><input type="radio" name="q4" value="c"> c) The capacity of the woman to produce children</label><label><input type="radio" name="q4" value="d"> d) The ability of the woman to give sexual pleasure to the man</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 5</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is the process of using strong acid to cut into the unprotected parts of a metal surface to create a design?</div>
+        <div class="choices"><label><input type="radio" name="q5" value="a"> a) Casting</label><label><input type="radio" name="q5" value="b"> b) Engraving</label><label><input type="radio" name="q5" value="c"> c) Etching</label><label><input type="radio" name="q5" value="d"> d) Stamping</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 6</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which classical order of architecture is indicated by a column design that looks like a scroll? The Post Office Building in Lawton, Manila, is a fine example of this style.</div>
+        <div class="choices"><label><input type="radio" name="q6" value="a"> a) Doric</label><label><input type="radio" name="q6" value="b"> b) Corinthian</label><label><input type="radio" name="q6" value="c"> c) Ionic</label><label><input type="radio" name="q6" value="d"> d) Tuscan</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 7</div><div class="q-points">1 pt</div>
+        <div class="q-text">The painting by Magritte <em>Treachery of Images</em> implies which view about art?</div>
+        <div class="choices"><label><input type="radio" name="q7" value="a"> a) Art is a lie.</label><label><input type="radio" name="q7" value="b"> b) Art is a mystery.</label><label><input type="radio" name="q7" value="c"> c) Art is reality.</label><label><input type="radio" name="q7" value="d"> d) Art is the truth.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 8</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which quotation best implies the formalist theory of art?</div>
+        <div class="choices"><label><input type="radio" name="q8" value="a"> a) Art is the integration of objects into the "artworld" (Arthur Danto)</label><label><input type="radio" name="q8" value="b"> b) "Artists need to look at nature as spheres, cylinders and cones." (Paul Cezanne)</label><label><input type="radio" name="q8" value="c"> c) "Art is the creation of symbolic forms expressive of human feeling." (Susanne Langer)</label><label><input type="radio" name="q8" value="d"> d) "What was to go on the canvas is not a picture but an event." (Harold Rosenberg)</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 9</div><div class="q-points">1 pt</div>
+        <div class="q-text">For which reason would the brass coils on the neck of the Padaung woman be forcibly removed?</div>
+        <div class="choices"><label><input type="radio" name="q9" value="a"> a) When the woman commits adultery</label><label><input type="radio" name="q9" value="b"> b) When the woman becomes the leader of the tribe</label><label><input type="radio" name="q9" value="c"> c) When the woman is already old</label><label><input type="radio" name="q9" value="d"> d) When the woman gets very sick</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 10</div><div class="q-points">1 pt</div>
+        <div class="q-text">It is "a conviction on the dignity of man to be higher than that of objects, nature and animals, but lower that the dignity of God." Which theory prevalent during the Renaissance period is referred to by this statement?</div>
+        <div class="choices"><label><input type="radio" name="q10" value="a"> a) Empiricism</label><label><input type="radio" name="q10" value="b"> b) Evolutionism</label><label><input type="radio" name="q10" value="c"> c) Humanism</label><label><input type="radio" name="q10" value="d"> d) Scholasticism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 11</div><div class="q-points">1 pt</div>
+        <div class="q-text">Who investigated the relation between art and technology, and wrote the article "The Work of Art in the Age of Mechanical Reproduction" that has become a classical reading in art studies?</div>
+        <div class="choices"><label><input type="radio" name="q11" value="a"> a) Walter Benjamin</label><label><input type="radio" name="q11" value="b"> b) Clive Bell</label><label><input type="radio" name="q11" value="c"> c) Arthur Danto</label><label><input type="radio" name="q11" value="d"> d) Rene Descartes</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 12</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which one of the primary Hindu deities is often represented in sculpture while in the act of dancing?</div>
+        <div class="choices"><label><input type="radio" name="q12" value="a"> a) Brahma</label><label><input type="radio" name="q12" value="b"> b) Krishna</label><label><input type="radio" name="q12" value="c"> c) Shiva</label><label><input type="radio" name="q12" value="d"> d) Vishnu</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 13</div><div class="q-points">1 pt</div>
+        <div class="q-text">Referring to "skillful production or performance," which Greek term is equivalent to the Latin word <em>ars</em> from which the English "art" was derived?</div>
+        <div class="choices"><label><input type="radio" name="q13" value="a"> a) Aesthesis</label><label><input type="radio" name="q13" value="b"> b) Psyche</label><label><input type="radio" name="q13" value="c"> c) Logos</label><label><input type="radio" name="q13" value="d"> d) Techne</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 14</div><div class="q-points">1 pt</div>
+        <div class="q-text">The painting entitled <em>Son of Man</em> is said to be the self-portrait of Rene Magritte who is best known for which style of art?</div>
+        <div class="choices"><label><input type="radio" name="q14" value="a"> a) Cubism</label><label><input type="radio" name="q14" value="b"> b) Fauvism</label><label><input type="radio" name="q14" value="c"> c) Impressionism</label><label><input type="radio" name="q14" value="d"> d) Surrealism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 15</div><div class="q-points">1 pt</div>
+        <div class="q-text">The paintings by El Greco, such as <em>The Burial of Count Orgaz</em>, is based on which style?</div>
+        <div class="choices"><label><input type="radio" name="q15" value="a"> a) Classicism</label><label><input type="radio" name="q15" value="b"> b) Medieval Art</label><label><input type="radio" name="q15" value="c"> c) Mannerism</label><label><input type="radio" name="q15" value="d"> d) Renaissance Art</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 16</div><div class="q-points">1 pt</div>
+        <div class="q-text">The sculpture found in the cover of the <em>Manunggul Jar</em> expresses which religious belief by the ancient Filipinos?</div>
+        <div class="choices"><label><input type="radio" name="q16" value="a"> a) Afterlife</label><label><input type="radio" name="q16" value="b"> b) Reincarnation</label><label><input type="radio" name="q16" value="c"> c) Resurrection of the body</label><label><input type="radio" name="q16" value="d"> d) Divinity of Christ</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 17</div><div class="q-points">1 pt</div>
+        <div class="q-text">According to the title, the book by Marcus Vitruvius is about which one among the arts?</div>
+        <div class="choices"><label><input type="radio" name="q17" value="a"> a) Architecture</label><label><input type="radio" name="q17" value="b"> b) Literature</label><label><input type="radio" name="q17" value="c"> c) Music</label><label><input type="radio" name="q17" value="d"> d) Sculpture</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 18</div><div class="q-points">1 pt</div>
+        <div class="q-text">In the aesthetics of Filipino personhood, which statement best indicates the concept of <em>ganda</em> (beauty) as a behavioral or ethical phenomenon?</div>
+        <div class="choices"><label><input type="radio" name="q18" value="a"> a) She is attractive.</label><label><input type="radio" name="q18" value="b"> b) She is respectful to the elders.</label><label><input type="radio" name="q18" value="c"> c) She has smooth skin.</label><label><input type="radio" name="q18" value="d"> d) She wears expensive jewelry.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 19</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which style is applied in Tolentino's sculptures <em>Bonifacio Monument</em>, and <em>Alma Mater</em> (<em>Lualhati</em>)?</div>
+        <div class="choices"><label><input type="radio" name="q19" value="a"> a) Cubism</label><label><input type="radio" name="q19" value="b"> b) Fauvism</label><label><input type="radio" name="q19" value="c"> c) Impressionism</label><label><input type="radio" name="q19" value="d"> d) Neoclassicism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 20</div><div class="q-points">1 pt</div>
+        <div class="q-text">According to him, representational art is a sign of materialism in the society, and purely formalist art would bring out art's spiritual quality. Who is the painter and art theorist that formulated this insight?</div>
+        <div class="choices"><label><input type="radio" name="q20" value="a"> a) Benedetto Croce</label><label><input type="radio" name="q20" value="b"> b) Wassily Kandinsky</label><label><input type="radio" name="q20" value="c"> c) Leo Tolstoy</label><label><input type="radio" name="q20" value="d"> d) Frank Lloyd Wright</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 21</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is the most noble art in Islamic tradition?</div>
+        <div class="choices"><label><input type="radio" name="q21" value="a"> a) Calligraphy</label><label><input type="radio" name="q21" value="b"> b) Painting</label><label><input type="radio" name="q21" value="c"> c) Sculpture</label><label><input type="radio" name="q21" value="d"> d) Tapestry</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 22</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Stynweck's painting <em>Vanities of Human Life</em>, which idea is symbolized by the seashell?</div>
+        <div class="choices"><label><input type="radio" name="q22" value="a"> a) Beauty</label><label><input type="radio" name="q22" value="b"> b) Faith</label><label><input type="radio" name="q22" value="c"> c) Hope</label><label><input type="radio" name="q22" value="d"> d) Wealth</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 23</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which famous building in Athens, Greece is noted for its proportion based on the Golden Measure?</div>
+        <div class="choices"><label><input type="radio" name="q23" value="a"> a) Agora</label><label><input type="radio" name="q23" value="b"> b) Duomo</label><label><input type="radio" name="q23" value="c"> c) Hagia Sophia</label><label><input type="radio" name="q23" value="d"> d) Parthenon</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 24</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is typically the subject of art during the Middle Ages, such as those in the paintings by Giotto de Bondone?</div>
+        <div class="choices"><label><input type="radio" name="q24" value="a"> a) Historical</label><label><input type="radio" name="q24" value="b"> b) Mythological</label><label><input type="radio" name="q24" value="c"> c) Philosophical</label><label><input type="radio" name="q24" value="d"> d) Religious</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 25</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Western concept, art is said to be elitist. What does this mean?</div>
+        <div class="choices"><label><input type="radio" name="q25" value="a"> a) Art is for the educated members of the society.</label><label><input type="radio" name="q25" value="b"> b) Art is for therapeutic purpose.</label><label><input type="radio" name="q25" value="c"> c) Art is meant for the higher social class.</label><label><input type="radio" name="q25" value="d"> d) Art is for political propaganda.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 26</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which medium was used by Michelangelo in his painting at the ceiling of the Sistine Chapel?</div>
+        <div class="choices"><label><input type="radio" name="q26" value="a"> a) Acrylic</label><label><input type="radio" name="q26" value="b"> b) Enamel</label><label><input type="radio" name="q26" value="c"> c) Fresco</label><label><input type="radio" name="q26" value="d"> d) Oil</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 27</div><div class="q-points">1 pt</div>
+        <div class="q-text">Looking like a cross but with a hole at the upper end, the so-called <em>ankh</em> symbolized which concept in Egyptian culture?</div>
+        <div class="choices"><label><input type="radio" name="q27" value="a"> a) Authority</label><label><input type="radio" name="q27" value="b"> b) Divinity</label><label><input type="radio" name="q27" value="c"> c) Eternity</label><label><input type="radio" name="q27" value="d"> d) Royalty</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 28</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which quotation best describes the method used in the humanities?</div>
+        <div class="choices"><label><input type="radio" name="q28" value="a"> a) "Do unto others what you like others do unto you."</label><label><input type="radio" name="q28" value="b"> b) "Knowledge is power."</label><label><input type="radio" name="q28" value="c"> c) "Know thyself."</label><label><input type="radio" name="q28" value="d"> d) "To be or not to be, that is the question."</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 29</div><div class="q-points">1 pt</div>
+        <div class="q-text">In digital art, if you are going to draw, paint or sketch, which tool would you most likely use?</div>
+        <div class="choices"><label><input type="radio" name="q29" value="a"> a) Camera</label><label><input type="radio" name="q29" value="b"> b) Desktop</label><label><input type="radio" name="q29" value="c"> c) Pentab</label><label><input type="radio" name="q29" value="d"> d) Smartphone</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 30</div><div class="q-points">1 pt</div>
+        <div class="q-text">Who is the so-called the "Father of Philippine Painting" because of the establishment of the first art school in the country during the Spanish period?</div>
+        <div class="choices"><label><input type="radio" name="q30" value="a"> a) Fernando Amorsolo</label><label><input type="radio" name="q30" value="b"> b) Damian Domingo</label><label><input type="radio" name="q30" value="c"> c) Victorio Edades</label><label><input type="radio" name="q30" value="d"> d) Juan Luna</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 31</div><div class="q-points">1 pt</div>
+        <div class="q-text">Why is Malevich's <em>White on White</em> considered to be the highest stage in the evolution of painting?</div>
+        <div class="choices"><label><input type="radio" name="q31" value="a"> a) Because it is seen as what it is, as a painting.</label><label><input type="radio" name="q31" value="b"> b) Because it is very clean.</label><label><input type="radio" name="q31" value="c"> c) Because it represents nothingness.</label><label><input type="radio" name="q31" value="d"> d) Because it means the attainment of eternal life.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 32</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which method was used in making silver coins in ancient Greece?</div>
+        <div class="choices"><label><input type="radio" name="q32" value="a"> a) Carving</label><label><input type="radio" name="q32" value="b"> b) Casting</label><label><input type="radio" name="q32" value="c"> c) Etching</label><label><input type="radio" name="q32" value="d"> d) Photocopying</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 33</div><div class="q-points">1 pt</div>
+        <div class="q-text">Based on aesthetic cultural relativism, why is the woman in Leonardo's <em>The Mona Lisa</em> without eyebrow?</div>
+        <div class="choices"><label><input type="radio" name="q33" value="a"> a) Because Leonardo died before he completed the painting</label><label><input type="radio" name="q33" value="b"> b) Because the paints had faded out and erased the eye brow</label><label><input type="radio" name="q33" value="c"> c) Because Leonardo had a love affair with the woman who was then married to a rich merchant</label><label><input type="radio" name="q33" value="d"> d) Because women used to shave their eye brows as a fashion of beauty during Leonardo's time</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 34</div><div class="q-points">1 pt</div>
+        <div class="q-text">One sense of Western aesthetics is that the big is beautiful. Which sculpture is NOT noted for its large scale?</div>
+        <div class="choices"><label><input type="radio" name="q34" value="a"> a) <em>Colossus of Rhodes</em></label><label><input type="radio" name="q34" value="b"> b) <em>Statue of Zeus</em> by Phidias</label><label><input type="radio" name="q34" value="c"> c) Michelangelo's <em>David</em></label><label><input type="radio" name="q34" value="d"> d) <em>Venus of Willendorf</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 35</div><div class="q-points">1 pt</div>
+        <div class="q-text">When you look at Leonardo's <em>The Mona Lisa</em>, and you are captivated by the smile of the woman which makes you feel cheerful, which theory of art is best implied?</div>
+        <div class="choices"><label><input type="radio" name="q35" value="a"> a) Expressionism</label><label><input type="radio" name="q35" value="b"> b) Formalism</label><label><input type="radio" name="q35" value="c"> c) Hedonism</label><label><input type="radio" name="q35" value="d"> d) Representationism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 36</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is the Buddhist temple in Java, Indonesia, with its aerial view said to be taking the form of a <em>mandala</em>?</div>
+        <div class="choices"><label><input type="radio" name="q36" value="a"> a) Angkor Wat</label><label><input type="radio" name="q36" value="b"> b) Borobudur</label><label><input type="radio" name="q36" value="c"> c) Kajhuraho</label><label><input type="radio" name="q36" value="d"> d) Shaolin</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 37</div><div class="q-points">1 pt</div>
+        <div class="q-text">Leonardo's <em>Vitruvian Man</em> is the visual interpretation of which humanistic insight?</div>
+        <div class="choices"><label><input type="radio" name="q37" value="a"> a) "Man is made in the image of God."</label><label><input type="radio" name="q37" value="b"> b) "Man is a part of nature."</label><label><input type="radio" name="q37" value="c"> c) "Man is the measure of all things."</label><label><input type="radio" name="q37" value="d"> d) "Nothing is more wonderful than man."</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 38</div><div class="q-points">1 pt</div>
+        <div class="q-text">Selfie pictures are said to be expressions of a person's love of the self. Which psychological term means love of oneself?</div>
+        <div class="choices"><label><input type="radio" name="q38" value="a"> a) Autophobia</label><label><input type="radio" name="q38" value="b"> b) Narcissism</label><label><input type="radio" name="q38" value="c"> c) Parapraxis</label><label><input type="radio" name="q38" value="d"> d) Schizophrenia</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 39</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which Renaissance painting is said to be the first to consciously apply linear perspective?</div>
+        <div class="choices"><label><input type="radio" name="q39" value="a"> a) <em>The Last Supper</em> by Leonardo</label><label><input type="radio" name="q39" value="b"> b) <em>The School of Athens</em> by Raphael</label><label><input type="radio" name="q39" value="c"> c) <em>The Trinity</em> by Masaccio</label><label><input type="radio" name="q39" value="d"> d) <em>The Baptism of Christ</em> by Verrocchio</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 40</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which statement best defines the content and method of learning involved in the humanities?</div>
+        <div class="choices"><label><input type="radio" name="q40" value="a"> a) The humanists learn about the natural phenomena in the world by observation.</label><label><input type="radio" name="q40" value="b"> b) The humanists learn about the meaning of life by faith and scared revelation.</label><label><input type="radio" name="q40" value="c"> c) The humanists learn about themselves by reflecting on their nature and own experiences.</label><label><input type="radio" name="q40" value="d"> d) The humanists learn about the ultimate reality of all things by the aid of reasoning.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 41</div><div class="q-points">1 pt</div>
+        <div class="q-text">One time, the famous artist Marcel Duchamp exhibited in a museum a bicycle wheel on top of a stool. When asked why is that piece an art, Duchamp said: "Well, that's art, because I say so!" What theory of art is best applied to this situation?</div>
+        <div class="choices"><label><input type="radio" name="q41" value="a"> a) Action Theory</label><label><input type="radio" name="q41" value="b"> b) Functionalism</label><label><input type="radio" name="q41" value="c"> c) Hedonism</label><label><input type="radio" name="q41" value="d"> d) Institutional Theory</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 42</div><div class="q-points">1 pt</div>
+        <div class="q-text">Who was the Christian theologian who wrote a treatise justifying the use of divine images?</div>
+        <div class="choices"><label><input type="radio" name="q42" value="a"> a) Augustine of Hippos</label><label><input type="radio" name="q42" value="b"> b) Francis of Asisi</label><label><input type="radio" name="q42" value="c"> c) John Damascene</label><label><input type="radio" name="q42" value="d"> d) Thomas Aquinas</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 43</div><div class="q-points">1 pt</div>
+        <div class="q-text">According to the title, which painting is most like to be non-figurative?</div>
+        <div class="choices"><label><input type="radio" name="q43" value="a"> a) <em>Carcass of Beef</em></label><label><input type="radio" name="q43" value="b"> b) <em>Fine Realities</em></label><label><input type="radio" name="q43" value="c"> c) <em>Improvisation No. 30</em></label><label><input type="radio" name="q43" value="d"> d) <em>Still Life with Apples</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 44</div><div class="q-points">1 pt</div>
+        <div class="q-text">One printing technique for reproducing works of art is where the image is drawn with oil, fat, or wax onto the surface of a limestone plate. Which technique is this?</div>
+        <div class="choices"><label><input type="radio" name="q44" value="a"> a) Aquatint</label><label><input type="radio" name="q44" value="b"> b) Litography</label><label><input type="radio" name="q44" value="c"> c) Mimeography</label><label><input type="radio" name="q44" value="d"> d) Xenography</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 45</div><div class="q-points">1 pt</div>
+        <div class="q-text">In cubist paintings, such as in Picasso's <em>Weeping Woman</em>, how is the concept of movement implied?</div>
+        <div class="choices"><label><input type="radio" name="q45" value="a"> a) By blur colors</label><label><input type="radio" name="q45" value="b"> b) By curve lines</label><label><input type="radio" name="q45" value="c"> c) By multi-view</label><label><input type="radio" name="q45" value="d"> d) By multi-perspective</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 46</div><div class="q-points">1 pt</div>
+        <div class="q-text">The representation of Jesus Christ from ancient Greek culture is said to have been derived from the image of which Olympian god?</div>
+        <div class="choices"><label><input type="radio" name="q46" value="a"> a) Apollo</label><label><input type="radio" name="q46" value="b"> b) Hermes</label><label><input type="radio" name="q46" value="c"> c) Poseidon</label><label><input type="radio" name="q46" value="d"> d) Zeus</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 47</div><div class="q-points">1 pt</div>
+        <div class="q-text">Why are the Hindu gods usually represented with multiple body parts, like having four arms?</div>
+        <div class="choices"><label><input type="radio" name="q47" value="a"> a) To symbolize their everlasting life</label><label><input type="radio" name="q47" value="b"> b) To symbolize their personal relationship with human beings</label><label><input type="radio" name="q47" value="c"> c) To symbolize their power greater than humans</label><label><input type="radio" name="q47" value="d"> d) To symbolize their spiritual existence</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 48</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which aesthetic term best describes a surrealist painting?</div>
+        <div class="choices"><label><input type="radio" name="q48" value="a"> a) Cute</label><label><input type="radio" name="q48" value="b"> b) Fantastic</label><label><input type="radio" name="q48" value="c"> c) Pretty</label><label><input type="radio" name="q48" value="d"> d) Piquant</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 49</div><div class="q-points">1 pt</div>
+        <div class="q-text">The phonograph was for the mechanical reproduction of which form of art?</div>
+        <div class="choices"><label><input type="radio" name="q49" value="a"> a) Architecture</label><label><input type="radio" name="q49" value="b"> b) Dance</label><label><input type="radio" name="q49" value="c"> c) Music</label><label><input type="radio" name="q49" value="d"> d) Painting</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 50</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which style or school of art originated in the 1970's as a reaction against the dictatorial form of government by Pres. Ferdinand Marcos during the period of Martial Law?</div>
+        <div class="choices"><label><input type="radio" name="q50" value="a"> a) Hyperrealism</label><label><input type="radio" name="q50" value="b"> b) Magic Realism</label><label><input type="radio" name="q50" value="c"> c) Romantic Realism</label><label><input type="radio" name="q50" value="d"> d) Social Realism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 51</div><div class="q-points">1 pt</div>
+        <div class="q-text">Culinary art is best appreciated by which sense faculty?</div>
+        <div class="choices"><label><input type="radio" name="q51" value="a"> a) Hearing</label><label><input type="radio" name="q51" value="b"> b) Sight</label><label><input type="radio" name="q51" value="c"> c) Smell</label><label><input type="radio" name="q51" value="d"> d) Taste</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 52</div><div class="q-points">1 pt</div>
+        <div class="q-text">The basis of aesthetic formalism is the cosmological theory that everything is ultimately composed of prime matter and substantial form. What is this theory called?</div>
+        <div class="choices"><label><input type="radio" name="q52" value="a"> a) Geocentrism</label><label><input type="radio" name="q52" value="b"> b) Hylomorphism</label><label><input type="radio" name="q52" value="c"> c) Monism</label><label><input type="radio" name="q52" value="d"> d) Physicalism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 53</div><div class="q-points">1 pt</div>
+        <div class="q-text">Derived from Sanskrit which means "circle" or "disk", which religious art form is made of colored and powdered minerals, and said to be representing the domain of the divine?</div>
+        <div class="choices"><label><input type="radio" name="q53" value="a"> a) Gita</label><label><input type="radio" name="q53" value="b"> b) Mandala</label><label><input type="radio" name="q53" value="c"> c) Nataraja</label><label><input type="radio" name="q53" value="d"> d) Sunyata</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 54</div><div class="q-points">1 pt</div>
+        <div class="q-text">The arts of the jeepney, the <em>sarimanok</em> design and the <em>tinalak</em> express which aesthetic sense by the Filipinos?</div>
+        <div class="choices"><label><input type="radio" name="q54" value="a"> a) The colorful is beautiful.</label><label><input type="radio" name="q54" value="b"> b) The religious is beautiful.</label><label><input type="radio" name="q54" value="c"> c) The funny is beautiful.</label><label><input type="radio" name="q54" value="d"> d) The simple is beautiful.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 55</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Leonardo's <em>Vitruvian Man</em>, the man is inscribed in a circle and a square. The circle symbolizes that man is what?</div>
+        <div class="choices"><label><input type="radio" name="q55" value="a"> a) Anatomical</label><label><input type="radio" name="q55" value="b"> b) Mortal</label><label><input type="radio" name="q55" value="c"> c) Perceptual</label><label><input type="radio" name="q55" value="d"> d) Spiritual</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 56</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which Hindu primary deity is shown with four heads and four arms?</div>
+        <div class="choices"><label><input type="radio" name="q56" value="a"> a) Brahma</label><label><input type="radio" name="q56" value="b"> b) Lakshmi</label><label><input type="radio" name="q56" value="c"> c) Shiva</label><label><input type="radio" name="q56" value="d"> d) Vishnu</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 57</div><div class="q-points">1 pt</div>
+        <div class="q-text">The <em>tinalak</em> is a cloth made by women dream-weavers who belong to which group of indigenous people in the Philippines?</div>
+        <div class="choices"><label><input type="radio" name="q57" value="a"> a) Ibanag</label><label><input type="radio" name="q57" value="b"> b) Ivatan</label><label><input type="radio" name="q57" value="c"> c) Tausug</label><label><input type="radio" name="q57" value="d"> d) Tiboli</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 58</div><div class="q-points">1 pt</div>
+        <div class="q-text">Noted for stimulating and unnatural use of color, the paintings by Henry Matisse are known for which style?</div>
+        <div class="choices"><label><input type="radio" name="q58" value="a"> a) Impressionism</label><label><input type="radio" name="q58" value="b"> b) Fauvism</label><label><input type="radio" name="q58" value="c"> c) Pointillism</label><label><input type="radio" name="q58" value="d"> d) Surrealism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 59</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Filipino culture, what Tagalog aesthetic term refers to the feminine attribute of being attractive?</div>
+        <div class="choices"><label><input type="radio" name="q59" value="a"> a) <em>Alindog</em></label><label><input type="radio" name="q59" value="b"> b) <em>Dilag</em></label><label><input type="radio" name="q59" value="c"> c) <em>Rangya</em></label><label><input type="radio" name="q59" value="d"> d) <em>Rikit</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 60</div><div class="q-points">1 pt</div>
+        <div class="q-text">From the perspective of humanistic studies, which is NOT associated with the nature or essence of human being?</div>
+        <div class="choices"><label><input type="radio" name="q60" value="a"> a) Descended from apes</label><label><input type="radio" name="q60" value="b"> b) Created in the image of God.</label><label><input type="radio" name="q60" value="c"> c) Rational being</label><label><input type="radio" name="q60" value="d"> d) Union of body and soul</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 61</div><div class="q-points">1 pt</div>
+        <div class="q-text">A graduate of UE in 1950 major in Finance, who is the model for the sculpture <em>Alma Mater</em> or popularly known as <em>Lualhati</em>?</div>
+        <div class="choices"><label><input type="radio" name="q61" value="a"> a) Gina Lazo</label><label><input type="radio" name="q61" value="b"> b) Josefina Cortez</label><label><input type="radio" name="q61" value="c"> c) Nida Blanca</label><label><input type="radio" name="q61" value="d"> d) Ofelia Salas</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 62</div><div class="q-points">1 pt</div>
+        <div class="q-text">Composed of geometrical figures, <em>arabesque</em> is an art form from which religion?</div>
+        <div class="choices"><label><input type="radio" name="q62" value="a"> a) Judaism</label><label><input type="radio" name="q62" value="b"> b) Islam</label><label><input type="radio" name="q62" value="c"> c) Protestantism</label><label><input type="radio" name="q62" value="d"> d) Taoism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 63</div><div class="q-points">1 pt</div>
+        <div class="q-text">Why is Ready-Made Art, such as Duchamp's <em>Fountain</em>, considered to be the most realistic style of art?</div>
+        <div class="choices"><label><input type="radio" name="q63" value="a"> a) Because the art is composed of natural materials.</label><label><input type="radio" name="q63" value="b"> b) Because the art is used by people in ordinary experience.</label><label><input type="radio" name="q63" value="c"> c) Because the art is the object itself.</label><label><input type="radio" name="q63" value="d"> d) Because the art represents an existing thing</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 64</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which quotation best implies the action theory of art?</div>
+        <div class="choices"><label><input type="radio" name="q64" value="a"> a) Art is the integration of objects into the "artworld" (Arthur Danto)</label><label><input type="radio" name="q64" value="b"> b) "Artists need to look at nature as spheres, cylinders and cones." (Paul Cezanne)</label><label><input type="radio" name="q64" value="c"> c) "Art is the creation of symbolic forms expressive of human feeling." (Susanne Langer)</label><label><input type="radio" name="q64" value="d"> d) "What was to go on the canvas is not a picture but an event." (Harold Rosenberg)</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 65</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which painting by Claude Monet is regarded the start of modern art from which the name of his style was derived?</div>
+        <div class="choices"><label><input type="radio" name="q65" value="a"> a) <em>Field of Poppies</em></label><label><input type="radio" name="q65" value="b"> b) <em>Impression Sunrise</em></label><label><input type="radio" name="q65" value="c"> c) <em>Water Lilies</em></label><label><input type="radio" name="q65" value="d"> d) <em>Woman with a Parasol</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 66</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which painting is based on the style of suprematism?</div>
+        <div class="choices"><label><input type="radio" name="q66" value="a"> a) <em>Composition with Red Yellow and Blue</em></label><label><input type="radio" name="q66" value="b"> b) <em>Winnowing Rice</em></label><label><input type="radio" name="q66" value="c"> c) <em>The Birth of Venus</em></label><label><input type="radio" name="q66" value="d"> d) <em>White on White</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 67</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which concept is best associated with Institutional Theory of Art?</div>
+        <div class="choices"><label><input type="radio" name="q67" value="a"> a) Beauty</label><label><input type="radio" name="q67" value="b"> b) Love</label><label><input type="radio" name="q67" value="c"> c) Power</label><label><input type="radio" name="q67" value="d"> d) Morality</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 68</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is NOT a correct statement about the practice of foot binding or the lotus feet of women in the old, traditional Chinese society?</div>
+        <div class="choices"><label><input type="radio" name="q68" value="a"> a) Women with lotus feet could not actively perform productive works.</label><label><input type="radio" name="q68" value="b"> b) Women whose feet were not bound could not marry.</label><label><input type="radio" name="q68" value="c"> c) Women proudly showed their bare lotus feet to the public.</label><label><input type="radio" name="q68" value="d"> d) The lotus feet were considered the woman's second vagina.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 69</div><div class="q-points">1 pt</div>
+        <div class="q-text">Dali's <em>Persistence of Memory</em> is the most well-known painting based on which style?</div>
+        <div class="choices"><label><input type="radio" name="q69" value="a"> a) Cubism</label><label><input type="radio" name="q69" value="b"> b) Fauvism</label><label><input type="radio" name="q69" value="c"> c) Impressionism</label><label><input type="radio" name="q69" value="d"> d) Surrealism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 70</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Aesthetic Formalism, if a whole has a missing part, such as a human body without one leg, which principle of beauty is violated?</div>
+        <div class="choices"><label><input type="radio" name="q70" value="a"> a) Integrity</label><label><input type="radio" name="q70" value="b"> b) Order</label><label><input type="radio" name="q70" value="c"> c) Proportion</label><label><input type="radio" name="q70" value="d"> d) Structure</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 71</div><div class="q-points">1 pt</div>
+        <div class="q-text">The Chartres Cathedral in France, and the San Sebastian Church in Manila, are fine examples of which style of architecture which originated from the Medieval period?</div>
+        <div class="choices"><label><input type="radio" name="q71" value="a"> a) Baroque</label><label><input type="radio" name="q71" value="b"> b) Byzantine</label><label><input type="radio" name="q71" value="c"> c) Gothic</label><label><input type="radio" name="q71" value="d"> d) Mughal</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 72</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which famous artist said that "art is a lie that makes us realize the truth"?</div>
+        <div class="choices"><label><input type="radio" name="q72" value="a"> a) Paul Cezanne</label><label><input type="radio" name="q72" value="b"> b) Juan Luna</label><label><input type="radio" name="q72" value="c"> c) Pablo Picasso</label><label><input type="radio" name="q72" value="d"> d) Vincent van Gogh</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 73</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which term is synonymous with the title of Tolentino's sculpture <em>Oblation</em> at the University of the Philippines?</div>
+        <div class="choices"><label><input type="radio" name="q73" value="a"> a) Flight</label><label><input type="radio" name="q73" value="b"> b) Nakedness</label><label><input type="radio" name="q73" value="c"> c) Pride</label><label><input type="radio" name="q73" value="d"> d) Sacrifice</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 74</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which term best refers to the Philippine art of the tattoo?</div>
+        <div class="choices"><label><input type="radio" name="q74" value="a"> a) <em>Burnay</em></label><label><input type="radio" name="q74" value="b"> b) <em>Batok</em></label><label><input type="radio" name="q74" value="c"> c) <em>Taka</em></label><label><input type="radio" name="q74" value="d"> d) <em>Vakul</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 75</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which style best characterized Japanese art and architecture?</div>
+        <div class="choices"><label><input type="radio" name="q75" value="a"> a) Classicist</label><label><input type="radio" name="q75" value="b"> b) Expressionist</label><label><input type="radio" name="q75" value="c"> c) Minimalist</label><label><input type="radio" name="q75" value="d"> d) Romanticist</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 76</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which theory of art is implied by the quotation "art for art's sake"?</div>
+        <div class="choices"><label><input type="radio" name="q76" value="a"> a) Formalism</label><label><input type="radio" name="q76" value="b"> b) Functionalism</label><label><input type="radio" name="q76" value="c"> c) Imitationism</label><label><input type="radio" name="q76" value="d"> d) Institutional Theory</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 77</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Christian art, which symbolized God the Holy Spirit, as shown for example in the painting by Masaccio <em>Holy Trinity</em>?</div>
+        <div class="choices"><label><input type="radio" name="q77" value="a"> a) Dove</label><label><input type="radio" name="q77" value="b"> b) Fire</label><label><input type="radio" name="q77" value="c"> c) Smoke</label><label><input type="radio" name="q77" value="d"> d) Wind</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 78</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which term means the art of paper mache from Paete, Laguna?</div>
+        <div class="choices"><label><input type="radio" name="q78" value="a"> a) <em>hulma</em></label><label><input type="radio" name="q78" value="b"> b) <em>tahip</em></label><label><input type="radio" name="q78" value="c"> c) <em>taka</em></label><label><input type="radio" name="q78" value="d"> d) <em>ukit</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 79</div><div class="q-points">1 pt</div>
+        <div class="q-text">In the canons of human proportion by Vitruvius, the length of the foot is equal to what part of the height of the man?</div>
+        <div class="choices"><label><input type="radio" name="q79" value="a"> a) One-sixth</label><label><input type="radio" name="q79" value="b"> b) One-seventh</label><label><input type="radio" name="q79" value="c"> c) One-eight</label><label><input type="radio" name="q79" value="d"> d) One-tenth</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 80</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which refers to a prayer niche found in Islamic mosques?</div>
+        <div class="choices"><label><input type="radio" name="q80" value="a"> a) <em>Madrasah</em></label><label><input type="radio" name="q80" value="b"> b) <em>Mihrab</em></label><label><input type="radio" name="q80" value="c"> c) <em>Minaret</em></label><label><input type="radio" name="q80" value="d"> d) <em>Minbar</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 81</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Van Eyck's painting, <em>The Arnolfini Marriage</em>, which concept is symbolized by the green color of the woman's dress?</div>
+        <div class="choices"><label><input type="radio" name="q81" value="a"> a) Fidelity</label><label><input type="radio" name="q81" value="b"> b) Life</label><label><input type="radio" name="q81" value="c"> c) Pleasure</label><label><input type="radio" name="q81" value="d"> d) Virginity</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 82</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which theory of beauty is implied by this quotation attributed to Pythagoras: "Everything is arranged according to numbers and mathematical shapes"?</div>
+        <div class="choices"><label><input type="radio" name="q82" value="a"> a) Aesthetic Formalism</label><label><input type="radio" name="q82" value="b"> b) Aesthetic Functionalism</label><label><input type="radio" name="q82" value="c"> c) Aesthetic Hedonism</label><label><input type="radio" name="q82" value="d"> d) Aesthetic Idealism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 83</div><div class="q-points">1 pt</div>
+        <div class="q-text">According to Catholic theology, adoration or worship is only meant for God. Which term is usually used to mean the proper way of relating to divine images?</div>
+        <div class="choices"><label><input type="radio" name="q83" value="a"> a) Admiration</label><label><input type="radio" name="q83" value="b"> b) Idolization</label><label><input type="radio" name="q83" value="c"> c) Glorification</label><label><input type="radio" name="q83" value="d"> d) Veneration</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 84</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Philippine art, why is the style of romantic realism said to be "romantic"?</div>
+        <div class="choices"><label><input type="radio" name="q84" value="a"> a) Because it expresses love.</label><label><input type="radio" name="q84" value="b"> b) Because it presents aspects of beauty.</label><label><input type="radio" name="q84" value="c"> c) Because it depicts everyday experiences.</label><label><input type="radio" name="q84" value="d"> d) Because it shows peace and quiet</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 85</div><div class="q-points">1 pt</div>
+        <div class="q-text">When you look at the typical paintings by Amorsolo, and you see rice fields, trees, mountains, and clouds, which theory of art you most likely use?</div>
+        <div class="choices"><label><input type="radio" name="q85" value="a"> a) Expressionism</label><label><input type="radio" name="q85" value="b"> b) Formalism</label><label><input type="radio" name="q85" value="c"> c) Hedonism</label><label><input type="radio" name="q85" value="d"> d) Representationism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 86</div><div class="q-points">1 pt</div>
+        <div class="q-text">Divine images are allowed for the human mind to understand the infinite nature of God. Which sacred scripture in Hinduism is this doctrine found?</div>
+        <div class="choices"><label><input type="radio" name="q86" value="a"> a) Bhagavad Gita</label><label><input type="radio" name="q86" value="b"> b) Kama Sutra</label><label><input type="radio" name="q86" value="c"> c) Tripitaka</label><label><input type="radio" name="q86" value="d"> d) Upanishads</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 87</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which ancient culture is shown in the <em>Spoliarium</em> by Juan Luna?</div>
+        <div class="choices"><label><input type="radio" name="q87" value="a"> a) Egyptian</label><label><input type="radio" name="q87" value="b"> b) Indian</label><label><input type="radio" name="q87" value="c"> c) Persian</label><label><input type="radio" name="q87" value="d"> d) Roman</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 88</div><div class="q-points">1 pt</div>
+        <div class="q-text">To which style of art is the Institutional Theory best applied?</div>
+        <div class="choices"><label><input type="radio" name="q88" value="a"> a) Color Field Painting by Mark Rothko</label><label><input type="radio" name="q88" value="b"> b) Op Art by Bridget Riley</label><label><input type="radio" name="q88" value="c"> c) Installation Art by Christo Javacheff</label><label><input type="radio" name="q88" value="d"> d) Pop Art by Andy Warhol</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 89</div><div class="q-points">1 pt</div>
+        <div class="q-text">The St. Peter's Basilica, Vatican City, is the finest example of which style of architecture?</div>
+        <div class="choices"><label><input type="radio" name="q89" value="a"> a) Baroque</label><label><input type="radio" name="q89" value="b"> b) Brutalist</label><label><input type="radio" name="q89" value="c"> c) Romanesque</label><label><input type="radio" name="q89" value="d"> d) Victorian</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 90</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which view of man is implied in the lyrics of the song by the Casting Crown, <em>Who am I</em>?</div>
+        <div class="choices"><label><input type="radio" name="q90" value="a"> a) Anthropocentric</label><label><input type="radio" name="q90" value="b"> b) Cosmocentric</label><label><input type="radio" name="q90" value="c"> c) Scientific-Technocentric</label><label><input type="radio" name="q90" value="d"> d) Theocentric</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 91</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which polygon is best associated with the Golden Ratio?</div>
+        <div class="choices"><label><input type="radio" name="q91" value="a"> a) Hexagon</label><label><input type="radio" name="q91" value="b"> b) Nonagon</label><label><input type="radio" name="q91" value="c"> c) Octagon</label><label><input type="radio" name="q91" value="d"> d) Pentagon</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 92</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which wooden sculpture from the Mountain Province represent rice deities or granary gods?</div>
+        <div class="choices"><label><input type="radio" name="q92" value="a"> a) <em>Bulul</em></label><label><input type="radio" name="q92" value="b"> b) <em>Burnay</em></label><label><input type="radio" name="q92" value="c"> c) <em>Pasiking</em></label><label><input type="radio" name="q92" value="d"> d) <em>Torogan</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 93</div><div class="q-points">1 pt</div>
+        <div class="q-text">The <em>Kama Sutra</em> contains detailed instructions and explicit descriptions of the sex act. Based on the Hindu belief and way of life, why is the sex act considered to be sacred?</div>
+        <div class="choices"><label><input type="radio" name="q93" value="a"> a) Because begetting children is the purpose of being a man and a woman.</label><label><input type="radio" name="q93" value="b"> b) Because the experience of pleasure is a stage for a man to attain spiritual release.</label><label><input type="radio" name="q93" value="c"> c) Because the sex act is a means to propagate the human species.</label><label><input type="radio" name="q93" value="d"> d) Because the sexual relation between male and female is commanded by God.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 94</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is the Hindu deity usually shown with blue skin and four arms, and riding on the belly of many-headed snakes (<em>shesnag</em>) floating on the ocean?</div>
+        <div class="choices"><label><input type="radio" name="q94" value="a"> a) Brahma</label><label><input type="radio" name="q94" value="b"> b) Ganesh</label><label><input type="radio" name="q94" value="c"> c) Shiva</label><label><input type="radio" name="q94" value="d"> d) Vishnu</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 95</div><div class="q-points">1 pt</div>
+        <div class="q-text">The <em>okir</em> is a colorful and linear art design by whose indigenous people?</div>
+        <div class="choices"><label><input type="radio" name="q95" value="a"> a) Aeta</label><label><input type="radio" name="q95" value="b"> b) Dumagat</label><label><input type="radio" name="q95" value="c"> c) Ivatan</label><label><input type="radio" name="q95" value="d"> d) Maranao</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 96</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Aristotle's philosophy of art, which Greek term refers to the artist's overflowing emotion?</div>
+        <div class="choices"><label><input type="radio" name="q96" value="a"> a) <em>Catharsis</em></label><label><input type="radio" name="q96" value="b"> b) <em>Episteme</em></label><label><input type="radio" name="q96" value="c"> c) <em>Psyche</em></label><label><input type="radio" name="q96" value="d"> d) <em>Logos</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 97</div><div class="q-points">1 pt</div>
+        <div class="q-text">Atmospheric perspective is based on the perception of which visual element?</div>
+        <div class="choices"><label><input type="radio" name="q97" value="a"> a) Color</label><label><input type="radio" name="q97" value="b"> b) Line</label><label><input type="radio" name="q97" value="c"> c) Shape</label><label><input type="radio" name="q97" value="d"> d) Size</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 98</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which aesthetic term best describes the beauty of a rainbow?</div>
+        <div class="choices"><label><input type="radio" name="q98" value="a"> a) Fragrant</label><label><input type="radio" name="q98" value="b"> b) Lovely</label><label><input type="radio" name="q98" value="c"> c) Picturesque</label><label><input type="radio" name="q98" value="d"> d) Pleasant</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 99</div><div class="q-points">1 pt</div>
+        <div class="q-text">In the canons of human proportion by Vitruvius, as illustrated by Leonardo, the whole height of the man is equal to how many times the height of the head?</div>
+        <div class="choices"><label><input type="radio" name="q99" value="a"> a) 6</label><label><input type="radio" name="q99" value="b"> b) 7</label><label><input type="radio" name="q99" value="c"> c) 8</label><label><input type="radio" name="q99" value="d"> d) 10</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 100</div><div class="q-points">1 pt</div>
+        <div class="q-text">In the <em>Creation of Adam</em>, one panel of the Sistine Chapel painting, Michelangelo is said to have committed an anatomical mistake. Which part of the body of Adam is represented incorrectly?</div>
+        <div class="choices"><label><input type="radio" name="q100" value="a"> a) The eyes</label><label><input type="radio" name="q100" value="b"> b) The fingers</label><label><input type="radio" name="q100" value="c"> c) The genital</label><label><input type="radio" name="q100" value="d"> d) The navel</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 101</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which quotation about art is by William Shakespeare?</div>
+        <div class="choices"><label><input type="radio" name="q101" value="a"> a) "Art is the creation of symbolic forms expressive of human feeling."</label><label><input type="radio" name="q101" value="b"> b) Art is the "objectification of emotion."</label><label><input type="radio" name="q101" value="c"> c) Art is the integration of objects into the "artworld."</label><label><input type="radio" name="q101" value="d"> d) Art is "putting mirror up to nature."</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 102</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which theory of art is best applied to the painting <em>Starry Night</em> by van Gogh?</div>
+        <div class="choices"><label><input type="radio" name="q102" value="a"> a) Expressionism</label><label><input type="radio" name="q102" value="b"> b) Formalism</label><label><input type="radio" name="q102" value="c"> c) Hedonism</label><label><input type="radio" name="q102" value="d"> d) Representationism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 103</div><div class="q-points">1 pt</div>
+        <div class="q-text">With music by Rezso Seress and lyrics by Laszlo Javor, which is the main title of the composition popularly called "The Hungarian Suicide Song"?</div>
+        <div class="choices"><label><input type="radio" name="q103" value="a"> a) End of the World</label><label><input type="radio" name="q103" value="b"> b) Everybody Hurts</label><label><input type="radio" name="q103" value="c"> c) Gloomy Sunday</label><label><input type="radio" name="q103" value="d"> d) Pathetique</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 104</div><div class="q-points">1 pt</div>
+        <div class="q-text">The compositions by Mondrian is of which style of painting?</div>
+        <div class="choices"><label><input type="radio" name="q104" value="a"> a) Impressionism</label><label><input type="radio" name="q104" value="b"> b) Mannerism</label><label><input type="radio" name="q104" value="c"> c) Neoplasticism</label><label><input type="radio" name="q104" value="d"> d) Suprematism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 105</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which one among these art forms is impossible without using modern technology?</div>
+        <div class="choices"><label><input type="radio" name="q105" value="a"> a) Drafting</label><label><input type="radio" name="q105" value="b"> b) Film</label><label><input type="radio" name="q105" value="c"> c) Opera</label><label><input type="radio" name="q105" value="d"> d) Origami</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 106</div><div class="q-points">1 pt</div>
+        <div class="q-text">Who was the Filipino painter during the Spanish period famous for his unique style <em>letras y figuras</em>?</div>
+        <div class="choices"><label><input type="radio" name="q106" value="a"> a) Felix Resurreccion Hidalgo</label><label><input type="radio" name="q106" value="b"> b) Honorato Lozano</label><label><input type="radio" name="q106" value="c"> c) Vicente Manansala</label><label><input type="radio" name="q106" value="d"> d) Pedro Paterno</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 107</div><div class="q-points">1 pt</div>
+        <div class="q-text">Who is called the "Sage in Chinese Painting"?</div>
+        <div class="choices"><label><input type="radio" name="q107" value="a"> a) Chuang Tzu</label><label><input type="radio" name="q107" value="b"> b) Kung Fu Tzu</label><label><input type="radio" name="q107" value="c"> c) Lao Tzu</label><label><input type="radio" name="q107" value="d"> d) Wu Tao Tzu</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 108</div><div class="q-points">1 pt</div>
+        <div class="q-text">According to Dennis Dutton's aesthetic theory in his book <em>Art Instinct</em>, which best explains our appreciation of art and beauty?</div>
+        <div class="choices"><label><input type="radio" name="q108" value="a"> a) Our cultural background</label><label><input type="radio" name="q108" value="b"> b) Our natural predisposition</label><label><input type="radio" name="q108" value="c"> c) Our educational attainment</label><label><input type="radio" name="q108" value="d"> d) Our individual personality</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 109</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is the formal, geometrical design adorning the walls, floors and ceilings of a mosque?</div>
+        <div class="choices"><label><input type="radio" name="q109" value="a"> a) Arabesque</label><label><input type="radio" name="q109" value="b"> b) Ikebana</label><label><input type="radio" name="q109" value="c"> c) Okir</label><label><input type="radio" name="q109" value="d"> d) Quilt</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 110</div><div class="q-points">1 pt</div>
+        <div class="q-text">What is a <em>trompe l'oeil</em> painting?</div>
+        <div class="choices"><label><input type="radio" name="q110" value="a"> a) Painting that looks so realistic</label><label><input type="radio" name="q110" value="b"> b) Painting that uses oil paints on concrete wall</label><label><input type="radio" name="q110" value="c"> c) Painting that uses oil paints on canvas</label><label><input type="radio" name="q110" value="d"> d) Painting that is purely formal</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 111</div><div class="q-points">1 pt</div>
+        <div class="q-text">In aesthetic formalism, beauty is said to be "the harmony of proper ____________."</div>
+        <div class="choices"><label><input type="radio" name="q111" value="a"> a) Integrity</label><label><input type="radio" name="q111" value="b"> b) Order</label><label><input type="radio" name="q111" value="c"> c) Proportion</label><label><input type="radio" name="q111" value="d"> d) Structure</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 112</div><div class="q-points">1 pt</div>
+        <div class="q-text">The surrealist works of art, such as the paintings by Salvador Dali, is theoretically based on which school of psychology?</div>
+        <div class="choices"><label><input type="radio" name="q112" value="a"> a) Behaviorism</label><label><input type="radio" name="q112" value="b"> b) Cognitive Psychology</label><label><input type="radio" name="q112" value="c"> c) Gestalt Psychology</label><label><input type="radio" name="q112" value="d"> d) Psychoanalysis</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 113</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which symbolizes power in Steenwyck's <em>Vanities of Human Life</em>?</div>
+        <div class="choices"><label><input type="radio" name="q113" value="a"> a) Book</label><label><input type="radio" name="q113" value="b"> b) Jar</label><label><input type="radio" name="q113" value="c"> c) Helmet</label><label><input type="radio" name="q113" value="d"> d) Trumpet</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 114</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which quotation best implies the institutional theory of art?</div>
+        <div class="choices"><label><input type="radio" name="q114" value="a"> a) Art is the integration of objects into the "artworld" (Arthur Danto)</label><label><input type="radio" name="q114" value="b"> b) "Artists need to look at nature as spheres, cylinders and cones." (Paul Cezanne)</label><label><input type="radio" name="q114" value="c"> c) "Art is the creation of symbolic forms expressive of human feeling." (Susanne Langer)</label><label><input type="radio" name="q114" value="d"> d) "What was to go on the canvas is not a picture but an event." (Harold Rosenberg)</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 115</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which among these Tagalog aesthetic terms applies to masculine attribute of handsomeness?</div>
+        <div class="choices"><label><input type="radio" name="q115" value="a"> a) <em>Inam</em></label><label><input type="radio" name="q115" value="b"> b) <em>Kisig</em></label><label><input type="radio" name="q115" value="c"> c) <em>Kislap</em></label><label><input type="radio" name="q115" value="d"> d) <em>Lambing</em></label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 116</div><div class="q-points">1 pt</div>
+        <div class="q-text">Why is art dangerous according to Plato's metaphysical theory?</div>
+        <div class="choices"><label><input type="radio" name="q116" value="a"> a) Because art brings people into committing crimes in the society.</label><label><input type="radio" name="q116" value="b"> b) Because art contains scenes which stimulates the sexual desires of people.</label><label><input type="radio" name="q116" value="c"> c) Because art could be made even by uneducated and illiterate people.</label><label><input type="radio" name="q116" value="d"> d) Because art leads people twice farther from reality, making them ignorant.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 117</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which among these styles of painting is figurative?</div>
+        <div class="choices"><label><input type="radio" name="q117" value="a"> a) Color Field Painting</label><label><input type="radio" name="q117" value="b"> b) Neoplasticism</label><label><input type="radio" name="q117" value="c"> c) Renaissance Art</label><label><input type="radio" name="q117" value="d"> d) Suprematism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 118</div><div class="q-points">1 pt</div>
+        <div class="q-text">In Judaism, the use of divine images is gravely prohibited. The only way of expressing or representing the divine is by speaking or writing &#1497;&#1492;&#1493;&#1492; or "YHWH". Which language is this?</div>
+        <div class="choices"><label><input type="radio" name="q118" value="a"> a) Aramaic</label><label><input type="radio" name="q118" value="b"> b) Esperanto</label><label><input type="radio" name="q118" value="c"> c) Hebrew</label><label><input type="radio" name="q118" value="d"> d) Latin</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 119</div><div class="q-points">1 pt</div>
+        <div class="q-text">Who was the Filipino painter who won the Silver Medal in 1884 Madrid Exposition?</div>
+        <div class="choices"><label><input type="radio" name="q119" value="a"> a) Justiniano Asuncion</label><label><input type="radio" name="q119" value="b"> b) Prudencio Lamarozza</label><label><input type="radio" name="q119" value="c"> c) Felix Ressureccion Hidalgo</label><label><input type="radio" name="q119" value="d"> d) Juan Luna</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 120</div><div class="q-points">1 pt</div>
+        <div class="q-text">The <em>Fountain</em> by Marcel Duchamp is based on which style of art?</div>
+        <div class="choices"><label><input type="radio" name="q120" value="a"> a) Digital Art</label><label><input type="radio" name="q120" value="b"> b) Installation Art</label><label><input type="radio" name="q120" value="c"> c) Op Art</label><label><input type="radio" name="q120" value="d"> d) Ready-made art</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 121</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which philosopher theorized that music is a way of escape from the suffering of human life in his book <em>The World as Will and Representation</em>?</div>
+        <div class="choices"><label><input type="radio" name="q121" value="a"> a) Alexander Baumgarten</label><label><input type="radio" name="q121" value="b"> b) Friedrich Hegel</label><label><input type="radio" name="q121" value="c"> c) Karl Marx</label><label><input type="radio" name="q121" value="d"> d) Arthur Schopenhauer</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 122</div><div class="q-points">1 pt</div>
+        <div class="q-text">The lyrics of Beethoven's <em>Ode to Joy</em> is based on the words of which poet?</div>
+        <div class="choices"><label><input type="radio" name="q122" value="a"> a) George Hegel</label><label><input type="radio" name="q122" value="b"> b) Wolfgang Goethe</label><label><input type="radio" name="q122" value="c"> c) Giacomo Leopardi</label><label><input type="radio" name="q122" value="d"> d) Friedrich Schiller</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 123</div><div class="q-points">1 pt</div>
+        <div class="q-text">As shown by its form of architecture, the <em>Taj Mahal</em> is best associated with which religion?</div>
+        <div class="choices"><label><input type="radio" name="q123" value="a"> a) Hinduism</label><label><input type="radio" name="q123" value="b"> b) Islam</label><label><input type="radio" name="q123" value="c"> c) Judaism</label><label><input type="radio" name="q123" value="d"> d) Taoism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 124</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is the main principle of perspective?</div>
+        <div class="choices"><label><input type="radio" name="q124" value="a"> a) The nearer an object to the perceiver, the bigger it appears; the farther away, the smaller.</label><label><input type="radio" name="q124" value="b"> b) The sets of elements which do not touch each other in a composition are visually connected or continuous.</label><label><input type="radio" name="q124" value="c"> c) Things which share visual characteristics such as shape or size are seen together in the viewer's mind.</label><label><input type="radio" name="q124" value="d"> d) The whole is greater than the sum of its parts.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 125</div><div class="q-points">1 pt</div>
+        <div class="q-text">Perfumery is an art best associated with which European country?</div>
+        <div class="choices"><label><input type="radio" name="q125" value="a"> a) France</label><label><input type="radio" name="q125" value="b"> b) Italy</label><label><input type="radio" name="q125" value="c"> c) Germany</label><label><input type="radio" name="q125" value="d"> d) Switzerland</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 126</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which statement best explains the application of the aesthetic theory of hedonism in culinary art?</div>
+        <div class="choices"><label><input type="radio" name="q126" value="a"> a) The food is arranged neatly and orderly</label><label><input type="radio" name="q126" value="b"> b) The food uses only natural ingredients.</label><label><input type="radio" name="q126" value="c"> c) The food is healthy and nutritious.</label><label><input type="radio" name="q126" value="d"> d) The food tastes appetizing and delicious.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 127</div><div class="q-points">1 pt</div>
+        <div class="q-text">The <em>Fallingwater</em> is a house designed by which architect who adhered to the organic, functional style?</div>
+        <div class="choices"><label><input type="radio" name="q127" value="a"> a) Donato Bramante</label><label><input type="radio" name="q127" value="b"> b) Le Corbusier</label><label><input type="radio" name="q127" value="c"> c) Antonio Gaudi</label><label><input type="radio" name="q127" value="d"> d) Frank Lloyd Wright</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 128</div><div class="q-points">1 pt</div>
+        <div class="q-text">Carlos Francisco's mural painting originally in the lobby of Manila City Hall is of which kind of subject?</div>
+        <div class="choices"><label><input type="radio" name="q128" value="a"> a) Historical</label><label><input type="radio" name="q128" value="b"> b) Mythological</label><label><input type="radio" name="q128" value="c"> c) Philosophical</label><label><input type="radio" name="q128" value="d"> d) Religious</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 129</div><div class="q-points">1 pt</div>
+        <div class="q-text">The paintings by Jackson Pollock, <em>Lavender Mist</em> for example, are based on which style of art?</div>
+        <div class="choices"><label><input type="radio" name="q129" value="a"> a) Abstract Expressionism</label><label><input type="radio" name="q129" value="b"> b) Analytic Cubism</label><label><input type="radio" name="q129" value="c"> c) Greek Classicism</label><label><input type="radio" name="q129" value="d"> d) Social Realism</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 130</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which statement about beauty is correct according to cultural relativism?</div>
+        <div class="choices"><label><input type="radio" name="q130" value="a"> a) Beauty is the harmony of proper proportion</label><label><input type="radio" name="q130" value="b"> b) Beauty is what gives pleasure to the senses</label><label><input type="radio" name="q130" value="c"> c) Beauty is the internal manifestation of things</label><label><input type="radio" name="q130" value="d"> d) Beauty is a social construct</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 131</div><div class="q-points">1 pt</div>
+        <div class="q-text">Why is the artist not becoming creative in exact representationism?</div>
+        <div class="choices"><label><input type="radio" name="q131" value="a"> a) Because the artist cannot choose his subject.</label><label><input type="radio" name="q131" value="b"> b) Because the artist cannot express his emotion.</label><label><input type="radio" name="q131" value="c"> c) Because the artist only copies the appearances of things.</label><label><input type="radio" name="q131" value="d"> d) Because the artist uses only natural materials.</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 132</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which emotion is best expressed by the painting <em>The Sicked Child</em> by Edvard Munch?</div>
+        <div class="choices"><label><input type="radio" name="q132" value="a"> a) Despair</label><label><input type="radio" name="q132" value="b"> b) Joy</label><label><input type="radio" name="q132" value="c"> c) Sorrow</label><label><input type="radio" name="q132" value="d"> d) Terror</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="d"><div class="q-num">Q 133</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which way of presenting the subject best characterized the style of <em>miniaturismo</em> by the Filipino painters during the Spanish period, such as in the <em>Portrait of Romana Carillo</em> (1875) by Justiniano Asuncion?</div>
+        <div class="choices"><label><input type="radio" name="q133" value="a"> a) Abstractive</label><label><input type="radio" name="q133" value="b"> b) Illusory</label><label><input type="radio" name="q133" value="c"> c) Non-objective</label><label><input type="radio" name="q133" value="d"> d) Realistic</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 134</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which is NOT correct according to Plato's philosophy of art?</div>
+        <div class="choices"><label><input type="radio" name="q134" value="a"> a) Art is a copy</label><label><input type="radio" name="q134" value="b"> b) Art is an idea.</label><label><input type="radio" name="q134" value="c"> c) Art is an illusion.</label><label><input type="radio" name="q134" value="d"> d) Art is an imitation</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 135</div><div class="q-points">1 pt</div>
+        <div class="q-text">The Sydney Opera House in Australia is said to be ugly based on functionalism because the building is not efficient as a theater. Which function of the building is affected by the curvilinear shape of its roof?</div>
+        <div class="choices"><label><input type="radio" name="q135" value="a"> a) Acoustics</label><label><input type="radio" name="q135" value="b"> b) Foundation</label><label><input type="radio" name="q135" value="c"> c) Plumbing</label><label><input type="radio" name="q135" value="d"> d) Ventilation</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 136</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which concept is best associated with Action Theory of Art?</div>
+        <div class="choices"><label><input type="radio" name="q136" value="a"> a) Faith</label><label><input type="radio" name="q136" value="b"> b) Freedom</label><label><input type="radio" name="q136" value="c"> c) Justice</label><label><input type="radio" name="q136" value="d"> d) Law</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 137</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which painting made in 1911 is regarded as the first abstract or purely non-objective art, not only because of its form, but primarily because of the underlying theory applied to it?</div>
+        <div class="choices"><label><input type="radio" name="q137" value="a"> a) <em>Composition V</em> by Kandinsky</label><label><input type="radio" name="q137" value="b"> b) <em>White on White</em> by Malevich</label><label><input type="radio" name="q137" value="c"> c) <em>Composition with Red, Yellow and Blue</em> by Mondrian</label><label><input type="radio" name="q137" value="d"> d) <em>Vega-Nor</em> by Vasarely</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="b"><div class="q-num">Q 138</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which way of representing nature is applied to the art of pottery?</div>
+        <div class="choices"><label><input type="radio" name="q138" value="a"> a) Perceptual interpretation</label><label><input type="radio" name="q138" value="b"> b) Physical alteration</label><label><input type="radio" name="q138" value="c"> c) Selective modification</label><label><input type="radio" name="q138" value="d"> d) Spiritual contemplation</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="a"><div class="q-num">Q 139</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which among the arts is best associated with the principle "form follows function"?</div>
+        <div class="choices"><label><input type="radio" name="q139" value="a"> a) Architecture</label><label><input type="radio" name="q139" value="b"> b) Dance</label><label><input type="radio" name="q139" value="c"> c) Literature</label><label><input type="radio" name="q139" value="d"> d) Music</label></div>
+        <div class="feedback"></div>
+    </div>
+
+    <div class="question" data-type="mc" data-answer="c"><div class="q-num">Q 140</div><div class="q-points">1 pt</div>
+        <div class="q-text">Which statement implies that the perception of beauty is relative?</div>
+        <div class="choices"><label><input type="radio" name="q140" value="a"> a) Beauty is "like diamonds, it lasts forever."</label><label><input type="radio" name="q140" value="b"> b) Beauty "makes the world go round."</label><label><input type="radio" name="q140" value="c"> c) Beauty is "in the eye of the beholder."</label><label><input type="radio" name="q140" value="d"> d) Beauty "resides in the thing itself."</label></div>
+        <div class="feedback"></div>
+    </div>
+
+</div>
+
+<div class="quiz-controls" id="quizControls">
+    <button class="btn btn-secondary" id="qPrevBtn">&larr; Previous</button>
+    <div class="goto-wrap">
+        Go to: <input type="number" class="goto-input" id="qGotoInput" min="1" value="1">
+    </div>
+    <div class="q-counter"><strong id="qCounterCurrent">1</strong> / <span id="qCounterTotal">140</span></div>
+    <button class="btn btn-primary" id="qNextBtn">Next &rarr;</button>
+</div>
+
+<div class="results-banner" id="resultsBanner">
+    <h2 id="resultsTitle"></h2>
+    <div class="detail" id="resultsDetail"></div>
+    <div class="breakdown" id="resultsBreakdown"></div>
+</div>
+
+<div class="actions">
+    <a class="btn btn-secondary" href="../index.html" style="text-decoration:none;">&larr; Back to Home</a>
+    <button class="btn btn-secondary" onclick="resetQuiz()">Reset Quiz</button>
+    <button class="btn btn-secondary" onclick="shuffleQuiz()">&#x1F500; Shuffle</button>
+    <button class="btn btn-secondary" onclick="restoreOriginalOrder()">Original Order</button>
+    <button class="btn btn-secondary" onclick="showReviewMode()">Show All</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+</div>
+
+</div>
+
+<script>
+function submitQuiz() {
+    document.body.classList.remove('quiz-mode');
+    document.querySelectorAll('.question').forEach(q => q.classList.remove('active-question'));
+
+    let totalPoints = 0, earnedPoints = 0, correctItems = 0, totalItems = 0;
+
+    document.querySelectorAll('.question').forEach(function(q) {
+        q.classList.remove('correct', 'wrong');
+        const feedback = q.querySelector('.feedback');
+        q.querySelectorAll('label').forEach(l => l.classList.remove('correct-answer', 'user-wrong'));
+
+        const selected = q.querySelector('input[type="radio"]:checked');
+        const correctAns = q.dataset.answer;
+        const correctLabel = q.querySelector('input[value="' + correctAns + '"]').closest('label');
+        correctLabel.classList.add('correct-answer');
+        totalItems++;
+        totalPoints += 1;
+        const isCorrect = selected && selected.value === correctAns;
+        if (isCorrect) {
+            q.classList.add('correct'); earnedPoints += 1; correctItems++;
+        } else {
+            q.classList.add('wrong');
+            if (selected) selected.closest('label').classList.add('user-wrong');
+        }
+        if (selected) {
+            feedback.innerHTML = buildFeedbackHTML(q, isCorrect, correctAns);
+        } else {
+            const qNum = getQuestionNumber(q);
+            const explanation = (qNum && EXPLANATIONS[qNum]) || '';
+            let html = '<strong>✗ Not answered.</strong> The correct answer is <b>(' + correctAns.toUpperCase() + ')</b>.';
+            if (explanation) html += '<span class="explain"><b>Why:</b> ' + explanation + '</span>';
+            feedback.innerHTML = html;
+        }
+    });
+
+    const scoreBar = document.getElementById('scoreBar');
+    scoreBar.classList.add('show');
+    const percentage = Math.round((earnedPoints / totalPoints) * 100);
+    const scoreText = document.getElementById('scoreText');
+    scoreText.textContent = earnedPoints + ' / ' + totalPoints;
+    scoreText.className = 'score ' + (percentage >= 75 ? 'pass' : 'fail');
+    document.getElementById('percentText').textContent = percentage + '%';
+
+    const banner = document.getElementById('resultsBanner');
+    banner.classList.add('show');
+    banner.classList.remove('pass', 'fail');
+    if (percentage >= 90) { banner.classList.add('pass'); document.getElementById('resultsTitle').textContent = 'Excellent! ' + percentage + '%'; }
+    else if (percentage >= 75) { banner.classList.add('pass'); document.getElementById('resultsTitle').textContent = 'Passed: ' + percentage + '%'; }
+    else { banner.classList.add('fail'); document.getElementById('resultsTitle').textContent = 'Keep Reviewing: ' + percentage + '%'; }
+    document.getElementById('resultsDetail').textContent = 'You scored ' + earnedPoints + ' out of ' + totalPoints + ' points.';
+    document.getElementById('resultsBreakdown').textContent = correctItems + ' of ' + totalItems + ' questions correct.';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetQuiz() {
+    document.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; r.disabled = false; });
+    document.querySelectorAll('.question').forEach(q => { q.classList.remove('correct', 'wrong'); q.querySelector('.feedback').textContent = ''; });
+    document.querySelectorAll('label').forEach(l => l.classList.remove('correct-answer', 'user-wrong'));
+    document.getElementById('scoreBar').classList.remove('show');
+    document.getElementById('resultsBanner').classList.remove('show', 'pass', 'fail');
+    enterQuizMode();
+    showQuestion(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+const EXPLANATIONS = {
+    1: "Haiku is a 17-syllable Japanese poem that embodies the 'small is beautiful' aesthetic, like the bonsai. Hentai, kamikaze, and geisha don't specifically reflect miniature scale.",
+    2: "Dutton argued that aesthetic responses are evolutionary adaptations (mate selection, survival). Heliocentrism, quantum theory, and relativity are physics theories, not biological or aesthetic ones.",
+    3: "Islam's aniconism forbids figurative depictions of Allah and prophets to prevent idolatry. Buddhism, Catholicism, and Hinduism all use figurative images of the divine.",
+    4: "Venus of Willendorf's exaggerated breasts, belly, and hips symbolize fertility — the capacity to bear children. 36-24-36 is a modern ideal; it isn't compared to a male body, and prehistoric fertility art wasn't about male pleasure.",
+    5: "Etching uses acid to incise metal. Casting pours molten metal into molds; engraving scratches with a tool; stamping applies pressure.",
+    6: "Ionic columns have volute (scroll-shaped) capitals. Doric is plain, Corinthian features acanthus leaves, and Tuscan is a simplified Doric.",
+    7: "Magritte's famous 'Ceci n'est pas une pipe' shows that an image of a pipe is not a pipe — art deceives us about reality.",
+    8: "Formalism reduces nature to pure shapes, as Cezanne did. Danto (a) is institutional, Langer (c) is expressionist, Rosenberg (d) is action theory.",
+    9: "Removal of the brass coils was traditionally a punishment for adultery; the neck muscles atrophy under the weight, making forced removal both dangerous and shameful.",
+    10: "Renaissance humanism placed man between the natural world and God — dignified but not divine. Empiricism is about knowledge from experience; evolutionism is biological; scholasticism is medieval religious philosophy.",
+    11: "Walter Benjamin's 1936 essay explored how mechanical reproduction affects art's 'aura'. Bell wrote on formalism; Danto on the artworld; Descartes on mind/body.",
+    12: "Shiva Nataraja, 'Lord of the Dance', is the iconic dancing deity whose cosmic dance represents creation and destruction. Brahma is the creator, Krishna a Vishnu avatar, Vishnu the preserver.",
+    13: "Techne means craft or skill in Greek — the root of 'technique'. Aesthesis is sense perception; Psyche is soul; Logos is word/reason.",
+    14: "Magritte's dreamlike imagery (bowler hats, floating apples) is quintessential Surrealism. Cubism fragments views; Fauvism uses wild color; Impressionism captures light.",
+    15: "El Greco's elongated, distorted figures and unnatural color are signature Mannerist traits (post-Renaissance). Classicism is Greek/Roman ideal; Medieval is flat and symbolic; High Renaissance is balanced.",
+    16: "The Manunggul Jar cover shows two souls in a boat journeying to the afterlife — an ancient Filipino belief. Reincarnation is Hindu/Buddhist; bodily resurrection and divinity of Christ are Christian doctrines.",
+    17: "Vitruvius's <em>De Architectura</em> (Ten Books on Architecture) is the surviving Roman treatise on buildings, proportion, and design.",
+    18: "In Filipino aesthetics, ganda extends beyond looks to moral or behavioral virtue — especially respect for elders. The other options describe only physical or material attributes.",
+    19: "Tolentino's heroic monuments revive Greek/Roman classical ideals of proportion and form — Neoclassicism. Cubism fragments; Fauvism emphasizes color; Impressionism captures light.",
+    20: "In <em>Concerning the Spiritual in Art</em>, Kandinsky argued pure abstraction reveals spirit while representation reflects materialism. Croce wrote on expression; Tolstoy on communication of feeling; Wright was an architect.",
+    21: "Islam's reverence for the Qur'an makes Arabic calligraphy the most noble art. Figurative painting and sculpture are restricted; tapestry is a decorative craft.",
+    22: "In vanitas paintings, exotic seashells were luxury collectibles — symbols of wealth. Beauty, faith, and hope have other symbols.",
+    23: "The Parthenon in Athens is proportioned using the Golden Ratio. Agora is a marketplace; Duomo is in Florence; Hagia Sophia is Byzantine, in Istanbul.",
+    24: "Giotto de Bondone painted frescoes of Christ, saints, and biblical scenes — religious subjects dominated Middle Ages art.",
+    25: "'Elitist' means art reserved for the upper class — exclusive patronage, expensive materials, museum access. Not therapeutic or propagandistic.",
+    26: "Michelangelo painted the Sistine ceiling in fresco (pigment on wet plaster). Acrylic didn't exist; enamel is for metal; oil wasn't used for murals then.",
+    27: "The ankh, 'the key of life', symbolized eternal life/immortality in Egypt. Authority was shown with the crook and flail; divinity was specific to each god; royalty used the pschent crown.",
+    28: "'Know thyself' — the ancient Greek maxim at Delphi — captures the humanities' introspective method. The Golden Rule is ethics; 'knowledge is power' is Bacon's scientific view; Hamlet's line is literature itself.",
+    29: "A pentab (pen tablet + stylus) is the standard digital drawing tool. Cameras capture; desktops are general-purpose; smartphones are casual.",
+    30: "Damian Domingo founded the first Philippine art academy (Academia de Dibujo y Pintura, 1821). Amorsolo was the first National Artist for Painting, Edades introduced modernism, Luna won gold in Madrid.",
+    31: "Malevich's Suprematism eliminated representation — a white square on white ground is simply itself, not a window onto anything. Cleanliness, nothingness, and eternal life miss the formalist point.",
+    32: "Ancient Greek silver coins were struck/cast via dies. Carving is for stone; etching uses acid; photocopying is modern.",
+    33: "Cultural relativism holds beauty standards vary by culture and era. In Renaissance Italy, women shaved their eyebrows as a mark of high-status beauty. The other options are myths.",
+    34: "Venus of Willendorf is a tiny figurine (~11 cm). The Colossus of Rhodes, Statue of Zeus, and Michelangelo's David are all monumental in scale.",
+    35: "Expressionism focuses on art's power to evoke emotion in the viewer. Feeling 'cheerful' from the Mona Lisa's smile is an emotional response. Formalism concerns form; Hedonism pleasure; Representationism imitation.",
+    36: "The 9th-century Javanese Buddhist temple Borobudur is laid out as a mandala seen from above. Angkor Wat is Cambodian; Kajhuraho Indian Hindu; Shaolin Chinese.",
+    37: "Protagoras's 'man is the measure of all things' is the humanist motto the Vitruvian Man illustrates. 'Image of God' is theocentric; 'part of nature' is ecological; 'wonderful' is from Sophocles.",
+    38: "Narcissism derives from the myth of Narcissus, who fell in love with his reflection. Autophobia is fear of solitude; parapraxis is a Freudian slip; schizophrenia is a thought disorder.",
+    39: "Masaccio's <em>The Trinity</em> (~1427) was the first to systematically apply Brunelleschi's linear perspective. Leonardo's <em>Last Supper</em> (1498) and Raphael's <em>School of Athens</em> (1509–11) came later.",
+    40: "Humanities use introspective reflection on our own nature and experience. Observation is the method of the sciences; faith is theology's; reasoning toward ultimate reality is philosophy/metaphysics.",
+    41: "George Dickie's Institutional Theory says art is whatever the artworld (museums, critics, artists) declares to be art — exactly Duchamp's logic. Action theory is about the gesture; Functionalism about purpose; Hedonism about pleasure.",
+    42: "St. John of Damascus wrote Apologetic Treatises defending icons during the iconoclasm controversy. Augustine, Francis, and Aquinas wrote on other theological matters.",
+    43: "Kandinsky's Improvisations are non-figurative, purely abstract. 'Carcass of Beef', 'Still Life with Apples', and 'Fine Realities' all suggest representational subjects.",
+    44: "Lithography (from Greek <em>lithos</em> = stone) uses an oil-based image on a limestone plate. Aquatint uses acid tonal fields; mimeography uses stencils; xenography is electrostatic (photocopy).",
+    45: "Cubism fractures an object into multiple simultaneous viewpoints on one plane, implying motion through the shifting facets.",
+    46: "Early Christian imagery depicted Christ as a youthful, beautiful beardless figure — modeled on Apollo, god of light and youth. Hermes was a messenger; Poseidon bearded/sea; Zeus bearded/sky.",
+    47: "Multiple arms and heads symbolize superhuman power beyond any mortal's. Everlasting life, personal relationship, and spiritual existence would be expressed differently.",
+    48: "Surrealism is literally dreamlike and fantastical — 'fantastic' captures it. Cute, pretty, and piquant are much milder descriptors.",
+    49: "The phonograph reproduced recorded sound — music. Architecture and painting are visual; dance is motion-based and couldn't be recorded by phonograph.",
+    50: "1970s Philippine Social Realism (e.g., the Kaisahan group) protested Marcos's Martial Law through gritty, socially engaged subjects. Hyperrealism, Magic Realism, and Romantic Realism have different aims.",
+    51: "Food is primarily appreciated through taste, with smell as a supporting sense. Hearing and sight alone don't capture food's essence.",
+    52: "Aristotle's hylomorphism holds that substances are composed of matter (hyle) and form (morphe) — the metaphysical basis of formalism. Geocentrism is cosmological; Monism says one substance; Physicalism says all is physical.",
+    53: "Mandala is Sanskrit for 'circle' or 'disk'. Tibetan monks create sand mandalas of the divine realm. Gita means 'song' (scripture); Nataraja is dancing Shiva; Sunyata is Buddhist emptiness.",
+    54: "The jeepney, sarimanok, and tinalak are all vibrantly colored — Filipino aesthetics prizes color saturation. They aren't particularly religious, funny, or simple (quite the opposite).",
+    55: "In the Vitruvian Man, the circle represents the heavens/divine/spiritual nature, while the square represents the earthly/physical body. Together they symbolize man's dual nature.",
+    56: "Brahma the creator has four faces (one for each Veda) and four arms. Lakshmi is the goddess of wealth; Shiva the destroyer; Vishnu the preserver.",
+    57: "T'boli women of South Cotabato weave the sacred tinalak, with patterns revealed in dreams. Ibanag, Ivatan, and Tausug weave different textiles.",
+    58: "Matisse led the Fauves ('wild beasts'), whose signature was bold, unnatural color. Impressionism was soft/atmospheric; Pointillism used dots; Surrealism evoked dreams.",
+    59: "Alindog is the Tagalog term for feminine allure/sex appeal. Dilag is poetic for 'beauty/woman'; Rangya is splendor; Rikit is a softer loveliness.",
+    60: "Descent from apes is a scientific (Darwinian) view, not a humanistic one. The humanities describe man as made in God's image, as rational, or as a body-soul union.",
+    61: "Ofelia Salas, a UE Finance graduate (1950), modeled for Tolentino's Alma Mater (Lualhati). The other women weren't the model.",
+    62: "Arabesque is specifically Islamic geometric/floral ornament used where figurative depiction is prohibited. Judaism also forbids images but doesn't use arabesque; Protestantism and Taoism have different traditions.",
+    63: "A ready-made is not a representation but the actual object exhibited — so it's maximally 'real'. Natural materials, ordinary use, and representing an existing thing are true of other art as well.",
+    64: "Rosenberg's Action Theory sees art as the artist's gesture/act — 'not a picture but an event' (Pollock's drips, de Kooning's attack). Danto is institutional; Cezanne formalist; Langer expressionist.",
+    65: "Critics mocked Monet's 1872 <em>Impression, Sunrise</em> — and 'Impressionism' stuck as the movement's name. The other paintings are later Impressionist works.",
+    66: "Malevich's <em>Suprematist Composition: White on White</em> (1918) is the purest Suprematism. Red/Yellow/Blue is Mondrian's Neoplasticism; Winnowing Rice is Amorsolo's realism; Birth of Venus is Renaissance.",
+    67: "Institutional Theory is about who has the authority or power to designate something as art — the artworld's institutional power.",
+    68: "In Chinese tradition, bound feet were kept hidden — they were considered erotic and private. Publicly showing bare lotus feet would have been scandalous. The other statements are historically accurate.",
+    69: "Dali's melting clocks in a dreamlike landscape are iconic Surrealism. Cubism fragments form; Fauvism uses intense color; Impressionism captures light.",
+    70: "Aquinas's <em>integritas</em> means wholeness — a body missing a leg lacks integrity. Proportion relates parts to one another; order and structure are related but distinct principles.",
+    71: "Pointed arches, ribbed vaults, flying buttresses, and rose windows characterize Gothic — seen in both Chartres and San Sebastian. Baroque is dramatic 17th-century; Byzantine has domes/mosaics; Mughal is Islamic India.",
+    72: "The famous line 'art is a lie that makes us realize the truth' is Picasso's. Cezanne, Luna, and van Gogh made other memorable statements.",
+    73: "Oblation means a religious offering or sacrifice. UP's <em>Oblation</em> symbolizes the selfless offering of self for country. Flight, literal nakedness, and pride don't capture the religious meaning.",
+    74: "Batok is the traditional Philippine hand-tapped tattoo (famously practiced by Kalinga's Apo Whang-Od). Burnay is an Ilocos clay jar; Taka is Paete papier-mâché; Vakul is the Ivatan headdress.",
+    75: "Japanese aesthetics (wabi-sabi) favors simplicity, empty space, and reduction — Minimalist. Classicist is Greek; Expressionist is emotional; Romanticist is dramatic.",
+    76: "'Art for art's sake' (<em>l'art pour l'art</em>) says art has no purpose beyond itself — the core of Formalism. Functionalism says art serves a use; Imitationism that it copies nature; Institutional that it's what the artworld decides.",
+    77: "The dove is the standard Christian symbol for the Holy Spirit (as at Christ's baptism). Fire and wind appear at Pentecost but are not the standard icon; smoke has no fixed symbolism.",
+    78: "Paete, Laguna is famous for taka — colorful papier-mâché figures. Hulma is a mold; tahip is winnowing; ukit is (wood)carving (also a Paete craft, but different).",
+    79: "Vitruvius's canon: the foot equals one-seventh of total human height. One-eighth refers to the head in some canons; one-sixth and one-tenth don't match.",
+    80: "The mihrab is the prayer niche in the qibla wall, pointing worshippers toward Mecca. Madrasah is a school; minaret the tower for call to prayer; minbar the pulpit.",
+    81: "In <em>The Arnolfini Marriage</em>, green symbolizes life and fertility (the wife's rounded belly is aspirational, not necessarily literal pregnancy). Fidelity is the dog; virginity is typically white or blue.",
+    82: "Pythagoras's view of beauty as mathematical/proportional order is the direct basis of Aesthetic Formalism. Functionalism concerns use; Hedonism pleasure; Idealism ideal forms.",
+    83: "Catholic theology distinguishes <em>latria</em> (worship, for God alone) from <em>dulia</em>/<em>hyperdulia</em> (veneration, for saints and images). Idolization is the prohibited kind.",
+    84: "Here 'romantic' means idealized or beautified — Amorsolo's dreamy rural scenes — not romantic love. Everyday realism and quietness describe other styles.",
+    85: "Per the answer key: appreciating Amorsolo's landscape for its composition, light, and visual harmony is a formalist reading (focused on the arrangement of visual elements). Representationism also fits conceptually, but the key marks Formalism.",
+    86: "The Bhagavad Gita supports the use of <em>murti</em> (divine images) as aids for comprehending the infinite. Kama Sutra concerns love/pleasure; Tripitaka is Buddhist; Upanishads are philosophical texts.",
+    87: "The <em>Spoliarium</em> depicts fallen gladiators being dragged away in the bowels of the Roman Colosseum. Not Egyptian, Indian, or Persian.",
+    88: "Christo's wrapped buildings and landscapes are 'art' because the artworld designates them so — a clean case of Institutional Theory. Other movements rely more on formal or emotional properties.",
+    89: "St. Peter's dramatic facade, Bernini's colonnade, and the baldachin are textbook Baroque — grand and theatrical. Brutalist is concrete modernism; Romanesque earlier medieval; Victorian 19th-century British.",
+    90: "'Who am I' frames human identity entirely in relation to God — a theocentric view. Anthropocentric centers humans; Cosmocentric the universe; Scientific-Technocentric technology.",
+    91: "The regular pentagon's diagonal-to-side ratio equals the Golden Ratio (phi). Hexagons, nonagons, and octagons don't share this property.",
+    92: "The bulul is the Ifugao rice-granary sculpture representing ancestor or rice deities. Burnay is a clay jar; pasiking a rattan backpack; torogan a Maranao royal house.",
+    93: "In Hinduism, kama (pleasure) is one of the four purusharthas (life goals) — a legitimate stage on the path to moksha (liberation). Child-bearing and propagation are secondary; divine command fits Abrahamic faiths more.",
+    94: "Vishnu reclines on Shesha, the cosmic serpent, in the ocean of consciousness — blue-skinned with four arms. Brahma sits on a lotus; Ganesh is elephant-headed; Shiva meditates on Mt. Kailash.",
+    95: "Okir is the Maranao ornamental tradition — flowing lines and colorful motifs on torogan houses and metalwork. Aeta, Dumagat, and Ivatan have different art traditions.",
+    96: "In Aristotle's <em>Poetics</em>, tragedy achieves catharsis — the purgation of emotion. Episteme is knowledge; psyche is soul; logos is word/reason.",
+    97: "Atmospheric perspective relies on distant objects appearing hazier and bluer due to air scattering — a perception of color. Line, shape, and size belong to linear perspective.",
+    98: "'Picturesque' literally means picture-like or painterly — a rainbow's scenic beauty fits perfectly. Fragrant is smell; lovely and pleasant are generic.",
+    99: "The classical canon sets human height at eight head-heights (8 heads tall). 6, 7, and 10 don't match Vitruvius or Leonardo's illustration.",
+    100: "Adam was created directly by God, not born of woman — so he should have no umbilical cord or navel. Yet Michelangelo painted one, the classic theological 'mistake'.",
+    101: "From <em>Hamlet</em> Act 3: theatre holds 'the mirror up to nature'. (a) is Langer, (b) is Collingwood, (c) is Danto.",
+    102: "<em>Starry Night</em>'s swirling sky expresses van Gogh's inner emotional turmoil — Expressionism. Formalism focuses on form; Hedonism on pleasure; Representationism on literal depiction.",
+    103: "The 1933 Hungarian song <em>Gloomy Sunday</em> was infamously linked to a wave of suicides. Not End of the World, Everybody Hurts, or Pathetique.",
+    104: "Mondrian co-founded Neoplasticism (De Stijl) — grids of primary colors and black lines. Impressionism, Mannerism, and Suprematism are different movements.",
+    105: "Film requires cameras, projectors, and editing equipment — impossible without modern technology. Drafting, opera, and origami all predate it.",
+    106: "Honorato Lozano developed <em>letras y figuras</em> — a unique style in which human figures form the letters of a name. Hidalgo won medals in Madrid; Manansala was modernist; Paterno was a writer/politician.",
+    107: "Wu Daozi (Wu Tao Tzu, ~700s CE) is the Tang-era master called 'Sage in Chinese Painting'. Chuang Tzu, Confucius, and Lao Tzu were philosophers, not painters.",
+    108: "Dutton's evolutionary aesthetics argues aesthetic response is an innate, evolved predisposition — not purely cultural, educational, or individual.",
+    109: "Arabesque is the geometric/floral pattern adorning mosque walls, floors, and ceilings. Ikebana is Japanese flower arrangement; okir is Maranao; quilts are textile patchwork.",
+    110: "<em>Trompe l'oeil</em> means 'deceives the eye' — hyperrealistic painting that fools viewers into perceiving real depth or objects. The medium or level of formality isn't the defining feature.",
+    111: "Aquinas and classical formalism define beauty as the harmony of proper <em>proportion</em> (along with integrity and clarity). Integrity is wholeness; order and structure are related but less precise.",
+    112: "Surrealism draws directly on Freud's theory of the unconscious and dream symbolism — Psychoanalysis. Behaviorism studies observable behavior; Cognitive is mental processing; Gestalt concerns perceptual wholes.",
+    113: "In vanitas, armor or a helmet represents military power. A book = knowledge; a jar = domestic life or wealth; a trumpet = fame.",
+    114: "Danto's concept of the 'artworld' is the foundation of Institutional Theory — art is what the artworld declares it to be. Cezanne is formalist; Langer expressionist; Rosenberg action theory.",
+    115: "Kisig denotes masculine handsomeness or vigor. Inam is tastiness/goodness; kislap is sparkle; lambing is affection/tenderness.",
+    116: "For Plato, reality is the Forms; the physical world is a copy; art is a copy of that copy — twice removed from reality, making viewers ignorant. Not crime, lust, or literacy.",
+    117: "Figurative art depicts recognizable subjects — Renaissance art is figurative. Color Field Painting, Neoplasticism, and Suprematism are all non-figurative (pure abstraction).",
+    118: "The Tetragrammaton (YHWH) is in Hebrew — the unspoken divine name. Aramaic is related but different; Esperanto is a modern constructed language; Latin is Roman.",
+    119: "Hidalgo won silver (for <em>Las Virgenes Cristianas Expuestas al Populacho</em>) at the 1884 Madrid Exposition; Luna won gold (for the <em>Spoliarium</em>). Asuncion and Lamarozza were not the awardees.",
+    120: "Duchamp's <em>Fountain</em> (1917) — an off-the-shelf urinal signed 'R. Mutt' — is the archetypal ready-made. Not digital, installation, or op art.",
+    121: "Schopenhauer, in <em>The World as Will and Representation</em>, argued music is the direct expression of the will and an escape from life's suffering. Baumgarten coined 'aesthetics'; Hegel wrote on Spirit; Marx on materialism.",
+    122: "Beethoven's <em>Ode to Joy</em> (Ninth Symphony) sets Schiller's poem <em>An die Freude</em>. Hegel, Goethe, and Leopardi wrote other works.",
+    123: "The Taj Mahal is Mughal Islamic architecture — onion dome, minarets, calligraphy, no figurative images. Not Hindu, Jewish, or Taoist.",
+    124: "The core principle of linear perspective is diminution with distance. The other options describe Gestalt principles (continuity, similarity, the whole greater than the parts).",
+    125: "French perfumery — Grasse, Paris — is world-renowned. Italy, Germany, and Switzerland aren't historically associated with perfumery at the same level.",
+    126: "Hedonism equates beauty with pleasure; in culinary art, that's deliciousness. Neatness is formalism; natural ingredients is purism; healthy is functionalism.",
+    127: "<em>Fallingwater</em> (1935) is Frank Lloyd Wright's iconic organic/functional design, cantilevered over a waterfall. Bramante was Renaissance; Le Corbusier modernist; Gaudi Catalan Modernisme.",
+    128: "Carlos Francisco's mural in the Manila City Hall lobby depicts scenes of Philippine history. Not mythological, philosophical, or religious.",
+    129: "Pollock's drip/action paintings define Abstract Expressionism. Analytic Cubism is Picasso & Braque's fragmented forms; Greek Classicism is ancient; Social Realism is figurative and political.",
+    130: "Cultural relativism holds that beauty standards are constructed by a society or culture — a social construct. The other options are absolutist or objectivist views.",
+    131: "Exact copying leaves no room for the artist's interpretation or creative choice — so the artist isn't being creative. Subject, emotion, and materials aren't the core issue.",
+    132: "Per the answer key, Terror is the marked emotion for Munch's <em>The Sick Child</em> — the mother's sense of dread at impending loss. (Sorrow and despair are also fitting emotionally, but the key specifies Terror.)",
+    133: "<em>Miniaturismo</em> was marked by meticulous, life-like portraiture — Realistic. Abstractive, illusory, and non-objective describe very different styles.",
+    134: "Plato called art a copy, an imitation, and an illusion — but NOT an idea. Ideas/Forms are the real entities; art is far removed from them.",
+    135: "The curvilinear roof shells cause acoustic problems inside the performance halls of the Sydney Opera House. Foundation, plumbing, and ventilation aren't directly affected by the roof shape.",
+    136: "Action Theory centers the artist's free creative act — the freedom to make the 'event' of creation. Faith, justice, and law fit other theories and themes.",
+    137: "Kandinsky's <em>Composition V</em> (1911) is regarded as the first fully abstract painting, backed by his spiritual-in-art theory. <em>White on White</em> is 1918; Mondrian's grids are later; <em>Vega-Nor</em> is later Op Art.",
+    138: "Pottery literally alters clay physically into new forms. Not mere interpretation, selection, or contemplation — it's hands-on shaping.",
+    139: "Louis Sullivan's dictum 'form follows function' is foundational to architecture and industrial design. Dance, literature, and music don't usually invoke this principle.",
+    140: "'Beauty is in the eye of the beholder' expresses a subjective/relative view — exactly what cultural relativism claims. 'Lasts forever' and 'resides in the thing itself' imply objective beauty."
+};
+
+function getQuestionNumber(q) {
+    const qNumEl = q.querySelector('.q-num');
+    if (!qNumEl) return null;
+    const m = qNumEl.textContent.match(/\d+/);
+    return m ? parseInt(m[0], 10) : null;
+}
+
+function buildFeedbackHTML(q, isCorrect, correctAns) {
+    const qNum = getQuestionNumber(q);
+    const explanation = (qNum && EXPLANATIONS[qNum]) || '';
+    let html = isCorrect
+        ? '<strong>✓ Correct!</strong> The answer is <b>(' + correctAns.toUpperCase() + ')</b>.'
+        : '<strong>✗ Incorrect.</strong> The correct answer is <b>(' + correctAns.toUpperCase() + ')</b>.';
+    if (explanation) html += '<span class="explain"><b>Why:</b> ' + explanation + '</span>';
+    return html;
+}
+
+function gradeQuestion(q) {
+    const selected = q.querySelector('input[type="radio"]:checked');
+    if (!selected) return false;
+    const correctAns = q.dataset.answer;
+    const correctLabel = q.querySelector('input[value="' + correctAns + '"]').closest('label');
+    correctLabel.classList.add('correct-answer');
+    const feedback = q.querySelector('.feedback');
+    const isCorrect = selected.value === correctAns;
+    if (isCorrect) {
+        q.classList.add('correct');
+    } else {
+        q.classList.add('wrong');
+        selected.closest('label').classList.add('user-wrong');
+    }
+    feedback.innerHTML = buildFeedbackHTML(q, isCorrect, correctAns);
+    q.querySelectorAll('input[type="radio"]').forEach(r => r.disabled = true);
+    return true;
+}
+
+function isGraded(q) {
+    return q.classList.contains('correct') || q.classList.contains('wrong');
+}
+
+let allQuestions = Array.from(document.querySelectorAll('.question'));
+const originalOrder = allQuestions.slice();
+let currentQIdx = 0;
+let isShuffled = false;
+
+function refreshQuestions() {
+    allQuestions = Array.from(document.querySelectorAll('.question'));
+}
+
+function clearAllAnswers() {
+    document.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; r.disabled = false; });
+    document.querySelectorAll('.question').forEach(q => { q.classList.remove('correct', 'wrong'); q.querySelector('.feedback').innerHTML = ''; });
+    document.querySelectorAll('label').forEach(l => l.classList.remove('correct-answer', 'user-wrong'));
+    document.getElementById('scoreBar').classList.remove('show');
+    document.getElementById('resultsBanner').classList.remove('show', 'pass', 'fail');
+}
+
+function shuffleQuiz() {
+    clearAllAnswers();
+    const shuffled = allQuestions.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const container = document.getElementById('section-mc');
+    shuffled.forEach(q => container.appendChild(q));
+    refreshQuestions();
+    isShuffled = true;
+    updateShuffleBadge();
+    enterQuizMode();
+    showQuestion(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restoreOriginalOrder() {
+    clearAllAnswers();
+    const container = document.getElementById('section-mc');
+    originalOrder.forEach(q => container.appendChild(q));
+    refreshQuestions();
+    isShuffled = false;
+    updateShuffleBadge();
+    enterQuizMode();
+    showQuestion(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateShuffleBadge() {
+    const tag = document.getElementById('qpTagText');
+    if (tag) tag.textContent = isShuffled ? 'Shuffled' : 'Art Appreciation';
+}
+
+function enterQuizMode() { document.body.classList.add('quiz-mode'); }
+function exitQuizMode() {
+    document.body.classList.remove('quiz-mode');
+    document.querySelectorAll('.question').forEach(q => q.classList.remove('active-question'));
+}
+function showReviewMode() {
+    exitQuizMode();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showQuestion(idx) {
+    if (idx < 0 || idx >= allQuestions.length) return;
+    currentQIdx = idx;
+    document.querySelectorAll('.question').forEach(q => q.classList.remove('active-question'));
+    const q = allQuestions[idx];
+    q.classList.add('active-question');
+
+    const total = allQuestions.length;
+    document.getElementById('qpCurrent').textContent = idx + 1;
+    document.getElementById('qpTotal').textContent = total;
+    document.getElementById('qCounterCurrent').textContent = idx + 1;
+    document.getElementById('qCounterTotal').textContent = total;
+    document.getElementById('qpFill').style.width = (((idx + 1) / total) * 100) + '%';
+    document.getElementById('qGotoInput').value = idx + 1;
+    document.getElementById('qGotoInput').max = total;
+
+    document.getElementById('qPrevBtn').disabled = idx === 0;
+    updateNextBtn();
+
+    const scrollTarget = document.getElementById('quizProgress');
+    if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateNextBtn() {
+    const q = allQuestions[currentQIdx];
+    const isLast = currentQIdx === allQuestions.length - 1;
+    const graded = isGraded(q);
+    const answered = !!q.querySelector('input[type="radio"]:checked');
+    const nextBtn = document.getElementById('qNextBtn');
+
+    if (!graded && answered) {
+        nextBtn.innerHTML = 'Show Answer';
+    } else if (graded) {
+        nextBtn.innerHTML = isLast ? 'Submit Quiz' : 'Continue &rarr;';
+    } else {
+        nextBtn.innerHTML = isLast ? 'Submit Quiz' : 'Next &rarr;';
+    }
+}
+
+document.getElementById('qPrevBtn').addEventListener('click', function() { showQuestion(currentQIdx - 1); });
+document.getElementById('qNextBtn').addEventListener('click', function() {
+    const currentQ = allQuestions[currentQIdx];
+    const isLast = currentQIdx === allQuestions.length - 1;
+    const answered = !!currentQ.querySelector('input[type="radio"]:checked');
+
+    if (!isGraded(currentQ) && answered) {
+        gradeQuestion(currentQ);
+        updateNextBtn();
+        return;
+    }
+
+    if (isLast) submitQuiz();
+    else showQuestion(currentQIdx + 1);
+});
+
+document.querySelectorAll('.question input[type="radio"]').forEach(function(input) {
+    input.addEventListener('change', function() {
+        const q = this.closest('.question');
+        if (q === allQuestions[currentQIdx] && !isGraded(q)) updateNextBtn();
+    });
+});
+document.getElementById('qGotoInput').addEventListener('change', function() {
+    const n = parseInt(this.value, 10);
+    if (!isNaN(n) && n >= 1 && n <= allQuestions.length) showQuestion(n - 1);
+    else this.value = currentQIdx + 1;
+});
+
+document.addEventListener('keydown', function(e) {
+    if (!document.body.classList.contains('quiz-mode')) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') { if (currentQIdx < allQuestions.length - 1) showQuestion(currentQIdx + 1); }
+    else if (e.key === 'ArrowLeft') { if (currentQIdx > 0) showQuestion(currentQIdx - 1); }
+});
+
+enterQuizMode();
+showQuestion(0);
+</script>
+
+</body>
+</html>

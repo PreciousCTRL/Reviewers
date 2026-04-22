@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STS 1107 Flashcards - Final Exam</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Lato", "Helvetica Neue", Arial, sans-serif; background: #f5f5f5; color: #2d3b45; line-height: 1.5; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: #fff; border: 1px solid #c7cdd1; border-radius: 3px; overflow: clip; }
+
+        .header { background: linear-gradient(135deg, #2d3b45 0%, #394b59 100%); color: #fff; padding: 24px 30px; }
+        .header h1 { font-size: 24px; margin-bottom: 4px; font-weight: 500; }
+        .header .subtitle { font-size: 13px; color: #c7cdd1; }
+        .header .meta { margin-top: 10px; font-size: 12px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .header .meta span { background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 3px; }
+
+        .section-nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; z-index: 101; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .section-nav .nav-home { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #e5e5e5; color: #2d3b45; text-decoration: none; border-radius: 3px; font-size: 13px; font-weight: 500; transition: background 0.15s; }
+        .section-nav .nav-home:hover { background: #d0d0d0; }
+        .section-nav .nav-home::before { content: "\2190"; font-size: 14px; }
+        .section-nav .nav-divider { width: 1px; height: 22px; background: #e5e5e5; margin: 0 4px; }
+        .section-nav .filter-group { display: flex; gap: 4px; flex-wrap: wrap; }
+        .section-nav .filter-btn { padding: 7px 12px; background: transparent; border: 1px solid transparent; color: #394b59; font-size: 13px; font-weight: 500; border-radius: 3px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
+        .section-nav .filter-btn:hover { background: #f0f8ff; color: #008eea; }
+        .section-nav .filter-btn.active { background: #e6f4ff; color: #008eea; border-color: #008eea; }
+        .section-nav .section-select-wrap { display: inline-flex; align-items: center; gap: 6px; }
+        .section-nav .section-select-wrap label { font-size: 12px; color: #6b7780; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-nav select.section-select { padding: 6px 10px; font-size: 13px; border: 1px solid #c7cdd1; border-radius: 3px; background: #fff; color: #2d3b45; font-family: inherit; cursor: pointer; max-width: 260px; }
+        .section-nav select.section-select:focus { outline: none; border-color: #008eea; box-shadow: 0 0 3px rgba(0,142,234,0.3); }
+        .section-nav .spacer { flex: 1; }
+
+        .instructions { background: #f0f8ff; border-left: 4px solid #008eea; padding: 14px 20px; font-size: 14px; color: #2d3b45; }
+
+        .study-area { padding: 30px; }
+        .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13px; color: #6b7780; flex-wrap: wrap; gap: 8px; }
+        .progress-row .tag { background: #008eea; color: #fff; padding: 3px 10px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; margin-right: 8px; }
+        .progress-bar { height: 4px; background: #e5e5e5; border-radius: 2px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #008eea; transition: width 0.25s ease; }
+
+        .card-wrapper { perspective: 1500px; margin-bottom: 20px; }
+        .card { position: relative; width: 100%; min-height: 320px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.55s; }
+        .card.flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 40px 44px; border-radius: 6px; border: 1px solid #c7cdd1; background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.05); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow-y: auto; }
+        .card-face .face-label { position: absolute; top: 14px; left: 18px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7780; }
+        .card-face .face-hint { position: absolute; bottom: 14px; right: 18px; font-size: 11px; color: #6b7780; }
+        .card-face .topic-tag { position: absolute; top: 14px; right: 18px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; padding: 3px 8px; border-radius: 3px; }
+        .card-face .topic-tag.topic1 { background: #e6f4ff; color: #008eea; }
+        .card-face .topic-tag.topic2 { background: #f3e6ff; color: #8b5cf6; }
+        .card-face .topic-tag.topic3 { background: #fff0e6; color: #d97706; }
+        .card-front { background: #fff; }
+        .card-front .question { font-size: 20px; font-weight: 500; color: #2d3b45; text-align: center; line-height: 1.4; }
+        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #f0f8ff 0%, #e6f4ff 100%); border-color: #008eea; }
+        .card-back .answer { font-size: 15px; color: #2d3b45; line-height: 1.65; }
+        .card-back .answer ul, .card-back .answer ol { margin-left: 22px; margin-top: 6px; }
+        .card-back .answer li { margin-bottom: 4px; }
+        .card-back .answer strong { color: #0072bd; }
+
+        .nav-controls { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 10px; }
+        .nav-btn { padding: 10px 18px; border: 1px solid #c7cdd1; background: #fff; color: #2d3b45; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s, border-color 0.15s; }
+        .nav-btn:hover:not(:disabled) { background: #f0f8ff; border-color: #008eea; color: #008eea; }
+        .nav-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .nav-btn.primary { background: #008eea; color: #fff; border-color: #008eea; }
+        .nav-btn.primary:hover:not(:disabled) { background: #0072bd; border-color: #0072bd; color: #fff; }
+
+        .counter-input { width: 66px; padding: 6px 8px; border: 1px solid #c7cdd1; border-radius: 3px; font-size: 14px; text-align: center; font-family: inherit; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #6b7780; }
+        .empty-state h3 { font-size: 18px; margin-bottom: 6px; color: #2d3b45; }
+
+        .grid-area { padding: 20px 30px 30px; display: none; }
+        .grid-area.show { display: block; }
+        .study-area.hide { display: none; }
+        .grid-area h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7780; margin: 18px 0 10px; font-weight: 500; }
+        .grid-area h3:first-child { margin-top: 0; }
+        .mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+        .mini-card { perspective: 1000px; }
+        .mini-card-inner { position: relative; min-height: 140px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.5s; }
+        .mini-card-inner.flipped { transform: rotateY(180deg); }
+        .mini-card-face { position: absolute; inset: 0; padding: 16px 18px 28px; border-radius: 4px; border: 1px solid #e5e5e5; background: #fff; backface-visibility: hidden; -webkit-backface-visibility: hidden; font-size: 13px; line-height: 1.5; overflow: hidden; }
+        .mini-card-face .idx { position: absolute; bottom: 8px; left: 12px; font-size: 10px; color: #6b7780; }
+        .mini-card-back { transform: rotateY(180deg); background: #f0f8ff; border-color: #008eea; overflow-y: auto; }
+        .mini-card-back ul, .mini-card-back ol { margin-left: 18px; margin-top: 4px; }
+
+        .status-bar { background: #fafafa; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .status-bar .toggle-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-weight: 500; color: #2d3b45; font-size: 13px; }
+        .status-bar .toggle-switch input { display: none; }
+        .status-bar .toggle-switch .switch-ui { width: 36px; height: 20px; background: #c7cdd1; border-radius: 10px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+        .status-bar .toggle-switch .switch-ui::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: left 0.2s; }
+        .status-bar .toggle-switch input:checked + .switch-ui { background: #008eea; }
+        .status-bar .toggle-switch input:checked + .switch-ui::after { left: 18px; }
+        .status-bar .stat { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; }
+        .status-bar .stat.mastered { background: #d4f4dd; color: #0b874b; }
+        .status-bar .stat.review { background: #fff3cd; color: #a07010; }
+        .status-bar .stat.unseen { background: #e5e5e5; color: #6b7780; }
+        .status-bar .reset-progress { margin-left: auto; padding: 5px 10px; background: transparent; border: 1px solid #c7cdd1; color: #6b7780; border-radius: 3px; font-size: 12px; cursor: pointer; font-family: inherit; }
+        .status-bar .reset-progress:hover { background: #fff0f0; border-color: #ee3a3a; color: #a72a2a; }
+
+        .card-status-badge { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; padding: 3px 10px; border-radius: 10px; z-index: 2; }
+        .card-status-badge.mastered { background: #d4f4dd; color: #0b874b; }
+        .card-status-badge.review { background: #fff3cd; color: #a07010; }
+        .card-status-badge.unseen { background: #e5e5e5; color: #6b7780; }
+
+        .grade-row { display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .grade-btn { padding: 10px 20px; border: 2px solid; border-radius: 3px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.4px; }
+        .grade-btn.again { border-color: #ee3a3a; color: #a72a2a; background: #fff; }
+        .grade-btn.again:hover { background: #fff0f0; }
+        .grade-btn.good { border-color: #0b874b; color: #0b874b; background: #fff; }
+        .grade-btn.good:hover { background: #effdf3; }
+
+        .session-complete { text-align: center; padding: 40px 20px; color: #6b7780; display: none; }
+        .session-complete.show { display: block; }
+        .session-complete h3 { color: #0b874b; font-size: 20px; margin-bottom: 6px; }
+        .session-complete .session-stats { margin: 14px auto; max-width: 400px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+        .actions { padding: 20px 30px; background: #f5f5f5; border-top: 1px solid #c7cdd1; display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
+        .actions .left-group, .actions .right-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 10px 22px; border: none; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #008eea; color: #fff; }
+        .btn-primary:hover { background: #0072bd; }
+        .btn-secondary { background: #e5e5e5; color: #2d3b45; }
+        .btn-secondary:hover { background: #d0d0d0; }
+
+        @media (max-width: 600px) {
+            .card-face { padding: 30px 24px; }
+            .card-front .question { font-size: 17px; }
+            .card-back .answer { font-size: 14px; }
+            .study-area { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>STS 1107 Flashcards</h1>
+    <div class="subtitle">Science, Technology, and Society &mdash; Final Exam Reviewer</div>
+    <div class="meta">
+        <span id="totalCount">0 Cards</span>
+        <span>Click card to flip</span>
+        <span>Arrow keys to navigate</span>
+    </div>
+</div>
+
+<div class="instructions">
+    <strong>How to study:</strong> Click any card to flip between question and answer. Use <b>Prev</b> / <b>Next</b> or the left/right arrow keys to navigate. Filter by topic (Concepts &amp; History, Human Condition, Specific Issues) or drill down to a specific section via the dropdown. Toggle <b>Study Mode</b> for spaced repetition (cards you mark "Review" come back; "Got It" cards drop out).
+</div>
+
+<nav class="section-nav" id="sectionNav">
+    <a class="nav-home" href="../index.html" title="Back to Home">Home</a>
+    <div class="nav-divider"></div>
+    <div class="filter-group" id="filterGroup">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="topic1">A. Concepts &amp; History</button>
+        <button class="filter-btn" data-filter="topic2">B. Human Condition</button>
+        <button class="filter-btn" data-filter="topic3">C. Specific Issues</button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="section-select-wrap">
+        <label for="sectionSelect">Section</label>
+        <select class="section-select" id="sectionSelect"></select>
+    </div>
+    <div class="spacer"></div>
+</nav>
+
+<div class="status-bar" id="statusBar">
+    <label class="toggle-switch" title="Study mode hides mastered cards and prioritizes cards you marked for review">
+        <input type="checkbox" id="studyModeToggle">
+        <span class="switch-ui"></span>
+        <span>Study Mode (Spaced Repetition)</span>
+    </label>
+    <span class="stat mastered">&#10003; Mastered <span id="statMastered">0</span></span>
+    <span class="stat review">&#8634; Review <span id="statReview">0</span></span>
+    <span class="stat unseen">&#9675; Unseen <span id="statUnseen">0</span></span>
+    <button class="reset-progress" id="resetProgressBtn">Reset Progress</button>
+</div>
+
+<div class="study-area" id="studyArea">
+
+    <div class="progress-row">
+        <div>
+            <span class="tag" id="topicTag">Topic</span>
+            <span id="cardPosition">Card 1 of 1</span>
+        </div>
+        <div>
+            Go to: <input type="number" class="counter-input" id="gotoInput" min="1" value="1">
+        </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+
+    <div class="card-wrapper" id="cardWrapper">
+        <div class="card" id="card">
+            <div class="card-face card-front">
+                <div class="face-label">Question</div>
+                <span class="card-status-badge unseen" id="statusBadgeFront">Unseen</span>
+                <div class="topic-tag topic1" id="topicTagFront">Topic 1</div>
+                <div class="question" id="cardQuestion">Loading...</div>
+                <div class="face-hint">Click to reveal answer</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="face-label">Answer</div>
+                <span class="card-status-badge unseen" id="statusBadgeBack">Unseen</span>
+                <div class="topic-tag topic1" id="topicTagBack">Topic 1</div>
+                <div class="answer" id="cardAnswer"></div>
+                <div class="face-hint">Click to flip back</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn">&larr; Prev</button>
+        <button class="nav-btn primary" id="flipBtn">Flip</button>
+        <button class="nav-btn" id="nextBtn">Next &rarr;</button>
+    </div>
+
+    <div class="grade-row">
+        <button class="grade-btn again" id="gradeAgainBtn" title="Mark card to review again">&#8634; Review Again</button>
+        <button class="grade-btn good" id="gradeGoodBtn" title="Mark card as mastered">&#10003; Got It</button>
+    </div>
+
+    <div class="session-complete" id="sessionComplete">
+        <h3>&#127881; Session Complete!</h3>
+        <p>You&rsquo;ve worked through every card in your current filter.</p>
+        <div class="session-stats">
+            <span class="stat mastered">&#10003; <span id="sessionMastered">0</span> mastered</span>
+            <span class="stat review">&#8634; <span id="sessionReview">0</span> to review</span>
+        </div>
+        <p style="margin-top:14px;"><button class="btn btn-secondary" id="restartSessionBtn">Start Another Session</button></p>
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+        <h3>No cards for this filter</h3>
+        <p>Try selecting a different topic or section.</p>
+    </div>
+</div>
+
+<div class="grid-area" id="gridArea"></div>
+
+<div class="actions">
+    <div class="left-group">
+        <a class="btn btn-secondary" href="../index.html">&larr; Home</a>
+    </div>
+    <div class="right-group">
+        <button class="btn btn-secondary" id="shuffleBtn">Shuffle</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset Order</button>
+        <button class="btn btn-primary" id="toggleViewBtn">Grid View</button>
+    </div>
+</div>
+
+</div>
+
+<script>
+const CARDS = [
+    // ========= Topic 1: Concepts & History =========
+
+    // ----- World S&T History -----
+    { topic: 'topic1', section: 's_history_world', q: 'What is STS?', a: 'The interdisciplinary study of how <strong>Science and Technology</strong> shape, and are shaped by, <strong>Society</strong> &mdash; its culture, politics, economics, and ethics.' },
+    { topic: 'topic1', section: 's_history_world', q: 'What characterized S&T in the <em>Ancient Ages</em>?', a: 'Early tools and foundational innovations:<ul><li>Egyptian pyramids &amp; geometry</li><li>Sumerian <strong>cuneiform</strong> writing</li><li>Invention of the <strong>wheel</strong> and bronze metallurgy</li><li>Greek philosophy, geometry, astronomy</li><li>Roman engineering (aqueducts, concrete, roads)</li></ul>' },
+    { topic: 'topic1', section: 's_history_world', q: 'What characterized S&T in the <em>Middle Ages</em>?', a: '<ul><li><strong>Gunpowder</strong> (China, spread via Silk Road)</li><li>The <strong>printing press</strong> (Gutenberg, ~1440)</li><li>Magnetic <strong>compass</strong>, mechanical clock</li><li>Water mills, windmills</li><li>Gothic cathedrals; Islamic Golden Age science</li></ul>' },
+    { topic: 'topic1', section: 's_history_world', q: 'What characterized S&T in the <em>Modern Ages</em>?', a: '<ul><li><strong>Scientific Revolution</strong> (16th&ndash;17th c.) &mdash; empirical, math-based science</li><li><strong>Industrial Revolution</strong> (18th&ndash;19th c.) &mdash; steam, mechanization</li><li>Electricity, internal combustion, antibiotics</li><li>Computers, the Internet, genetic engineering</li></ul>' },
+    { topic: 'topic1', section: 's_history_world', q: 'What was the <em>Scientific Revolution</em>?', a: 'A <strong>16th&ndash;17th century shift</strong> to empirical, mathematical study of nature &mdash; led by Copernicus, Kepler, Galileo, and Newton. Laid the foundation for modern science.' },
+    { topic: 'topic1', section: 's_history_world', q: 'What was the <em>Industrial Revolution</em>?', a: 'A <strong>late-18th to 19th century transformation</strong> of economy and society via <strong>steam power, mechanization,</strong> and <strong>factory production</strong>. Began in Britain; changed labor, cities, and global trade.' },
+    { topic: 'topic1', section: 's_history_world', q: 'What were the <em>Early Civilizations</em> that shaped S&T?', a: '<ul><li><strong>Mesopotamia</strong> &mdash; cuneiform, the wheel, math, irrigation</li><li><strong>Egypt</strong> &mdash; geometry, medicine, monumental architecture</li><li><strong>Indus Valley</strong> &mdash; urban planning, drainage</li><li><strong>Ancient China</strong> &mdash; paper, printing, gunpowder, compass</li><li><strong>Greece &amp; Rome</strong> &mdash; philosophy, engineering</li></ul>' },
+
+    // ----- Philippine S&T History -----
+    { topic: 'topic1', section: 's_history_ph', q: 'Give examples of <em>Precolonial</em> Philippine S&T.', a: '<ul><li><strong>Banaue/Ifugao rice terraces</strong> (~2,000 y.o.)</li><li>The <strong>balangay</strong> (wooden plank boat)</li><li>Gold metallurgy and jewelry</li><li>Textile weaving (t\'nalak, piña)</li><li>Indigenous medicine (<em>albularyo</em>, <em>hilot</em>)</li><li>Bahay kubo architecture</li></ul>' },
+    { topic: 'topic1', section: 's_history_ph', q: 'What are the <em>Banaue Rice Terraces</em>?', a: 'Ancient mountainside rice terraces carved by the <strong>Ifugao</strong> people ~2,000 years ago using hand tools and sophisticated <strong>hydraulic engineering</strong>. A UNESCO World Heritage Site.' },
+    { topic: 'topic1', section: 's_history_ph', q: 'What S&T did the <em>Spanish Period</em> (1565&ndash;1898) bring to the Philippines?', a: '<ul><li>Formal education (<strong>UST founded 1611</strong>)</li><li><strong>Galleon Trade</strong> &mdash; shipbuilding, cartography, commerce</li><li>Western medicine &amp; hospitals</li><li>The printing press (first book: <em>Doctrina Christiana</em>, 1593)</li><li>Stone churches (earthquake-baroque)</li></ul>' },
+    { topic: 'topic1', section: 's_history_ph', q: 'What S&T contributions came during the <em>American Period</em> in the Philippines?', a: '<ul><li>Public school system with science &amp; English instruction</li><li>Public health reforms (sanitation, vaccination)</li><li>Engineering (roads, bridges, electrification)</li><li>Agricultural research (e.g., rice breeding)</li></ul>' },
+    { topic: 'topic1', section: 's_history_ph', q: 'What characterized S&T during the <em>Japanese Period</em> (1942&ndash;1945) in the PH?', a: 'Civilian research was severely disrupted; focus shifted to <strong>military and survival technologies</strong>. Many institutions were damaged, and scientific progress stalled until postwar reconstruction.' },
+    { topic: 'topic1', section: 's_history_ph', q: 'What are key <em>postwar/Republic-era</em> S&T milestones in the PH?', a: '<ul><li>Creation of the <strong>Department of Science and Technology (DOST, 1987)</strong></li><li>Establishment of PAGASA, PHIVOLCS, PhilRice, PNRI</li><li><strong>DOST-SEI scholarships</strong> expanding STEM access</li><li>Philippine Science High School (PSHS) system</li></ul>' },
+
+    // ----- Intellectual Revolutions -----
+    { topic: 'topic1', section: 's_revolutions', q: 'What was the <em>Copernican Revolution</em>?', a: 'Nicolaus Copernicus\'s <strong>1543</strong> proposal (<em>De Revolutionibus</em>) that the <strong>Earth orbits the Sun</strong> (heliocentrism), displacing the geocentric worldview. Foundational to modern astronomy and a radical shift in humanity\'s self-understanding.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'Why was the Copernican Revolution significant?', a: 'It <strong>displaced humans from the cosmic center</strong>, opening the door to empirical astronomy and the Scientific Revolution. Challenged religious orthodoxy and began the modern scientific worldview.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What was the <em>Darwinian Revolution</em>?', a: 'Charles Darwin\'s <strong>1859</strong> <em>On the Origin of Species</em> argued that species <strong>evolve by natural selection</strong> &mdash; all life shares common ancestry. Humans are part of, not separate from, the animal kingdom.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What is <em>natural selection</em>?', a: 'Darwin\'s mechanism: <strong>individuals with traits better suited to their environment survive and reproduce more</strong>, passing those traits on. Over generations, this drives evolution.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What was the <em>Freudian Revolution</em>?', a: 'Sigmund Freud\'s theory that human behavior is driven by the <strong>unconscious mind</strong> &mdash; hidden drives, childhood experience, sexuality. Founded <strong>psychoanalysis</strong>.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'Why was the Freudian Revolution significant?', a: 'It <strong>displaced reason as the center of the human self</strong>, revealing we are often driven by forces we don\'t consciously control. Profound impact on psychology, art, literature, and culture.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What is the <em>Information Revolution</em>?', a: 'The mid-20th-century-onward shift where <strong>digital computing, networks, and the Internet</strong> transformed how information is produced, stored, shared, and used &mdash; creating the Information Age.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'Who are key figures of the Information Revolution?', a: '<ul><li><strong>Alan Turing</strong> &mdash; theoretical foundations of computation</li><li><strong>Claude Shannon</strong> &mdash; information theory (1948)</li><li><strong>Tim Berners-Lee</strong> &mdash; invented the World Wide Web (1989)</li></ul>' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What was the <em>Meso-American (pre-Columbian) revolution</em> in S&T?', a: 'Independent achievements by the <strong>Maya, Aztec, and Inca</strong>: advanced calendars, astronomy, <strong>mathematics including zero</strong>, maize agriculture, monumental architecture (pyramids, terraces), and hieroglyphic writing.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What were key <em>Mayan</em> contributions?', a: '<ul><li><strong>Vigesimal (base-20) number system with a concept of zero</strong></li><li>Highly accurate calendar</li><li>Astronomy (predicting eclipses)</li><li>Hieroglyphic writing</li><li>Stepped pyramids (e.g., Chichen Itza)</li></ul>' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What are the <em>Four Great Inventions</em> of ancient China?', a: '<ol><li><strong>Papermaking</strong></li><li><strong>Printing</strong> (woodblock, then movable type)</li><li><strong>Gunpowder</strong></li><li>The magnetic <strong>compass</strong></li></ol>Collectively they transformed world civilization.' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What are key <em>Indian</em> scientific contributions?', a: 'Indian mathematics gave us <strong>the concept of zero and the decimal (Hindu-Arabic) numeral system</strong>, early algebra, and trigonometry. Advances in astronomy (Aryabhata) and Ayurveda (traditional medicine).' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What was the <em>Islamic Golden Age</em> (8th&ndash;14th c.)?', a: 'A period of major advances in:<ul><li><strong>Algebra</strong> (al-Khwarizmi &mdash; the word itself from his name)</li><li>Astronomy &amp; optics (Alhazen)</li><li>Medicine (Avicenna\'s <em>Canon of Medicine</em>; Al-Razi)</li><li>Preservation and translation of Greek texts</li></ul>' },
+    { topic: 'topic1', section: 's_revolutions', q: 'What are notable <em>African</em> contributions to science?', a: '<ul><li>Ancient Egyptian mathematics and medicine</li><li><strong>Timbuktu</strong> (Mali) &mdash; medieval center of learning</li><li>Astronomy (e.g., Dogon)</li><li>Metallurgy (iron-working) independently developed</li></ul>' },
+
+    // ----- Philippine S&T (Agencies & Personalities) -----
+    { topic: 'topic1', section: 's_phil_st', q: 'What is the <em>DOST</em>?', a: 'The <strong>Department of Science and Technology</strong> &mdash; the Philippine government\'s lead agency for science policy, R&amp;D coordination, and S&amp;T human-resource development (est. 1987).' },
+    { topic: 'topic1', section: 's_phil_st', q: 'What is <em>PAGASA</em>?', a: '<strong>Philippine Atmospheric, Geophysical and Astronomical Services Administration</strong> &mdash; provides weather forecasts, flood warnings, typhoon tracking, and astronomical services.' },
+    { topic: 'topic1', section: 's_phil_st', q: 'What is <em>PHIVOLCS</em>?', a: '<strong>Philippine Institute of Volcanology and Seismology</strong> &mdash; monitors volcanoes, earthquakes, and tsunamis to mitigate disaster risk.' },
+    { topic: 'topic1', section: 's_phil_st', q: 'Who is <em>Fe del Mundo</em>?', a: 'Filipino pediatrician, <strong>first Asian woman admitted to Harvard Medical School</strong>. Invented a <strong>bamboo incubator</strong> for rural use; founded the first pediatric hospital in the Philippines. National Scientist.' },
+    { topic: 'topic1', section: 's_phil_st', q: 'Who is <em>Gregorio Zara</em>?', a: 'Filipino engineer/physicist who invented the <strong>two-way videophone</strong> (1955) and improved alcohol-fueled aircraft engines. Recipient of numerous patents; National Scientist.' },
+    { topic: 'topic1', section: 's_phil_st', q: 'Who is <em>Ramon Barba</em>?', a: 'Filipino horticulturist who developed a technique using <strong>potassium nitrate (KNO<sub>3</sub>) to induce flowering in mango trees</strong> &mdash; revolutionized the PH mango industry. National Scientist (2014).' },
+    { topic: 'topic1', section: 's_phil_st', q: 'Who is <em>Angel Alcala</em>?', a: 'Filipino biologist, marine ecologist, pioneer of <strong>marine protected areas and artificial coral reefs</strong> in the Philippines. National Scientist; former DENR Secretary.' },
+    { topic: 'topic1', section: 's_phil_st', q: 'Who is <em>Eduardo Quisumbing</em>?', a: 'Filipino botanist known for his work on <strong>Philippine medicinal plants</strong>; authored authoritative references on flora. National Scientist.' },
+    { topic: 'topic1', section: 's_phil_st', q: 'What is the <em>Philippine Science High School (PSHS)</em>?', a: 'A specialized public high school system under <strong>DOST</strong> for scholars gifted in science and mathematics. Graduates are bound to pursue STEM in college.' },
+    { topic: 'topic1', section: 's_phil_st', q: 'What are examples of <em>indigenous</em> Philippine science and technologies?', a: '<ul><li><strong>Albularyo</strong> &mdash; traditional herbal healing</li><li><strong>Hilot</strong> &mdash; traditional massage/bone-setting</li><li>Rice terrace hydraulic engineering</li><li>Balangay boat-building</li><li>Indigenous weather lore (<em>panahon</em>) and agriculture</li></ul>' },
+    { topic: 'topic1', section: 's_phil_st', q: 'What is the <em>Philippine Government S&T Agenda</em>?', a: 'The government\'s strategic framework for R&amp;D, led by DOST. Priority areas include:<ul><li>Health and agriculture</li><li>Disaster risk reduction &amp; climate adaptation</li><li>Industrial competitiveness</li><li>Emerging technologies (AI, nano, biotech)</li><li>Basic sciences and S&amp;T human capital</li></ul>' },
+
+    // ========= Topic 2: Human Condition =========
+
+    { topic: 'topic2', section: 's_flourishing', q: 'What is <em>science</em>?', a: 'The systematic study of the structure and behavior of the <strong>physical and natural world</strong> through <strong>observation, experiment, and reasoning</strong>.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What is <em>technology</em>?', a: 'The <strong>application of scientific knowledge</strong> and practical know-how to produce <strong>tools, machines, systems, and methods</strong> that serve human purposes.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What does Aristotle mean by <em>The Good Life</em>?', a: '<strong>Eudaimonia</strong> &mdash; "human flourishing" achieved by living virtuously, exercising reason, and realizing one\'s potential. <em>Not</em> mere pleasure or material wealth.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What is <em>eudaimonia</em>?', a: 'Greek term for <strong>"good spirit" / "flourishing"</strong> &mdash; Aristotle\'s highest human good. Attained by cultivating <strong>virtues</strong> (intellectual + moral) and living actively in accordance with reason.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What is Aristotle\'s <em>virtue ethics</em>?', a: 'Ethical framework where the good life is achieved by <strong>cultivating virtues</strong> (character traits like courage, temperance, justice, wisdom). Virtue is a <strong>golden mean</strong> between deficiency and excess.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What are Aristotle\'s <em>Four Causes</em>?', a: '<ol><li><strong>Material Cause</strong> &mdash; what something is made of</li><li><strong>Formal Cause</strong> &mdash; its shape/form/essence</li><li><strong>Efficient Cause</strong> &mdash; the agent that made it</li><li><strong>Final Cause</strong> &mdash; its purpose/end (<em>telos</em>)</li></ol>' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What is the <em>Material Cause</em>?', a: 'The <strong>matter/stuff</strong> from which something is made.<br>Example: the <strong>bronze</strong> of a statue.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What is the <em>Formal Cause</em>?', a: 'The <strong>form, shape, or essence</strong> that makes something what it is.<br>Example: the <strong>shape/design</strong> of the statue.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What is the <em>Efficient Cause</em>?', a: 'The <strong>agent or process</strong> that brings something into being.<br>Example: the <strong>sculptor</strong> who shaped the bronze.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What is the <em>Final Cause</em> (telos)?', a: 'The <strong>purpose or end</strong> for which something exists &mdash; <em>telos</em>.<br>Example: the statue exists <strong>to commemorate a person</strong>.' },
+    { topic: 'topic2', section: 's_flourishing', q: 'What does <em>human flourishing through S&T</em> mean?', a: 'Science and technology should <strong>extend human capabilities</strong> and contribute to <strong>eudaimonia</strong> (the good life). They are good when they serve human purposes and values &mdash; not when they replace or dominate them.' },
+    { topic: 'topic2', section: 's_revealing', q: 'What is Heidegger\'s view of the <em>Essence of Technology</em>?', a: 'Per <em>The Question Concerning Technology</em> (1954), the essence of technology is <strong>not the machines themselves</strong> but a <strong>way of revealing</strong> &mdash; a mode by which truth is disclosed. For modern tech, this revealing is <strong>enframing (Gestell)</strong>.' },
+    { topic: 'topic2', section: 's_revealing', q: 'What does Heidegger mean by <em>Technology as a Way of Revealing</em>?', a: 'Technology is not a neutral tool &mdash; it <strong>shapes how we see and engage the world</strong>. Every technology makes certain things visible and possible, while concealing others.' },
+    { topic: 'topic2', section: 's_revealing', q: 'What is <em>Gestell / Enframing</em>?', a: 'Heidegger\'s term for modern technology\'s way of framing <strong>everything as resources to be optimized and exploited</strong>. The world becomes a reserve of utilities &mdash; a forest seen only as timber, a river only as hydropower.' },
+    { topic: 'topic2', section: 's_revealing', q: 'What is <em>Standing Reserve</em> (Bestand)?', a: 'Heidegger: everything reduced to a <strong>resource ready for use</strong>. Under enframing, beings are no longer encountered as themselves but as <em>stock</em> (e.g., trees become timber, rivers become hydropower, humans become "human resources").' },
+    { topic: 'topic2', section: 's_tech_cross', q: 'What issues arise <em>when technology and humanity cross</em>?', a: '<ul><li><strong>Ethics</strong> &mdash; how to act responsibly with powerful tech</li><li><strong>Privacy</strong> &mdash; surveillance, data rights</li><li><strong>Identity &amp; authenticity</strong> &mdash; AI, social media, enhancement</li><li><strong>Dependence</strong> &mdash; what happens when tech fails or controls us</li><li><strong>Inequality</strong> &mdash; digital divide, access to therapies</li></ul>' },
+    { topic: 'topic2', section: 's_tech_cross', q: 'What is the <em>precautionary principle</em>?', a: 'An ethical principle: if an action <strong>could cause serious or irreversible harm</strong>, the burden of proof falls on its proponents to show it is safe &mdash; not on the public to prove it harmful. Applied to GMOs, nanotech, climate policy.' },
+    { topic: 'topic2', section: 's_tech_cross', q: 'What is <em>responsible innovation</em>?', a: 'A framework urging innovators and policymakers to <strong>anticipate impacts, reflect on purposes, include diverse stakeholders, and respond to societal/ethical concerns</strong> throughout a technology\'s life cycle &mdash; not just after harm is done.' },
+    { topic: 'topic2', section: 's_tech_cross', q: 'What is <em>transhumanism</em>?', a: 'A movement holding that humans should use science and technology to <strong>extend lifespan and enhance physical, cognitive, and emotional capabilities</strong> &mdash; through gene editing, cybernetics, AI integration, etc. Raises deep questions about identity and what it means to be human.' },
+    { topic: 'topic2', section: 's_tech_cross', q: 'Give examples of <em>tension points</em> where tech meets humanity.', a: '<ul><li><strong>Privacy vs. surveillance</strong> (data, facial recognition)</li><li><strong>Automation vs. jobs</strong> (AI, robotics displacing labor)</li><li><strong>Enhancement vs. therapy</strong> (designer babies, cognitive boosters)</li><li><strong>Connection vs. addiction</strong> (social media, attention economy)</li><li><strong>Power vs. access</strong> (digital divide, algorithmic bias)</li></ul>' },
+
+    // ========= Topic 3: Specific Issues =========
+
+    // ----- Information Age -----
+    { topic: 'topic3', section: 's_info', q: 'What is the <em>Information Age</em>?', a: 'The era (roughly <strong>mid-20th century onward</strong>) defined by rapid access to digital information via <strong>computers, networks, and the Internet</strong>. Information itself becomes a primary economic and cultural resource.' },
+    { topic: 'topic3', section: 's_info', q: 'What is <em>information</em>?', a: '<strong>Organized, meaningful data</strong> that reduces uncertainty or enables decisions. Distinct from raw data (unprocessed facts) and knowledge (internalized understanding).' },
+    { topic: 'topic3', section: 's_info', q: 'What is the <em>Internet</em>?', a: 'A <strong>global network of interconnected computer networks</strong> communicating via the <strong>TCP/IP</strong> protocol suite. Infrastructure for email, web, streaming, cloud, etc.' },
+    { topic: 'topic3', section: 's_info', q: 'What is the <em>World Wide Web</em>?', a: 'A <strong>system of interlinked hypertext documents</strong> accessed via the Internet. Invented by <strong>Tim Berners-Lee</strong> at CERN in <strong>1989</strong>. Different from the Internet itself (which is the network).' },
+    { topic: 'topic3', section: 's_info', q: 'What is <em>Moore\'s Law</em>?', a: 'Gordon Moore\'s 1965 observation that the number of transistors on a chip <strong>doubles roughly every 2 years</strong>, driving exponential growth in computing power while costs fall.' },
+    { topic: 'topic3', section: 's_info', q: 'What is the <em>digital divide</em>?', a: 'The <strong>gap between those with and without access to digital technology</strong> (Internet, devices, digital literacy). Driven by income, geography, age, education &mdash; and it deepens other inequalities.' },
+    { topic: 'topic3', section: 's_info', q: 'What are major impacts of <em>social media</em>?', a: '<strong>Positive:</strong> democratized expression, connection, citizen journalism, organizing.<br><strong>Negative:</strong> misinformation, echo chambers, polarization, privacy loss, mental-health effects, manipulation via algorithms.' },
+    { topic: 'topic3', section: 's_info', q: 'Who was <em>Alan Turing</em>?', a: 'British mathematician who laid the <strong>theoretical foundations of computing</strong> (Turing machine, 1936). Cracked Nazi Enigma in WWII. Formulated the <strong>Turing Test</strong> for machine intelligence.' },
+    { topic: 'topic3', section: 's_info', q: 'Who was <em>Claude Shannon</em>?', a: 'American mathematician, father of <strong>information theory</strong> (1948). Quantified information using <strong>bits</strong>, founded the math of communication and compression.' },
+
+    // ----- Biodiversity -----
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is <em>biodiversity</em>?', a: 'The <strong>variety of life at all levels</strong> &mdash; genes, species, and ecosystems &mdash; including the ecological processes that sustain them.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What are the <em>three levels of biodiversity</em>?', a: '<ol><li><strong>Genetic diversity</strong> &mdash; variation within a species</li><li><strong>Species diversity</strong> &mdash; number of different species</li><li><strong>Ecosystem diversity</strong> &mdash; variety of habitats and biological communities</li></ol>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Why is biodiversity <em>important</em>?', a: '<ul><li><strong>Ecosystem services</strong>: pollination, water &amp; air purification, soil fertility, climate regulation</li><li>Food, medicine, and raw materials</li><li>Resilience against disturbances (disease, disaster)</li><li>Cultural, spiritual, and aesthetic value</li></ul>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is <em>HIPPO</em> (E. O. Wilson)?', a: 'Acronym for the biggest threats to biodiversity:<ul><li><strong>H</strong>abitat destruction</li><li><strong>I</strong>nvasive species</li><li><strong>P</strong>ollution</li><li><strong>P</strong>opulation (human)</li><li><strong>O</strong>verharvesting</li></ul>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is the <em>sixth mass extinction</em>?', a: 'The ongoing, <strong>human-driven</strong> extinction event &mdash; species lost at <strong>100&ndash;1,000x background rates</strong>. Primary causes are habitat loss, climate change, and pollution.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Why is the Philippines a <em>megadiverse</em> country?', a: 'The Philippines is one of the <strong>17 megadiverse countries</strong>. It packs extraordinary species diversity and <strong>endemism</strong> into a relatively small archipelago, and is also a biodiversity <strong>hotspot</strong> (highly threatened).' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Name Philippine <em>endemic</em> species.', a: '<ul><li><strong>Philippine eagle</strong> (<em>Pithecophaga jefferyi</em>)</li><li><strong>Tamaraw</strong> (Mindoro buffalo)</li><li><strong>Philippine tarsier</strong></li><li>Philippine crocodile</li><li>Visayan warty pig; Philippine cockatoo</li></ul>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Compare <em>in-situ</em> and <em>ex-situ</em> conservation.', a: '<ul><li><strong>In-situ</strong> &mdash; protection in the species\' natural habitat (national parks, reserves, protected seascapes).</li><li><strong>Ex-situ</strong> &mdash; protection outside the habitat (zoos, botanical gardens, seed banks, gene banks).</li></ul>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What <em>human activities</em> reduce biodiversity?', a: '<ul><li>Habitat destruction (deforestation, land conversion)</li><li>Pollution (air, water, plastic)</li><li>Overexploitation (overfishing, poaching)</li><li>Invasive species introduction</li><li>Climate change</li></ul>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Define biodiversity (Cunningham &amp; Cunningham).', a: '"The <strong>genetic, species, and ecological variation</strong> of a given area." A three-level view that treats genes, species, and ecosystems as nested tiers of diversity.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Define <em>genetic diversity</em>.', a: 'The measure of the variety of <strong>different versions of the same genes</strong> within individual species. Populations with higher genetic diversity are more resilient to disease and environmental change.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Define <em>species diversity</em>.', a: 'The number of <strong>different kinds of organisms</strong> within individual communities or ecosystems.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Define <em>ecological (ecosystem) diversity</em>.', a: 'An assessment of the <strong>richness and complexity of a biological community</strong> &mdash; the variety of habitats, ecological processes, and species interactions in a given area.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'How can "species" be defined? (3 concepts)', a: '<ol><li><strong>Biological species concept</strong> &mdash; all organisms potentially able to breed in nature and produce fertile offspring.</li><li><strong>Phylogenetic species concept</strong> &mdash; emphasizes branching (cladistic) relationships, regardless of whether organisms can breed.</li><li><strong>Evolutionary species concept</strong> &mdash; defines species in evolutionary and historic terms rather than reproductive potential.</li></ol>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is the <em>Biological species concept</em>?', a: '<strong>All organisms potentially able to breed in nature and produce fertile offspring</strong>. The classic Mayr definition &mdash; works well for sexually reproducing animals but fails for asexual species.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is the <em>Phylogenetic species concept</em>?', a: 'Defines species by their <strong>branching (cladistic) relationships</strong> in an evolutionary tree &mdash; regardless of whether organisms can interbreed. Useful for fossils, asexual life, and cryptic species.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is the <em>Evolutionary species concept</em>?', a: 'Defines species in <strong>evolutionary and historic terms</strong> &mdash; a lineage of populations with its own evolutionary trajectory and fate &mdash; rather than by reproductive potential.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Who identified <em>biodiversity hotspots</em>?', a: '<strong>Norman Myers</strong> and <strong>Russell Mittermeier</strong>. Using plants and land-based vertebrates as indicators, they proposed <strong>34 hotspots</strong> as high-priority conservation areas.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What are the <em>criteria</em> for a biodiversity hotspot?', a: 'An area must:<ol><li>Contain <strong>at least 1,500 endemic species</strong> (found nowhere else)</li><li>Have lost <strong>at least 70% of its habitat</strong> due to anthropogenic factors</li></ol>So hotspots combine <em>high biodiversity</em> with <em>high risk of disruption</em>.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Where are biodiversity hotspots typically located?', a: 'In <strong>tropical or Mediterranean climates</strong> and on <strong>islands, coastlines, or mountains</strong> &mdash; places where many habitats exist and physical barriers encourage <em>speciation</em>.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Why is the Philippines a biodiversity hotspot?', a: 'It has <strong>~6,250 endemic species</strong> (plants &amp; vertebrates) and has lost most of its original forest cover &mdash; meeting both hotspot criteria (&ge;1,500 endemics, &ge;70% habitat loss).' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What fraction of all species that ever existed are now extinct?', a: 'Fossil-record studies suggest <strong>more than 99%</strong> of all species that ever existed are now extinct. Extinction is a normal evolutionary process &mdash; but human activity has dramatically <em>accelerated</em> the rate.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is the <em>IUCN Red List</em>?', a: 'The <strong>IUCN Red List of Threatened Species</strong> &mdash; the world\'s most authoritative inventory of extinction risk, maintained by the International Union for Conservation of Nature. Assigns categories to assessed species.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What are the <em>IUCN Red List categories</em>?', a: '<ul><li><strong>EX</strong> &mdash; Extinct</li><li><strong>EW</strong> &mdash; Extinct in the Wild</li><li><strong>CR</strong> &mdash; Critically Endangered</li><li><strong>EN</strong> &mdash; Endangered</li><li><strong>VU</strong> &mdash; Vulnerable</li><li><strong>NT</strong> &mdash; Near Threatened</li><li><strong>LC</strong> &mdash; Least Concern</li><li><strong>DD</strong> &mdash; Data Deficient</li></ul>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Other names for <em>invasive species</em>?', a: 'Also called <strong>alien, exotic, non-native, non-indigenous, unwanted, disruptive,</strong> or <strong>invaders</strong>. Organisms that move into new territory &mdash; accidentally or deliberately &mdash; and threaten native biodiversity.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is the <em>janitor fish</em> in the Philippines?', a: 'The <strong>suckermouth catfish</strong> (<em>Hypostomus plecostomus</em>) &mdash; a Latin-American species that escaped the aquarium trade into local rivers (late 1990s). No natural predator, rapid breeder, competes for food, eats eggs of native fish, and causes riverbank erosion.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'Why is the <em>cane toad</em> an invasive species in the Philippines?', a: 'Introduced in <strong>1930</strong> to eliminate pests in sugar plantations, but bred prolifically. Its skin secretes <strong>bufotoxin</strong> and <strong>bufotein</strong> &mdash; toxic to pets, wildlife, and humans. Filipinos commonly call it the "bullfrog".' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What does the <em>Borneo DDT case</em> illustrate?', a: 'In the 1950s, WHO sprayed DDT to kill malaria mosquitoes. Unintended cascade:<ul><li>Killed parasitic wasps &rarr; caterpillar outbreak ate thatch roofs</li><li>DDT <strong>biomagnified</strong> in geckos &rarr; cats eating geckos died &rarr; rat boom and plague outbreak</li></ul>A classic warning about pesticides and ecosystem complexity.' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'How can <em>you</em> help preserve biodiversity?', a: '<ul><li>Protect or restore <strong>native biomes</strong></li><li>Plant <strong>local, native species</strong></li><li>Don\'t transport firewood across regions (may carry diseases &amp; insects)</li><li>Follow legislation and management plans</li><li>Help <strong>control invasive species</strong></li></ul>' },
+    { topic: 'topic3', section: 's_biodiversity', q: 'What is <em>captive breeding</em>?', a: 'A conservation strategy where <strong>zoos and botanical gardens</strong> breed severely threatened species in captivity to prevent extinction. Examples in PH: Philippine Eagle Foundation, Makiling Botanic Gardens, Tamaraw conservation program.' },
+
+    // ----- GMOs -----
+    { topic: 'topic3', section: 's_gmo', q: 'What is a <em>GMO</em>?', a: '<strong>Genetically Modified Organism</strong> &mdash; an organism whose DNA has been altered using <strong>genetic engineering</strong> (not just traditional breeding). The modification may insert, delete, or transfer genes between species.' },
+    { topic: 'topic3', section: 's_gmo', q: 'How does GM differ from <em>traditional breeding</em>?', a: '<strong>Traditional breeding</strong> selects traits within a species over many generations (imprecise, slow).<br><strong>Genetic modification</strong> inserts specific genes &mdash; even across species &mdash; <strong>precisely and quickly</strong>.' },
+    { topic: 'topic3', section: 's_gmo', q: 'What is <em>Bt corn</em>?', a: 'Corn genetically engineered to produce a toxin from <strong><em>Bacillus thuringiensis</em></strong> that kills pest insects (like the corn borer), reducing the need for chemical pesticides.' },
+    { topic: 'topic3', section: 's_gmo', q: 'What is <em>Golden Rice</em>?', a: 'Rice genetically engineered to produce <strong>beta-carotene</strong> (a precursor of vitamin A) in the grain &mdash; developed to combat <strong>vitamin A deficiency</strong> in developing countries.' },
+    { topic: 'topic3', section: 's_gmo', q: 'What are the <em>benefits</em> of GMOs?', a: '<ul><li>Higher yields &amp; pest/disease resistance</li><li>Reduced pesticide use</li><li>Enhanced nutrition (Golden Rice)</li><li>Drought and salinity tolerance</li><li>Longer shelf life (e.g., Flavr Savr tomato)</li></ul>' },
+    { topic: 'topic3', section: 's_gmo', q: 'What are common <em>concerns</em> about GMOs?', a: '<ul><li>Unintended <strong>gene flow</strong> to wild relatives</li><li>Development of resistant pests/weeds</li><li>Potential <strong>allergenicity</strong> &amp; food-safety worries</li><li>Ecological effects on non-target species</li><li><strong>Farmer dependence</strong> on seed/chemical companies</li></ul>' },
+    { topic: 'topic3', section: 's_gmo', q: 'How are GMOs <em>regulated in the Philippines</em>?', a: 'Through a multi-agency biosafety framework: <strong>DA-BPI, DENR, DOST, DOH,</strong> and institutional biosafety committees. Internationally governed by the <strong>Cartagena Protocol on Biosafety</strong>.' },
+    { topic: 'topic3', section: 's_gmo', q: 'What are the politics of <em>GMO labeling</em>?', a: 'Advocates argue consumers have a <strong>right to know</strong> what they eat. Opponents warn labels <strong>stigmatize safe food</strong> and burden producers. Labeling norms vary widely by country.' },
+
+    // ----- Nanotechnology -----
+    { topic: 'topic3', section: 's_nano', q: 'What is <em>nanoscience</em>?', a: 'The study of materials, structures, and phenomena at the <strong>nanoscale (1&ndash;100 nanometers)</strong>, where quantum and surface effects become dominant.' },
+    { topic: 'topic3', section: 's_nano', q: 'What is <em>nanotechnology</em>?', a: 'The <strong>design, manipulation, and application</strong> of matter at the <strong>1&ndash;100 nm scale</strong> to create new structures, devices, and systems with unique properties.' },
+    { topic: 'topic3', section: 's_nano', q: 'How big is a <em>nanometer</em>?', a: '<strong>One billionth of a meter</strong> (10<sup>-9</sup> m).<br>A DNA double helix is ~2 nm wide; a human hair is ~80,000 nm thick.' },
+    { topic: 'topic3', section: 's_nano', q: 'Who was <em>Richard Feynman</em> in nanotech history?', a: 'In his 1959 talk <strong><em>"There\'s Plenty of Room at the Bottom"</em></strong>, Feynman envisioned manipulating matter atom-by-atom &mdash; widely considered the <strong>intellectual birth</strong> of nanotechnology.' },
+    { topic: 'topic3', section: 's_nano', q: 'Who <em>coined the term</em> "nanotechnology"?', a: '<strong>Norio Taniguchi</strong> (1974) in a paper on precision machining. K. Eric Drexler later popularized the molecular-assembler vision in <em>Engines of Creation</em> (1986).' },
+    { topic: 'topic3', section: 's_nano', q: 'What are the <em>two approaches</em> to nanotechnology?', a: '<ol><li><strong>Top-down</strong> &mdash; start with bulk material and carve/etch it down to nanoscale (e.g., photolithography).</li><li><strong>Bottom-up</strong> &mdash; build nanostructures atom-by-atom or molecule-by-molecule (e.g., self-assembly).</li></ol>' },
+    { topic: 'topic3', section: 's_nano', q: 'What is the <em>top-down</em> approach?', a: 'Start from a larger block of material and <strong>remove/pattern</strong> it down to nanoscale features. Example: <strong>lithography</strong> used to make computer chips.' },
+    { topic: 'topic3', section: 's_nano', q: 'What is the <em>bottom-up</em> approach?', a: '<strong>Assemble nanostructures atom-by-atom or molecule-by-molecule</strong> &mdash; often via self-assembly driven by chemistry. Mimics biology\'s way of building complex structures from small units.' },
+    { topic: 'topic3', section: 's_nano', q: 'What are <em>nanomaterials</em>?', a: 'Materials with <strong>at least one dimension in the 1&ndash;100 nm range</strong>. Examples: carbon nanotubes, fullerenes, graphene, nanoparticles, quantum dots.' },
+    { topic: 'topic3', section: 's_nano', q: 'What are <em>carbon nanotubes</em>?', a: '<strong>Cylindrical carbon molecules</strong> made of rolled graphene sheets. Extraordinarily strong (100&times; steel by weight), light, and electrically/thermally conductive.' },
+    { topic: 'topic3', section: 's_nano', q: 'What is <em>graphene</em>?', a: 'A <strong>single-atom-thick sheet of carbon</strong> arranged in a hexagonal lattice. Strongest, thinnest, and most conductive material known. Isolation won the 2010 Nobel Prize in Physics (Geim &amp; Novoselov).' },
+    { topic: 'topic3', section: 's_nano', q: 'What are key <em>nano applications</em>?', a: '<ul><li><strong>Medicine</strong> &mdash; targeted drug delivery, imaging, diagnostics</li><li><strong>Electronics</strong> &mdash; smaller transistors, flexible displays</li><li><strong>Energy</strong> &mdash; solar cells, batteries, fuel cells</li><li><strong>Materials</strong> &mdash; stronger, lighter composites; stain-resistant coatings</li><li><strong>Environment</strong> &mdash; water purification, pollution sensors</li></ul>' },
+    { topic: 'topic3', section: 's_nano', q: 'How is <em>nanotech used in medicine</em>?', a: '<ul><li><strong>Targeted drug delivery</strong> (reach tumor cells specifically)</li><li>Contrast agents for imaging</li><li>Early cancer detection</li><li>Nanoscale surgical tools &amp; (prospective) nanobots</li></ul>' },
+    { topic: 'topic3', section: 's_nano', q: 'What are <em>risks/concerns</em> of nanotechnology?', a: '<ul><li><strong>Toxicity</strong>: nanoparticles can penetrate cells and cross biological barriers</li><li>Environmental accumulation &amp; persistence</li><li>Ethical/privacy concerns (nano-surveillance)</li><li>Speculative risks: self-replicating "gray goo"</li></ul>' },
+    { topic: 'topic3', section: 's_nano', q: 'Nano size perspective: how thick is a piece of paper?', a: 'A piece of paper is about <strong>100,000 nanometers</strong> thick. The nanoscale (1&ndash;100 nm) is roughly a thousand times smaller than the thickness of a single sheet.' },
+    { topic: 'topic3', section: 's_nano', q: 'Where was nanotechnology "secretly" used in the Middle Ages?', a: 'In the <strong>stained-glass windows of 9th&ndash;17th century European cathedrals</strong>. Their vibrant reds, yellows, and purples come from <strong>metallic nanoparticles</strong> (gold, silver, copper) dispersed in the glass &mdash; medieval craftsmen used nanoscience without knowing it.' },
+    { topic: 'topic3', section: 's_nano', q: 'What did <em>Eric Drexler</em> contribute to nanotech?', a: 'In <strong>1986</strong> at MIT, Drexler formalized and popularized <strong>molecular nanotechnology</strong> &mdash; the vision of programmable molecular assemblers building materials atom by atom. Book: <em>Engines of Creation</em>.' },
+    { topic: 'topic3', section: 's_nano', q: 'Give the <em>nanotechnology timeline</em> highlights.', a: '<ul><li><strong>9th&ndash;17th c.</strong> &mdash; Metallic nanoparticles color medieval stained glass</li><li><strong>1959</strong> &mdash; Feynman: "There\'s Plenty of Room at the Bottom"</li><li><strong>1974</strong> &mdash; Norio Taniguchi coins "nanotechnology"</li><li><strong>1986</strong> &mdash; Eric Drexler formalizes molecular nanotech at MIT</li></ul>' },
+    { topic: 'topic3', section: 's_nano', q: 'What are the <em>benefits</em> of nanotechnology?', a: '<ul><li>New materials and devices with <strong>enhanced properties</strong> (strength, conductivity, reactivity)</li><li>More precise medicine &amp; diagnostics</li><li>Cleaner, more efficient energy</li><li>Lighter, stronger, more durable products</li><li>Environmental monitoring and remediation</li></ul>' },
+
+    // ----- Gene Therapy & Stem Cells -----
+    { topic: 'topic3', section: 's_gene', q: 'What is <em>biotechnology</em>?', a: 'Using <strong>biological systems or organisms</strong> to develop products and technologies &mdash; from fermentation (bread, beer, yogurt) to modern <strong>genetic engineering</strong> and synthetic biology.' },
+    { topic: 'topic3', section: 's_gene', q: 'What is <em>genetic engineering</em>?', a: 'The <strong>direct manipulation of an organism\'s genes</strong> using biotechnology &mdash; inserting, deleting, or modifying specific DNA sequences to achieve desired traits.' },
+    { topic: 'topic3', section: 's_gene', q: 'What is <em>DNA</em>?', a: '<strong>Deoxyribonucleic acid</strong> &mdash; a double-helix molecule carrying the <strong>genetic instructions</strong> for all living organisms. Composed of four bases: <strong>A, T, G, C</strong>.' },
+    { topic: 'topic3', section: 's_gene', q: 'Describe the <em>structure of DNA</em>.', a: '<ul><li><strong>Double helix</strong> of two complementary strands</li><li>Each strand is a chain of <strong>nucleotides</strong>: sugar-phosphate backbone + a base (A/T/G/C)</li><li>Bases pair via hydrogen bonds: <strong>A&harr;T</strong>, <strong>G&harr;C</strong></li></ul>' },
+    { topic: 'topic3', section: 's_gene', q: 'Who discovered the <em>structure of DNA</em>?', a: '<strong>James Watson and Francis Crick</strong> (1953), using the crucial X-ray diffraction data of <strong>Rosalind Franklin</strong> and Maurice Wilkins.' },
+    { topic: 'topic3', section: 's_gene', q: 'What is a <em>gene</em>?', a: 'A <strong>segment of DNA</strong> that codes for a functional product (typically a <strong>protein</strong>, sometimes a regulatory RNA). The basic unit of heredity.' },
+    { topic: 'topic3', section: 's_gene', q: 'What is <em>gene therapy</em>?', a: 'A medical technique that <strong>modifies genes to treat or prevent disease</strong> &mdash; by inserting a healthy gene, inactivating a faulty one, or introducing a new/modified gene into a patient\'s cells.' },
+    { topic: 'topic3', section: 's_gene', q: 'What are the <em>types of gene therapy</em>?', a: '<ol><li><strong>Somatic gene therapy</strong> &mdash; treats body cells; changes are <em>not</em> inherited</li><li><strong>Germline gene therapy</strong> &mdash; modifies sperm, egg, or embryo; changes <em>are</em> inherited</li></ol>' },
+    { topic: 'topic3', section: 's_gene', q: 'What is <em>somatic gene therapy</em>?', a: 'Gene therapy targeting <strong>non-reproductive (somatic) cells</strong>. Changes treat the individual\'s disease but are <strong>not passed to offspring</strong>. This is the mainstream, clinically applied form.' },
+    { topic: 'topic3', section: 's_gene', q: 'What is <em>germline gene therapy</em>?', a: 'Gene therapy that modifies <strong>sperm, egg, or embryo cells</strong>. Changes are <strong>inherited by future generations</strong>. Extremely controversial and largely banned for humans.' },
+    { topic: 'topic3', section: 's_gene', q: 'Why is <em>germline therapy controversial</em>?', a: '<ul><li>Permanently alters the human gene pool</li><li>Future generations <strong>cannot consent</strong></li><li>Opens door to <strong>eugenics</strong> and "designer babies"</li><li>Could deepen social inequalities (access to enhancements)</li><li>Long-term effects are unknown</li></ul>' },
+    { topic: 'topic3', section: 's_gene', q: 'What is a <em>stem cell</em>?', a: 'An <strong>undifferentiated cell</strong> capable of two things: <strong>self-renewal</strong> (dividing into more stem cells) and <strong>differentiation</strong> (becoming specialized cell types).' },
+    { topic: 'topic3', section: 's_gene', q: 'What are the <em>types of stem cells</em>?', a: '<ol><li><strong>Embryonic stem cells (ESC)</strong> &mdash; pluripotent; any cell type</li><li><strong>Adult/Somatic stem cells</strong> &mdash; multipotent; limited set of cell types</li><li><strong>Induced pluripotent stem cells (iPSC)</strong> &mdash; adult cells reprogrammed to pluripotency</li></ol>' },
+    { topic: 'topic3', section: 's_gene', q: 'What are <em>embryonic stem cells</em>?', a: 'Stem cells derived from the <strong>inner cell mass of early embryos (blastocyst)</strong>. They are <strong>pluripotent</strong> &mdash; can become any body cell. Their use is ethically contested because the embryo is destroyed.' },
+    { topic: 'topic3', section: 's_gene', q: 'What are <em>adult (somatic) stem cells</em>?', a: 'Stem cells found in adult tissues (bone marrow, skin, blood, gut). Typically <strong>multipotent</strong> &mdash; they can become a limited set of related cell types (e.g., hematopoietic stem cells &rarr; all blood cell types).' },
+    { topic: 'topic3', section: 's_gene', q: 'What are <em>induced pluripotent stem cells (iPSC)</em>?', a: '<strong>Adult cells reprogrammed back to a pluripotent state</strong> by introducing specific transcription factors. Achieved by <strong>Shinya Yamanaka (2006)</strong> &mdash; Nobel Prize 2012. Sidesteps the embryo ethics issue.' },
+    { topic: 'topic3', section: 's_gene', q: 'What are the <em>types of stem cell therapy</em>?', a: '<ul><li><strong>Hematopoietic</strong> (bone marrow / umbilical cord) &mdash; for leukemia, lymphoma, immune disorders</li><li><strong>Mesenchymal</strong> &mdash; for orthopedic and autoimmune conditions</li><li><strong>Neural</strong> &mdash; researched for Parkinson\'s, spinal injury</li><li><strong>iPSC-based</strong> &mdash; emerging personalized therapies</li></ul>' },
+    { topic: 'topic3', section: 's_gene', q: 'What is a <em>bone marrow transplant</em>?', a: 'The oldest form of stem cell therapy &mdash; <strong>hematopoietic stem cells</strong> from a donor replace a patient\'s damaged/diseased marrow. Used for leukemia, lymphoma, severe immune disorders.' },
+    { topic: 'topic3', section: 's_gene', q: 'Role of <em>bacteria</em> in biotech?', a: '<strong>Single-celled prokaryotic organisms</strong> used extensively in biotech as <strong>"factories"</strong> for producing insulin, enzymes, vaccines, and for cloning DNA (via plasmids). Essential for the gut microbiome and ecosystem cycles too.' },
+    { topic: 'topic3', section: 's_gene', q: 'What is <em>CRISPR-Cas9</em>?', a: 'A revolutionary <strong>gene-editing tool</strong> adapted from bacterial immune systems. Allows <strong>precise cutting and editing of DNA</strong>. Jennifer Doudna &amp; Emmanuelle Charpentier won the 2020 Nobel Prize in Chemistry.' },
+
+    // ----- Climate Change & Environment -----
+    { topic: 'topic3', section: 's_climate', q: 'What is <em>climate change</em>?', a: '<strong>Long-term shifts in temperatures and weather patterns</strong>. Today, it is largely driven by <strong>human-caused greenhouse gas emissions</strong> &mdash; not natural variability alone.' },
+    { topic: 'topic3', section: 's_climate', q: 'What are the <em>origins</em> of climate science?', a: 'Scientists have studied the greenhouse effect since the 19th century &mdash; <strong>Joseph Fourier (1820s), John Tyndall (1859), Svante Arrhenius (1896)</strong>. The <strong>IPCC</strong> was formed in <strong>1988</strong> to synthesize evidence.' },
+    { topic: 'topic3', section: 's_climate', q: 'What are the main <em>causes</em> of climate change?', a: '<ul><li><strong>Burning fossil fuels</strong> (coal, oil, gas) &mdash; CO<sub>2</sub></li><li><strong>Deforestation</strong> &mdash; reduces carbon sinks</li><li><strong>Agriculture</strong> &mdash; methane (livestock, rice paddies)</li><li>Industrial processes (cement, chemicals)</li><li>Land-use change &amp; waste</li></ul>' },
+    { topic: 'topic3', section: 's_climate', q: 'What are the <em>effects</em> of climate change?', a: '<ul><li>Rising global temperatures &amp; heat waves</li><li>Melting glaciers &amp; <strong>sea-level rise</strong></li><li>More extreme weather (typhoons, droughts, floods)</li><li><strong>Ocean acidification</strong> &amp; coral bleaching</li><li>Species extinctions; climate refugees; food/water stress</li></ul>' },
+    { topic: 'topic3', section: 's_climate', q: 'What are the main <em>Greenhouse Gases (GHGs)</em>?', a: '<ul><li><strong>Carbon dioxide (CO<sub>2</sub>)</strong> &mdash; biggest anthropogenic contributor</li><li><strong>Methane (CH<sub>4</sub>)</strong> &mdash; ~25&times; more warming than CO<sub>2</sub></li><li><strong>Nitrous oxide (N<sub>2</sub>O)</strong></li><li>Water vapor (natural amplifier)</li><li>Fluorinated gases (HFCs, PFCs, SF<sub>6</sub>)</li></ul>' },
+    { topic: 'topic3', section: 's_climate', q: 'What is <em>carbon dioxide (CO<sub>2</sub>)</em>\'s role?', a: 'The <strong>primary anthropogenic greenhouse gas</strong>. Released by burning fossil fuels, deforestation, and cement production. Has a long atmospheric lifetime (hundreds of years).' },
+    { topic: 'topic3', section: 's_climate', q: 'What is <em>methane (CH<sub>4</sub>)</em>\'s role?', a: 'A potent GHG &mdash; <strong>~25&times; more warming than CO<sub>2</sub></strong> over 100 years. Main sources: <strong>livestock (enteric fermentation), rice paddies, landfills,</strong> and natural-gas leaks.' },
+    { topic: 'topic3', section: 's_climate', q: 'What is the <em>greenhouse effect</em>?', a: 'The <strong>natural process</strong> by which atmospheric gases trap some of the Sun\'s heat, keeping Earth warm enough for life (~15&deg;C avg). Too many GHGs cause an <strong>enhanced greenhouse effect</strong> &mdash; global warming.' },
+    { topic: 'topic3', section: 's_climate', q: 'What is the <em>IPCC</em>?', a: 'The <strong>Intergovernmental Panel on Climate Change</strong> &mdash; UN body established in <strong>1988</strong> that assesses and synthesizes climate science. Its assessment reports drive international policy.' },
+    { topic: 'topic3', section: 's_climate', q: 'What is <em>Environmental Awareness</em>?', a: 'Public knowledge and concern about <strong>environmental issues</strong> and human impact on the environment. A foundation for motivating protective behavior and policy.' },
+    { topic: 'topic3', section: 's_climate', q: 'What is <em>Environmental Education</em>?', a: 'Educational processes that <strong>build understanding</strong> of the environment, ecosystems, and sustainability &mdash; aiming to shape attitudes, skills, and behavior. In the PH, mandated by <strong>RA 9512</strong>.' },
+    { topic: 'topic3', section: 's_climate', q: 'What is <em>Environmental Justice</em>?', a: 'The principle that <strong>all people</strong> &mdash; regardless of race, class, or geography &mdash; deserve <strong>equal protection from environmental harm</strong> and equal access to environmental benefits. Poor and marginalized groups bear disproportionate environmental burdens.' },
+    { topic: 'topic3', section: 's_climate', q: 'What is <em>Environmental Sustainability</em>?', a: 'Per the <strong>Brundtland Report (1987)</strong>: "meeting the needs of the present <strong>without compromising the ability of future generations</strong> to meet their own needs." Balances economy, society, and environment.' },
+    { topic: 'topic3', section: 's_climate', q: 'What is <em>Environmental Ethics</em>?', a: 'The branch of ethics concerning the <strong>moral relationship between humans and the environment</strong>. Major views:<ul><li><strong>Anthropocentric</strong> &mdash; human-centered</li><li><strong>Biocentric</strong> &mdash; all living things have value</li><li><strong>Ecocentric</strong> &mdash; entire ecosystems have value</li></ul>' },
+    { topic: 'topic3', section: 's_climate', q: 'What <em>human activities affect climate</em> the most?', a: 'Burning fossil fuels (power, transport, industry), <strong>deforestation</strong>, industrial agriculture (methane from livestock/rice, fertilizer N<sub>2</sub>O), cement production, and urban sprawl.' },
+
+    // ----- Alternative / Renewable Energy -----
+    { topic: 'topic3', section: 's_energy', q: 'What are <em>fossil fuels</em>?', a: 'Hydrocarbon fuels &mdash; <strong>coal, oil, natural gas</strong> &mdash; formed from ancient plant and animal remains over millions of years. <strong>Non-renewable</strong>; major source of CO<sub>2</sub> when burned.' },
+    { topic: 'topic3', section: 's_energy', q: 'Why are fossil fuels <em>problematic</em>?', a: '<ul><li><strong>Finite</strong> &mdash; will eventually run out</li><li>Emit <strong>greenhouse gases</strong>, driving climate change</li><li>Cause air pollution &amp; respiratory disease</li><li>Oil spills &amp; mining damage ecosystems</li><li>Fuel <strong>geopolitical conflict</strong></li></ul>' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>renewable (green) energy</em>?', a: 'Energy from sources that <strong>replenish naturally on human timescales</strong> &mdash; solar, wind, hydro, biomass, geothermal, ocean (tidal/wave). Usually low- or zero-carbon at point of generation.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>solar energy</em>?', a: 'Energy from sunlight &mdash; converted to electricity by <strong>photovoltaic (PV) cells</strong> or to heat by <strong>solar thermal</strong> collectors. Abundant but intermittent.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>wind energy</em>?', a: 'Kinetic energy of moving air converted to electricity by <strong>wind turbines</strong>. Onshore and offshore. Intermittent, but among the lowest-cost new electricity sources.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>hydroelectric power</em>?', a: 'Electricity generated from <strong>moving or falling water</strong> &mdash; typically via dams, sometimes run-of-river. Dispatchable but can harm ecosystems and displace communities.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>geothermal energy</em>?', a: 'Heat energy from <strong>Earth\'s interior</strong> used to generate electricity or heat buildings. The Philippines is one of the world\'s top geothermal producers.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>biomass</em>?', a: '<strong>Organic material</strong> &mdash; plants, wood, agricultural/forestry residues, animal and food waste &mdash; used as an energy source. Can be burned directly or processed into <strong>biofuels</strong>.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>biofuel</em>?', a: '<strong>Liquid or gaseous fuel derived from biomass</strong>. Main types:<ul><li><strong>Bioethanol</strong> &mdash; from sugarcane/corn fermentation</li><li><strong>Biodiesel</strong> &mdash; from vegetable oils or animal fats</li><li><strong>Biogas</strong> &mdash; methane from anaerobic digestion</li></ul>' },
+    { topic: 'topic3', section: 's_energy', q: 'Difference between <em>biomass</em> and <em>biofuel</em>?', a: '<strong>Biomass</strong> = the raw organic material.<br><strong>Biofuel</strong> = a processed liquid or gas fuel <em>made from</em> biomass.<br>All biofuels come from biomass, but not all biomass becomes biofuel (some is burned directly).' },
+    { topic: 'topic3', section: 's_energy', q: 'What are the <em>benefits of green energy</em>?', a: '<ul><li>Low or zero greenhouse-gas emissions</li><li><strong>Renewable</strong> and domestically abundant</li><li>Reduced air pollution &amp; health costs</li><li>Energy independence &amp; price stability</li><li>New jobs &amp; innovation</li></ul>' },
+    { topic: 'topic3', section: 's_energy', q: 'What are the <em>challenges</em> of green energy?', a: '<ul><li><strong>Intermittency</strong> (sun, wind)</li><li>Storage costs (batteries, pumped hydro)</li><li>Grid integration</li><li>High upfront capital</li><li>Land use and siting conflicts</li></ul>' },
+    { topic: 'topic3', section: 's_energy', q: 'Who first linked fossil fuels to global warming, and when?', a: 'Swedish scientist <strong>Svante Arrhenius</strong> in <strong>1896</strong> &mdash; more than a century before climate policy took hold. He calculated that doubling atmospheric CO<sub>2</sub> would warm Earth by several degrees.' },
+    { topic: 'topic3', section: 's_energy', q: 'Compare <em>renewable</em> vs <em>nonrenewable</em> energy.', a: '<ul><li><strong>Renewable</strong> &mdash; naturally replenishing but flow-limited; virtually inexhaustible over time (solar, wind, hydro, biomass, geothermal, ocean).</li><li><strong>Nonrenewable</strong> &mdash; do not form or replenish on human timescales (crude oil, natural gas, coal, uranium).</li></ul>' },
+    { topic: 'topic3', section: 's_energy', q: 'What are the <em>four major nonrenewable energy sources</em>?', a: '<ol><li>Crude oil (petroleum)</li><li>Natural gas</li><li>Coal</li><li><strong>Uranium</strong> (nuclear energy)</li></ol>' },
+    { topic: 'topic3', section: 's_energy', q: 'Key distinction: <em>fossil fuels</em> vs <em>nonrenewable fuels</em>.', a: '<strong>All fossil fuels are nonrenewable, but not all nonrenewable fuels are fossil fuels.</strong><ul><li>Coal, crude oil, and natural gas = fossil fuels (formed from ancient life)</li><li><strong>Uranium</strong> = nonrenewable, but <em>not</em> a fossil fuel (it\'s a mined mineral)</li></ul>' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>hydrogen gas</em> as an alternative fuel?', a: 'A <strong>completely clean-burning fuel</strong> &mdash; hydrogen fuel cells emit only water vapor and warm air. Downside: most H<sub>2</sub> today is derived from natural gas, which offsets the benefit. <strong>Electrolysis</strong> (splitting water with electricity) is the clean path.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>tidal / ocean wave energy</em>?', a: 'Uses the <strong>kinetic energy of the ocean</strong> (tides and waves) to drive turbines. Similar in principle to wind turbines but underwater. Still emerging &mdash; UK estimates suggest it could meet up to <strong>20%</strong> of national electricity demand.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>nuclear energy</em>?', a: 'Energy stored in the bonds holding an atomic nucleus together. Released by either <strong>fission</strong> (splitting large nuclei like uranium) or <strong>fusion</strong> (combining small nuclei). Nuclear power plants use fission; the sun uses fusion.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>nuclear fission</em>?', a: 'A nuclear reaction where a heavy nucleus (usually <strong>uranium-235</strong>) absorbs a neutron and splits into two lighter nuclei, releasing enormous energy and more neutrons. This chain reaction powers commercial <strong>nuclear reactors</strong>.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>nuclear fusion</em>?', a: 'A nuclear reaction where <strong>light nuclei combine</strong> to form a heavier one, releasing energy. This is how the <strong>Sun and stars</strong> produce energy. Commercial fusion power is still experimental.' },
+    { topic: 'topic3', section: 's_energy', q: 'What are risks of nuclear energy?', a: 'When a reactor fails, the potential for catastrophe is enormous &mdash; radioactive release contaminates land and water. Historic examples: <strong>Chernobyl (1986)</strong> and <strong>Fukushima (2011)</strong>. Long-term radioactive waste storage remains unsolved.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is <em>natural gas</em>?', a: 'A <strong>fossil fuel</strong> formed deep underground; mostly <strong>methane (CH<sub>4</sub>)</strong> &mdash; one carbon + four hydrogen atoms. Burns cleaner than coal/oil but still emits CO<sub>2</sub> and leaks unburned methane (a potent GHG).' },
+    { topic: 'topic3', section: 's_energy', q: 'What plant sources are used for <em>biofuels</em>?', a: 'Sugar and starch crops such as:<ul><li>Sugar cane, sugar beets</li><li>Corn, sorghum, barley, rice</li><li>Potato skins</li><li>Switchgrass</li><li>Yard clippings, tree bark</li></ul>Fermentation produces <strong>bioethanol</strong>; vegetable oils yield <strong>biodiesel</strong>.' },
+    { topic: 'topic3', section: 's_energy', q: 'Who used an early <em>solar oven</em>, and when?', a: 'British astronomer <strong>John Herschel</strong> used a solar oven to cook food during an expedition to <strong>Africa in the 1830s</strong> &mdash; an early documented practical use of solar thermal energy.' },
+    { topic: 'topic3', section: 's_energy', q: 'What is the Philippine <em>power generation mix</em> (2016)?', a: 'Of total generation:<ul><li><strong>48%</strong> from coal</li><li><strong>22%</strong> from natural gas</li><li><strong>6%</strong> from oil-based</li><li><strong>24%</strong> from renewable energy (RE)</li></ul>Total installed capacity: ~21,423 MW.' },
+    { topic: 'topic3', section: 's_energy', q: 'Why is burning biomass still considered <em>renewable</em>?', a: 'Burning plant-derived biomass releases CO<sub>2</sub>, but under EU and UN legal frameworks it is classified renewable because <strong>photosynthesis cycles the CO<sub>2</sub> back</strong> into new crops. Still a contested claim when land-use change is counted.' },
+
+    // ----- Philippine Environmental Laws -----
+    { topic: 'topic3', section: 's_laws', q: 'What is <em>RA 7942</em>?', a: '<strong>Philippine Mining Act of 1995</strong> &mdash; the national law governing exploration, development, utilization, and conservation of <strong>mineral resources</strong>. Aims to balance mineral development with environmental protection.' },
+    { topic: 'topic3', section: 's_laws', q: 'What is <em>RA 9512</em>?', a: '<strong>Environmental Awareness and Education Act of 2008</strong> &mdash; mandates integration of <strong>environmental education</strong> into school curricula at all levels and into government training programs.' },
+    { topic: 'topic3', section: 's_laws', q: 'What is <em>RA 8749</em>?', a: '<strong>Philippine Clean Air Act of 1999</strong> &mdash; comprehensive air-quality management law. Bans incineration, regulates emissions from vehicles/industry, and sets ambient air-quality standards.' },
+    { topic: 'topic3', section: 's_laws', q: 'What is <em>RA 9513</em>?', a: '<strong>Renewable Energy Act of 2008</strong> &mdash; promotes the development, utilization, and commercialization of <strong>renewable energy</strong> (solar, wind, hydro, biomass, geothermal, ocean). Provides tax incentives and a feed-in-tariff (FiT) system.' },
+    { topic: 'topic3', section: 's_laws', q: 'What is <em>RA 9147</em>?', a: '<strong>Wildlife Resources Conservation and Protection Act of 2001</strong> &mdash; the primary Philippine law for the conservation and protection of wildlife resources and their habitats.' },
+    { topic: 'topic3', section: 's_laws', q: 'What are the <em>objectives of RA 9147</em>?', a: '<ol><li>Conserve and protect wildlife species &amp; habitats to promote ecological balance and biodiversity</li><li>Regulate the <strong>collection and trade</strong> of wildlife</li><li>Honor PH commitments to <strong>international conventions</strong> (e.g., CBD, CITES)</li><li>Initiate/support scientific studies on biodiversity conservation</li></ol>' },
+    { topic: 'topic3', section: 's_laws', q: 'What is the <em>scope</em> of RA 9147?', a: 'All wildlife species in all areas of the country, including <strong>protected areas under the NIPAS Act (RA 7586)</strong> and critical habitats. Also applies to <strong>exotic species</strong> traded, cultured, or propagated in the country.' },
+    { topic: 'topic3', section: 's_laws', q: 'RA 9147 &mdash; define <em>Critically Endangered</em>.', a: 'A species or subspecies <strong>facing an extremely high risk of extinction in the wild in the immediate future</strong>.<br>PH examples: <em>Bubalus mindoronensis</em> (tamaraw), <em>Nepenthes kitanglad</em> (pitcher plant).' },
+    { topic: 'topic3', section: 's_laws', q: 'RA 9147 &mdash; define <em>Endangered</em>.', a: 'A species or subspecies that is not critically endangered <strong>but whose survival in the wild is unlikely if causal factors continue operating</strong>.<br>PH examples: <em>Penelopides affinis</em> (hornbill), <em>Shorea ovata</em> (dipterocarp tree).' },
+    { topic: 'topic3', section: 's_laws', q: 'RA 9147 &mdash; define <em>Vulnerable</em>.', a: 'A species under threat from adverse factors throughout its range, <strong>likely to move to Endangered in the near future</strong> if threats continue.<br>PH examples: <em>Varanus bitatawa</em> (monitor lizard), <em>Liparis</em> sp. (orchid).' },
+    { topic: 'topic3', section: 's_laws', q: 'RA 9147 &mdash; define <em>Endemic</em> species.', a: 'A species or subspecies <strong>naturally occurring and found only within specific areas of the country</strong>.<br>PH examples: <em>Naja samarensis</em> (Samar cobra), Kanapia.' },
+    { topic: 'topic3', section: 's_laws', q: 'RA 9147 &mdash; define <em>Exotic</em> species.', a: 'A species or subspecies that <strong>does not occur naturally in the country</strong> (introduced).<br>Examples: <em>Heliconia</em> (ornamental plant), <em>Chelus</em> (matamata turtle).' },
+    { topic: 'topic3', section: 's_laws', q: 'RA 9147 &mdash; define <em>Economically Important</em> species.', a: 'Species with actual or potential value in <strong>trade or utilization for commercial purposes</strong>.<br>PH examples: <em>Bubalus bubalis</em> (carabao), <em>Cocos nucifera</em> (coconut).' },
+    { topic: 'topic3', section: 's_laws', q: 'What is the <em>NIPAS Act (RA 7586)</em>?', a: '<strong>National Integrated Protected Areas System Act of 1992</strong> &mdash; establishes the legal framework for the country\'s <strong>protected areas</strong> (national parks, reserves, sanctuaries) to safeguard biological diversity and natural features.' },
+    { topic: 'topic3', section: 's_laws', q: 'What is <em>RA 9367</em>?', a: '<strong>Biofuels Act of 2006</strong> (approved January 12, 2007) &mdash; directs the use of biofuels, establishes the National Biofuels Program, and mandates biofuel blending (e.g., bioethanol in gasoline, biodiesel in diesel).' },
+
+    // ----- International Environmental Agreements -----
+    { topic: 'topic3', section: 's_treaties', q: 'What is the <em>Kyoto Protocol</em>?', a: '<strong>1997 international treaty</strong> under the <strong>UNFCCC</strong>, entering force in 2005. Committed <strong>industrialized countries</strong> to legally binding greenhouse-gas emission-reduction targets.' },
+    { topic: 'topic3', section: 's_treaties', q: 'What is the <em>Cartagena Protocol</em>?', a: '<strong>2000 protocol</strong> under the Convention on Biological Diversity regulating the <strong>transboundary movement of Living Modified Organisms (LMOs/GMOs)</strong> to protect biodiversity. Entered force in 2003.' },
+    { topic: 'topic3', section: 's_treaties', q: 'What is the <em>Convention on Biological Diversity (CBD)</em>?', a: '<strong>1992 treaty</strong> (Rio Earth Summit) with three main objectives:<ol><li><strong>Conservation</strong> of biological diversity</li><li><strong>Sustainable use</strong> of its components</li><li><strong>Fair and equitable sharing</strong> of benefits from genetic resources</li></ol>' },
+    { topic: 'topic3', section: 's_treaties', q: 'What is the <em>Paris Agreement</em>?', a: '<strong>2015 international climate treaty</strong> under UNFCCC. Commits parties to limit global warming to <strong>well below 2&deg;C above pre-industrial levels</strong>, aiming for <strong>1.5&deg;C</strong>. Uses Nationally Determined Contributions (NDCs).' },
+    { topic: 'topic3', section: 's_treaties', q: 'What is the <em>Basel Convention</em>?', a: '<strong>1989 treaty</strong> controlling the <strong>transboundary movement of hazardous wastes</strong> and their disposal. Prevents rich countries from dumping hazardous waste on poorer ones.' },
+    { topic: 'topic3', section: 's_treaties', q: 'What is the <em>Stockholm Convention</em>?', a: '<strong>2001 treaty</strong> to eliminate or restrict the production and use of <strong>Persistent Organic Pollutants (POPs)</strong> &mdash; long-lived, toxic, bioaccumulative chemicals (e.g., DDT, PCBs, dioxins).' },
+    { topic: 'topic3', section: 's_treaties', q: 'What is the <em>UNFCCC</em>?', a: '<strong>UN Framework Convention on Climate Change</strong> (1992, Rio) &mdash; the parent treaty under which the <strong>Kyoto Protocol</strong> and <strong>Paris Agreement</strong> were negotiated. Sets the overall goal of stabilizing GHG concentrations.' },
+    { topic: 'topic3', section: 's_treaties', q: 'What is the <em>Montreal Protocol</em>?', a: '<strong>1987 treaty</strong> phasing out <strong>ozone-depleting substances (CFCs, halons)</strong>. Often called the most successful environmental treaty in history &mdash; the ozone layer is recovering.' },
+
+    // ----- Bill Joy & the Fears of GNT -----
+    { topic: 'topic3', section: 's_billjoy', q: 'Who is <em>Bill Joy</em>?', a: '<strong>Co-founder of Sun Microsystems</strong> and co-author of the Java programming language. Wrote the influential 2000 <em>Wired</em> essay <strong>"Why the Future Doesn\'t Need Us"</strong> warning about 21st-century technologies.' },
+    { topic: 'topic3', section: 's_billjoy', q: 'What does <em>GNT</em> stand for?', a: '<strong>G</strong>enetics, <strong>N</strong>anotechnology, <strong>R</strong>obotics (often also called GNR) &mdash; the three 21st-century technologies Bill Joy warned could <strong>endanger human existence</strong>.' },
+    { topic: 'topic3', section: 's_billjoy', q: 'Why did Bill Joy <em>fear GNT</em>?', a: 'Because these technologies are <strong>knowledge-enabled, self-replicating,</strong> and potentially <strong>uncontrollable</strong>. A single accident or misuse could cause <strong>extinction-level harm</strong> &mdash; unlike nuclear weapons, which require rare materials and large infrastructure.' },
+    { topic: 'topic3', section: 's_billjoy', q: 'What specific GNT scenarios worried Joy?', a: '<ul><li><strong>Genetic engineering</strong> &mdash; engineered pathogens, "designer" pandemics</li><li><strong>Nanotech</strong> &mdash; self-replicating nanobots ("<strong>gray goo</strong>") consuming the biosphere</li><li><strong>Robotics/AI</strong> &mdash; autonomous machines replacing or surpassing humans</li></ul>' },
+    { topic: 'topic3', section: 's_billjoy', q: 'What is the <em>"gray goo"</em> scenario?', a: 'A hypothetical extinction scenario from nanotech: <strong>self-replicating nanobots</strong> escape control and break down all organic matter on Earth to make more of themselves &mdash; reducing the biosphere to a "gray goo."' },
+    { topic: 'topic3', section: 's_billjoy', q: 'What did Bill Joy <em>recommend</em>?', a: '<strong>Relinquishment</strong> &mdash; voluntary abandonment of the most dangerous research pathways, plus strict precaution. Limit the pursuit of dangerous knowledge before it becomes uncontrollable.' },
+];
+
+const SECTIONS = {
+    // A. General Concepts & STS Historical Developments
+    s_history_world: { topic: 'topic1', label: 'A1a. Historical Antecedents — World' },
+    s_history_ph:    { topic: 'topic1', label: 'A1b. Historical Antecedents — Philippines' },
+    s_revolutions:   { topic: 'topic1', label: 'A2. Intellectual Revolutions' },
+    s_phil_st:       { topic: 'topic1', label: 'A3. S&T and Nation Building (PH)' },
+    // B. STS and the Human Condition
+    s_flourishing:   { topic: 'topic2', label: 'B1. Human Flourishing & The Good Life' },
+    s_revealing:     { topic: 'topic2', label: 'B2. Technology as a Way of Revealing' },
+    s_tech_cross:    { topic: 'topic2', label: 'B3. When Technology & Humanity Cross' },
+    // C. Specific Issues in STS
+    s_info:          { topic: 'topic3', label: 'C1. The Information Age' },
+    s_biodiversity:  { topic: 'topic3', label: 'C2. Biodiversity & the Healthy Society' },
+    s_gmo:           { topic: 'topic3', label: 'C3. GMOs: Science, Health & Politics' },
+    s_nano:          { topic: 'topic3', label: 'C4. The Nano World' },
+    s_gene:          { topic: 'topic3', label: 'C5. Gene Therapy & Stem Cells' },
+    s_climate:       { topic: 'topic3', label: 'C6. Climate Change & Environmental Awareness' },
+    s_energy:        { topic: 'topic3', label: 'C7. Alternative Energy Resources' },
+    // Supplementary groupings within C
+    s_laws:          { topic: 'topic3', label: '+ PH Environmental Laws (RAs)' },
+    s_treaties:      { topic: 'topic3', label: '+ International Environmental Agreements' },
+    s_billjoy:       { topic: 'topic3', label: '+ Bill Joy & GNT Fears' },
+};
+
+const TOPIC_LABELS = {
+    topic1: 'A. Concepts & History',
+    topic2: 'B. Human Condition',
+    topic3: 'C. Specific Issues',
+};
+const TOPIC_COLORS = {
+    topic1: '#008eea',
+    topic2: '#8b5cf6',
+    topic3: '#d97706',
+};
+
+let filteredCards = CARDS.slice();
+let currentIdx = 0;
+let currentFilter = 'all';
+let currentSection = 'all';
+let order = CARDS.map((_, i) => i);
+let studyMode = false;
+
+/* ===== SRS state ===== */
+const SRS_KEY = 'sts_flashcards_srs_v1';
+function cardKey(card) {
+    let h = 0;
+    for (let i = 0; i < card.q.length; i++) {
+        h = ((h << 5) - h) + card.q.charCodeAt(i);
+        h |= 0;
+    }
+    return 'c' + (h >>> 0);
+}
+function loadSrs() { try { return JSON.parse(localStorage.getItem(SRS_KEY) || '{}'); } catch(e) { return {}; } }
+function saveSrs() { try { localStorage.setItem(SRS_KEY, JSON.stringify(srs)); } catch(e) {} }
+let srs = loadSrs();
+function getStatus(card) { return srs[cardKey(card)] || 'unseen'; }
+function setStatus(card, status) {
+    const key = cardKey(card);
+    if (status === 'unseen') delete srs[key];
+    else srs[key] = status;
+    saveSrs();
+}
+
+const cardEl = document.getElementById('card');
+const questionEl = document.getElementById('cardQuestion');
+const answerEl = document.getElementById('cardAnswer');
+const topicTagFront = document.getElementById('topicTagFront');
+const topicTagBack = document.getElementById('topicTagBack');
+const topicTag = document.getElementById('topicTag');
+const cardPosition = document.getElementById('cardPosition');
+const progressFill = document.getElementById('progressFill');
+const gotoInput = document.getElementById('gotoInput');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const flipBtn = document.getElementById('flipBtn');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const resetBtn = document.getElementById('resetBtn');
+const toggleViewBtn = document.getElementById('toggleViewBtn');
+const totalCount = document.getElementById('totalCount');
+const emptyState = document.getElementById('emptyState');
+const studyArea = document.getElementById('studyArea');
+const gridArea = document.getElementById('gridArea');
+const cardWrapper = document.getElementById('cardWrapper');
+const filterGroup = document.getElementById('filterGroup');
+const sectionSelect = document.getElementById('sectionSelect');
+
+function populateSectionSelect() {
+    const prev = currentSection;
+    sectionSelect.innerHTML = '';
+
+    const allOpt = document.createElement('option');
+    allOpt.value = 'all';
+    const label = currentFilter === 'all' ? 'All sections'
+        : 'All ' + TOPIC_LABELS[currentFilter] + ' sections';
+    allOpt.textContent = label;
+    sectionSelect.appendChild(allOpt);
+
+    function addGroup(topicKey) {
+        const group = document.createElement('optgroup');
+        group.label = TOPIC_LABELS[topicKey];
+        Object.keys(SECTIONS).forEach(function(key) {
+            if (SECTIONS[key].topic !== topicKey) return;
+            const count = CARDS.filter(c => c.section === key).length;
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = SECTIONS[key].label + ' (' + count + ')';
+            group.appendChild(opt);
+        });
+        sectionSelect.appendChild(group);
+    }
+
+    if (currentFilter === 'all') {
+        addGroup('topic1'); addGroup('topic2'); addGroup('topic3');
+    } else {
+        addGroup(currentFilter);
+    }
+
+    const stillAvailable = prev === 'all' || (SECTIONS[prev] && (currentFilter === 'all' || SECTIONS[prev].topic === currentFilter));
+    currentSection = stillAvailable ? prev : 'all';
+    sectionSelect.value = currentSection;
+}
+
+function applyFilter() {
+    let pool = order.map(i => CARDS[i]);
+    if (currentFilter !== 'all') pool = pool.filter(c => c.topic === currentFilter);
+    if (currentSection !== 'all') pool = pool.filter(c => c.section === currentSection);
+
+    if (studyMode) {
+        const reviews = pool.filter(c => getStatus(c) === 'review');
+        const unseen = pool.filter(c => getStatus(c) === 'unseen');
+        pool = reviews.concat(unseen);
+    }
+
+    filteredCards = pool;
+    currentIdx = 0;
+    renderCard();
+    updateStats();
+}
+
+function updateStats() {
+    let pool = CARDS;
+    if (currentFilter !== 'all') pool = pool.filter(c => c.topic === currentFilter);
+    if (currentSection !== 'all') pool = pool.filter(c => c.section === currentSection);
+    let m = 0, r = 0, u = 0;
+    pool.forEach(c => {
+        const s = getStatus(c);
+        if (s === 'mastered') m++;
+        else if (s === 'review') r++;
+        else u++;
+    });
+    document.getElementById('statMastered').textContent = m;
+    document.getElementById('statReview').textContent = r;
+    document.getElementById('statUnseen').textContent = u;
+}
+
+function renderCard() {
+    totalCount.textContent = filteredCards.length + ' Cards';
+    const sessionPanel = document.getElementById('sessionComplete');
+    const gradeRow = document.querySelector('.grade-row');
+
+    if (filteredCards.length === 0) {
+        if (studyMode) {
+            sessionPanel.classList.add('show');
+            cardWrapper.style.display = 'none';
+            emptyState.style.display = 'none';
+            document.querySelector('.nav-controls').style.display = 'none';
+            document.querySelector('.progress-row').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            gradeRow.style.display = 'none';
+            let m = 0, r = 0;
+            CARDS.forEach(c => {
+                const s = getStatus(c);
+                if (s === 'mastered') m++;
+                else if (s === 'review') r++;
+            });
+            document.getElementById('sessionMastered').textContent = m;
+            document.getElementById('sessionReview').textContent = r;
+        } else {
+            emptyState.style.display = 'block';
+            cardWrapper.style.display = 'none';
+            document.querySelector('.nav-controls').style.display = 'none';
+            document.querySelector('.progress-row').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            gradeRow.style.display = 'none';
+            sessionPanel.classList.remove('show');
+        }
+        return;
+    }
+    sessionPanel.classList.remove('show');
+    emptyState.style.display = 'none';
+    cardWrapper.style.display = 'block';
+    document.querySelector('.nav-controls').style.display = 'flex';
+    document.querySelector('.progress-row').style.display = 'flex';
+    document.querySelector('.progress-bar').style.display = 'block';
+    gradeRow.style.display = 'flex';
+
+    const card = filteredCards[currentIdx];
+    cardEl.classList.remove('flipped');
+    questionEl.innerHTML = card.q;
+    answerEl.innerHTML = card.a;
+
+    const tShort = card.topic === 'topic1' ? 'Topic 1' : (card.topic === 'topic2' ? 'Topic 2' : 'Topic 3');
+    const tLong = TOPIC_LABELS[card.topic];
+    topicTagFront.className = 'topic-tag ' + card.topic;
+    topicTagFront.textContent = tShort;
+    topicTagBack.className = 'topic-tag ' + card.topic;
+    topicTagBack.textContent = tShort;
+    topicTag.textContent = tLong + ' · ' + (SECTIONS[card.section] ? SECTIONS[card.section].label : '');
+    topicTag.style.background = TOPIC_COLORS[card.topic];
+
+    const status = getStatus(card);
+    const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+    ['statusBadgeFront', 'statusBadgeBack'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'card-status-badge ' + status;
+        el.textContent = statusLabel;
+    });
+
+    cardPosition.textContent = 'Card ' + (currentIdx + 1) + ' of ' + filteredCards.length;
+    progressFill.style.width = (((currentIdx + 1) / filteredCards.length) * 100) + '%';
+    gotoInput.max = filteredCards.length;
+    gotoInput.value = currentIdx + 1;
+
+    prevBtn.disabled = currentIdx === 0;
+    nextBtn.disabled = currentIdx === filteredCards.length - 1;
+}
+
+function gradeCard(status) {
+    if (filteredCards.length === 0) return;
+    const card = filteredCards[currentIdx];
+    setStatus(card, status);
+    updateStats();
+
+    if (studyMode) {
+        if (status === 'mastered') {
+            filteredCards.splice(currentIdx, 1);
+            if (currentIdx >= filteredCards.length) currentIdx = Math.max(0, filteredCards.length - 1);
+        } else {
+            if (currentIdx < filteredCards.length - 1) currentIdx++;
+            else {
+                filteredCards.splice(currentIdx, 1);
+                if (currentIdx >= filteredCards.length) currentIdx = Math.max(0, filteredCards.length - 1);
+            }
+        }
+        renderCard();
+    } else {
+        if (currentIdx < filteredCards.length - 1) { currentIdx++; renderCard(); }
+        else renderCard();
+    }
+}
+
+function flipCard() { cardEl.classList.toggle('flipped'); }
+function nextCard() { if (currentIdx < filteredCards.length - 1) { currentIdx++; renderCard(); } }
+function prevCard() { if (currentIdx > 0) { currentIdx--; renderCard(); } }
+
+function shuffle() {
+    for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+    }
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+}
+
+function resetOrder() {
+    order = CARDS.map((_, i) => i);
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+}
+
+cardEl.addEventListener('click', flipCard);
+flipBtn.addEventListener('click', function(e) { e.stopPropagation(); flipCard(); });
+prevBtn.addEventListener('click', prevCard);
+nextBtn.addEventListener('click', nextCard);
+shuffleBtn.addEventListener('click', shuffle);
+resetBtn.addEventListener('click', resetOrder);
+
+document.getElementById('gradeAgainBtn').addEventListener('click', function(e) { e.stopPropagation(); gradeCard('review'); });
+document.getElementById('gradeGoodBtn').addEventListener('click', function(e) { e.stopPropagation(); gradeCard('mastered'); });
+
+document.getElementById('studyModeToggle').addEventListener('change', function() {
+    studyMode = this.checked;
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.getElementById('resetProgressBtn').addEventListener('click', function() {
+    if (!confirm('Clear all spaced-repetition progress? This will reset every card back to Unseen.')) return;
+    srs = {};
+    saveSrs();
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.getElementById('restartSessionBtn').addEventListener('click', function() {
+    applyFilter();
+});
+
+gotoInput.addEventListener('change', function() {
+    const n = parseInt(this.value, 10);
+    if (!isNaN(n) && n >= 1 && n <= filteredCards.length) { currentIdx = n - 1; renderCard(); }
+});
+
+filterGroup.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('filter-btn')) return;
+    filterGroup.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentFilter = e.target.dataset.filter;
+    populateSectionSelect();
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+sectionSelect.addEventListener('change', function() {
+    currentSection = this.value;
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (gridArea.classList.contains('show')) return;
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight') { nextCard(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { prevCard(); e.preventDefault(); }
+    else if (e.key === ' ' || e.key === 'Enter') { flipCard(); e.preventDefault(); }
+});
+
+function renderGrid() {
+    gridArea.innerHTML = '';
+    const sectionKeys = Object.keys(SECTIONS).filter(function(key) {
+        if (currentFilter !== 'all' && SECTIONS[key].topic !== currentFilter) return false;
+        if (currentSection !== 'all' && key !== currentSection) return false;
+        return true;
+    });
+
+    sectionKeys.forEach(function(key) {
+        const cards = order.map(i => CARDS[i]).filter(c => c.section === key);
+        if (cards.length === 0) return;
+        const h = document.createElement('h3');
+        h.textContent = TOPIC_LABELS[SECTIONS[key].topic] + ' · ' + SECTIONS[key].label + ' (' + cards.length + ')';
+        gridArea.appendChild(h);
+        const grid = document.createElement('div');
+        grid.className = 'mini-grid';
+        cards.forEach(function(card, idx) {
+            const wrap = document.createElement('div');
+            wrap.className = 'mini-card';
+            wrap.innerHTML =
+                '<div class="mini-card-inner">' +
+                    '<div class="mini-card-face">' + card.q + '<span class="idx">#' + (idx + 1) + '</span></div>' +
+                    '<div class="mini-card-face mini-card-back">' + card.a + '<span class="idx">#' + (idx + 1) + '</span></div>' +
+                '</div>';
+            const inner = wrap.querySelector('.mini-card-inner');
+            inner.addEventListener('click', () => inner.classList.toggle('flipped'));
+            grid.appendChild(wrap);
+        });
+        gridArea.appendChild(grid);
+    });
+
+    if (gridArea.children.length === 0) {
+        gridArea.innerHTML = '<div class="empty-state"><h3>No cards for this filter</h3><p>Try a different topic or section.</p></div>';
+    }
+}
+
+toggleViewBtn.addEventListener('click', function() {
+    if (gridArea.classList.contains('show')) {
+        gridArea.classList.remove('show');
+        studyArea.classList.remove('hide');
+        toggleViewBtn.textContent = 'Grid View';
+    } else {
+        renderGrid();
+        gridArea.classList.add('show');
+        studyArea.classList.add('hide');
+        toggleViewBtn.textContent = 'Study View';
+    }
+});
+
+populateSectionSelect();
+applyFilter();
+</script>
+
+</body>
+</html>
