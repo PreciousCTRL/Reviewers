@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Flashcards - Topics 4 &amp; 5</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Lato", "Helvetica Neue", Arial, sans-serif; background: #f5f5f5; color: #2d3b45; line-height: 1.5; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: #fff; border: 1px solid #c7cdd1; border-radius: 3px; overflow: clip; }
+
+        .header { background: linear-gradient(135deg, #2d3b45 0%, #394b59 100%); color: #fff; padding: 24px 30px; }
+        .header h1 { font-size: 24px; margin-bottom: 4px; font-weight: 500; }
+        .header .subtitle { font-size: 13px; color: #c7cdd1; }
+        .header .meta { margin-top: 10px; font-size: 12px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .header .meta span { background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 3px; }
+
+        .section-nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; z-index: 101; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .section-nav a, .section-nav button { font-family: inherit; }
+        .section-nav .nav-home { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #e5e5e5; color: #2d3b45; text-decoration: none; border-radius: 3px; font-size: 13px; font-weight: 500; transition: background 0.15s; }
+        .section-nav .nav-home:hover { background: #d0d0d0; }
+        .section-nav .nav-home::before { content: "\2190"; font-size: 14px; }
+        .section-nav .nav-divider { width: 1px; height: 22px; background: #e5e5e5; margin: 0 4px; }
+        .section-nav .filter-group { display: flex; gap: 4px; flex-wrap: wrap; }
+        .section-nav .filter-btn { padding: 7px 12px; background: transparent; border: 1px solid transparent; color: #394b59; font-size: 13px; font-weight: 500; border-radius: 3px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
+        .section-nav .filter-btn:hover { background: #f0f8ff; color: #008eea; }
+        .section-nav .filter-btn.active { background: #e6f4ff; color: #008eea; border-color: #008eea; }
+        .section-nav .section-select-wrap { display: inline-flex; align-items: center; gap: 6px; }
+        .section-nav .section-select-wrap label { font-size: 12px; color: #6b7780; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-nav select.section-select { padding: 6px 10px; font-size: 13px; border: 1px solid #c7cdd1; border-radius: 3px; background: #fff; color: #2d3b45; font-family: inherit; cursor: pointer; max-width: 220px; }
+        .section-nav select.section-select:focus { outline: none; border-color: #008eea; box-shadow: 0 0 3px rgba(0,142,234,0.3); }
+        .section-nav .spacer { flex: 1; }
+        .section-nav .view-link { padding: 7px 12px; background: transparent; border: 1px solid transparent; color: #008eea; font-size: 13px; font-weight: 500; border-radius: 3px; text-decoration: none; }
+        .section-nav .view-link:hover { background: #f0f8ff; }
+
+        .instructions { background: #f0f8ff; border-left: 4px solid #008eea; padding: 14px 20px; font-size: 14px; color: #2d3b45; }
+
+        .study-area { padding: 30px; }
+
+        .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13px; color: #6b7780; }
+        .progress-row .tag { background: #008eea; color: #fff; padding: 3px 10px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; margin-right: 8px; }
+        .progress-bar { height: 4px; background: #e5e5e5; border-radius: 2px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #008eea; transition: width 0.25s ease; }
+
+        .card-wrapper { perspective: 1500px; margin-bottom: 20px; }
+        .card { position: relative; width: 100%; min-height: 300px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.55s; }
+        .card.flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 36px 40px; border-radius: 6px; border: 1px solid #c7cdd1; background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.05); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .card-face .face-label { position: absolute; top: 14px; left: 18px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7780; }
+        .card-face .face-hint { position: absolute; bottom: 14px; right: 18px; font-size: 11px; color: #6b7780; }
+        .card-face .topic-tag { position: absolute; top: 14px; right: 18px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; padding: 3px 8px; border-radius: 3px; }
+        .card-face .topic-tag.topic4 { background: #e6f4ff; color: #008eea; }
+        .card-face .topic-tag.topic5 { background: #fff0e6; color: #d97706; }
+        .card-front { background: #fff; }
+        .card-front .question { font-size: 22px; font-weight: 500; color: #2d3b45; text-align: center; line-height: 1.4; }
+        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #f0f8ff 0%, #e6f4ff 100%); border-color: #008eea; }
+        .card-back .answer { font-size: 16px; color: #2d3b45; line-height: 1.6; max-height: 100%; overflow-y: auto; }
+        .card-back .answer ul, .card-back .answer ol { margin-left: 22px; margin-top: 6px; }
+        .card-back .answer li { margin-bottom: 4px; }
+        .card-back .answer strong { color: #0072bd; }
+
+        .nav-controls { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 10px; }
+        .nav-btn { padding: 10px 18px; border: 1px solid #c7cdd1; background: #fff; color: #2d3b45; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s, border-color 0.15s; }
+        .nav-btn:hover:not(:disabled) { background: #f0f8ff; border-color: #008eea; color: #008eea; }
+        .nav-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .nav-btn.primary { background: #008eea; color: #fff; border-color: #008eea; }
+        .nav-btn.primary:hover:not(:disabled) { background: #0072bd; border-color: #0072bd; color: #fff; }
+
+        .counter-input { width: 60px; padding: 6px 8px; border: 1px solid #c7cdd1; border-radius: 3px; font-size: 14px; text-align: center; font-family: inherit; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #6b7780; }
+        .empty-state h3 { font-size: 18px; margin-bottom: 6px; color: #2d3b45; }
+
+        /* Grid view */
+        .grid-area { padding: 20px 30px 30px; display: none; }
+        .grid-area.show { display: block; }
+        .study-area.hide { display: none; }
+        .grid-area h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7780; margin: 18px 0 10px; font-weight: 500; }
+        .grid-area h3:first-child { margin-top: 0; }
+        .mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+        .mini-card { perspective: 1000px; }
+        .mini-card-inner { position: relative; min-height: 140px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.5s; }
+        .mini-card-inner.flipped { transform: rotateY(180deg); }
+        .mini-card-face { position: absolute; inset: 0; padding: 16px 18px 28px; border-radius: 4px; border: 1px solid #e5e5e5; background: #fff; backface-visibility: hidden; -webkit-backface-visibility: hidden; font-size: 13px; line-height: 1.5; overflow: hidden; }
+        .mini-card-face .idx { position: absolute; bottom: 8px; left: 12px; font-size: 10px; color: #6b7780; }
+        .mini-card-back { transform: rotateY(180deg); background: #f0f8ff; border-color: #008eea; overflow-y: auto; }
+        .mini-card-back ul, .mini-card-back ol { margin-left: 18px; margin-top: 4px; }
+
+        .actions { padding: 20px 30px; background: #f5f5f5; border-top: 1px solid #c7cdd1; display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
+        .actions .left-group, .actions .right-group { display: flex; gap: 10px; }
+        .btn { padding: 10px 22px; border: none; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #008eea; color: #fff; }
+        .btn-primary:hover { background: #0072bd; }
+        .btn-secondary { background: #e5e5e5; color: #2d3b45; }
+        .btn-secondary:hover { background: #d0d0d0; }
+
+        @media (max-width: 600px) {
+            .card-face { padding: 26px 22px; }
+            .card-front .question { font-size: 18px; }
+            .card-back .answer { font-size: 14px; }
+            .study-area { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>Project Management Flashcards</h1>
+    <div class="subtitle">Topic 4: Project Integration Management &nbsp;|&nbsp; Topic 5: Project Scope Management</div>
+    <div class="meta">
+        <span id="totalCount">0 Cards</span>
+        <span>Click card to flip</span>
+        <span>Use arrow keys</span>
+    </div>
+</div>
+
+<div class="instructions">
+    <strong>How to study:</strong> Click any card to flip between question and answer. Use <b>Prev</b> / <b>Next</b> or the left/right arrow keys to navigate. Filter by topic with the buttons below, press <b>Shuffle</b> to randomize order, or switch to <b>Grid View</b> to see all cards at once.
+</div>
+
+<nav class="section-nav" id="sectionNav">
+    <a class="nav-home" href="../index.html" title="Back to Home">Home</a>
+    <div class="nav-divider"></div>
+    <div class="filter-group" id="filterGroup">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="topic4">Topic 4</button>
+        <button class="filter-btn" data-filter="topic5">Topic 5</button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="section-select-wrap">
+        <label for="sectionSelect">Section</label>
+        <select class="section-select" id="sectionSelect"></select>
+    </div>
+    <div class="spacer"></div>
+    <a class="view-link" href="finals_PM.html">Take the Quiz &rarr;</a>
+</nav>
+
+<div class="study-area" id="studyArea">
+
+    <div class="progress-row">
+        <div>
+            <span class="tag" id="topicTag">Topic</span>
+            <span id="cardPosition">Card 1 of 1</span>
+        </div>
+        <div>
+            Go to: <input type="number" class="counter-input" id="gotoInput" min="1" value="1">
+        </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+
+    <div class="card-wrapper" id="cardWrapper">
+        <div class="card" id="card">
+            <div class="card-face card-front">
+                <div class="face-label">Question</div>
+                <div class="topic-tag topic4" id="topicTagFront">Topic 4</div>
+                <div class="question" id="cardQuestion">Loading...</div>
+                <div class="face-hint">Click to reveal answer</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="face-label">Answer</div>
+                <div class="topic-tag topic4" id="topicTagBack">Topic 4</div>
+                <div class="answer" id="cardAnswer"></div>
+                <div class="face-hint">Click to flip back</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn">&larr; Prev</button>
+        <button class="nav-btn primary" id="flipBtn">Flip</button>
+        <button class="nav-btn" id="nextBtn">Next &rarr;</button>
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+        <h3>No cards for this filter</h3>
+        <p>Try selecting a different topic.</p>
+    </div>
+</div>
+
+<div class="grid-area" id="gridArea"></div>
+
+<div class="actions">
+    <div class="left-group">
+        <a class="btn btn-secondary" href="../index.html">&larr; Home</a>
+        <a class="btn btn-secondary" href="finals_PM.html">Go to Quiz</a>
+    </div>
+    <div class="right-group">
+        <button class="btn btn-secondary" id="shuffleBtn">Shuffle</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset Order</button>
+        <button class="btn btn-primary" id="toggleViewBtn">Grid View</button>
+    </div>
+</div>
+
+</div>
+
+<script>
+const CARDS = [
+    // ===== Topic 4: Project Integration Management =====
+    { topic: 'topic4', section: 't4_intro', q: 'What is Project Integration Management?', a: 'The <strong>coordination of all parts of a project</strong>, which includes the stakeholders, activities, resources, and other elements.' },
+    { topic: 'topic4', section: 't4_planning', q: 'What are the 5 constrained organizational resources?', a: '<ol><li>Time</li><li>Financing</li><li>Human resources</li><li>Material</li><li>Skills</li></ol>' },
+    { topic: 'topic4', section: 't4_planning', q: 'What determines project selection?', a: 'Project selection depends on <strong>how big the project is</strong> and on <strong>the company and its resources</strong>.' },
+    { topic: 'topic4', section: 't4_charter', q: 'What is a Project Charter?', a: 'A <strong>formal and quick record</strong> that describes the whole task and its goals, how it will be carried out, and who will be in charge. It states the <strong>scope, objectives, and people involved</strong>, and defines the authority of the project manager.' },
+    { topic: 'topic4', section: 't4_charter', q: 'What are the 3 main uses of a Project Charter?', a: '<ol><li><strong>Authorize your project</strong> — like a lift pitch that sells the undertaking</li><li>Serves as a <strong>primary sales document</strong> for partners</li><li><strong>Stays with you throughout the life cycle</strong> — acts like a roadmap</li></ol>' },
+    { topic: 'topic4', section: 't4_charter', q: 'What are the 4 steps to make a Project Charter?', a: '<ol><li>Define the Project <strong>Vision</strong></li><li>Organize the Project <strong>Structure</strong></li><li>Have an <strong>Implementation</strong> Plan</li><li>Estimate <strong>Risks, Issues &amp; Budget</strong></li></ol>' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 1 (Vision) — what are its 3 parts?', a: '<ol><li><strong>Objective</strong> — list 3 to 5 targets, be SMART</li><li><strong>Scope</strong> — outline formal boundaries of the task</li><li><strong>Deliverables</strong> — describe each deliverable</li></ol>' },
+    { topic: 'topic4', section: 't4_charter', q: 'What does SMART stand for?', a: '<ul><li><strong>S</strong>pecific</li><li><strong>M</strong>easurable</li><li><strong>A</strong>chievable</li><li><strong>R</strong>esponsible</li><li><strong>T</strong>ime-bound</li></ul>' },
+    { topic: 'topic4', section: 't4_charter', q: 'How many targets should the Objective list?', a: '<strong>3 to 5 targets</strong> of the project.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 2 (Organize) — what are the 4 subsets to identify?', a: '<ol><li><strong>Customers / End Users</strong></li><li><strong>Stakeholders</strong></li><li><strong>Roles</strong></li><li><strong>Structure</strong> (use a project organization chart)</li></ol>' },
+    { topic: 'topic4', section: 't4_charter', q: 'Who are Stakeholders?', a: 'The <strong>person or entity within or outside the project</strong> with a unique key interest in that project (e.g., a financial controller overseeing prices, the CEO).' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 3 (Implementation) — what are the 4 parts?', a: '<ol><li><strong>Plan</strong> — strategy with phases, activities, and timelines</li><li><strong>Milestones</strong> — mark significant stages</li><li><strong>Dependencies</strong> — tasks linked to one another</li><li><strong>Resource Plan</strong> — labor, equipment, materials</li></ol>' },
+    { topic: 'topic4', section: 't4_charter', q: 'What is a Gantt chart? (per Topic 4)', a: 'The <strong>traditional project-planning tool</strong>. Turns tasks and deadlines into <strong>visual timelines</strong>.' },
+    { topic: 'topic4', section: 't4_charter', q: 'What are Milestones?', a: '<strong>Significant stages</strong> in the undertaking that gather smaller tasks into larger pieces of work. A project should only have a few — they mark completion of key deliverables.' },
+    { topic: 'topic4', section: 't4_charter', q: 'What are Dependencies?', a: '<strong>Duties or activities that are linked to one another</strong>. They impact the project during its life cycle.' },
+    { topic: 'topic4', section: 't4_charter', q: 'How does the Resource Plan break down resources?', a: 'Into three categories: <strong>Labor</strong>, <strong>Equipment</strong>, and <strong>Materials</strong>.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 4 — What is a Risk vs. an Issue?', a: '<ul><li><strong>Risk</strong> = <em>future</em> tense — a plausible issue that may or may not appear (can even be positive)</li><li><strong>Issue</strong> = <em>present</em> tense — something that has already happened</li></ul>' },
+    { topic: 'topic4', section: 't4_charter', q: 'Is risk always negative?', a: '<strong>No.</strong> There is such a thing as <strong>positive risk</strong>, and you should prepare for that as well.' },
+    { topic: 'topic4', section: 't4_scope_stmt', q: 'What is the Preliminary Scope Statement and when does it occur?', a: 'It occurs during the <strong>initiation phase</strong> of a project. It identifies high-level project objectives that are <strong>well-defined, measurable, and attainable</strong>.' },
+    { topic: 'topic4', section: 't4_scope_stmt', q: 'What 5 processes does the Preliminary Scope Statement consist of?', a: '<ol><li>Scope Planning</li><li>Scope Definition</li><li>Creating the WBS</li><li>Scope Verification</li><li>Scope Control</li></ol>' },
+    { topic: 'topic4', section: 't4_pm_plan', q: 'What is a Project Management Plan?', a: 'A <strong>formal and authorized record</strong> that supplies a guide on both <strong>project execution</strong> and <strong>task control</strong>.' },
+    { topic: 'topic4', section: 't4_pm_plan', q: 'What are the 8 steps of the Project Management Plan?', a: '<ol><li>Identify the goal of the project</li><li>Map out the scope</li><li>Develop an outline or plan</li><li>Share this initial idea with your team</li><li>Finalize your plan</li><li>Use a Gantt chart to keep things organized</li><li>Distribute your project management plan</li><li>Hold a project post mortem</li></ol>' },
+    { topic: 'topic4', section: 't4_execution', q: 'Project Execution — what is the Project Manager\'s role?', a: 'To execute the project management plan successfully by:<ul><li><strong>Leading the project team</strong></li><li><strong>Managing stakeholder relationships</strong></li></ul>' },
+    { topic: 'topic4', section: 't4_monitor', q: 'What does Monitoring and Controlling Project Work involve?', a: '<ul><li>Collecting and disseminating <strong>performance information</strong></li><li>Assessing measurements and <strong>analyzing trends</strong> to find process improvements</li><li>Recommending <strong>corrective and preventive actions</strong></li></ul>' },
+    { topic: 'topic4', section: 't4_change', q: 'What is Integrated Change Control?', a: 'The process that <strong>measures the impact of change on all project limitations</strong>. It involves <strong>identifying, evaluating, and managing changes</strong> throughout the project life cycle. Changes may be accepted or rejected based on their impact.' },
+    { topic: 'topic4', section: 't4_closing', q: 'What does Closing a Project include?', a: '<ul><li>Administrative closure procedures</li><li>Contract closure procedures</li><li>Final products, services, or results</li><li>Organizational process asset updates</li></ul>' },
+
+    // ----- Topic 4: Deep-dive & quick recall -----
+    { topic: 'topic4', section: 't4_charter', q: 'What does "Authorize your project" (Charter use #1) actually do?', a: 'It is the archive that <strong>offers the undertaking to your partners</strong> and comprehensively characterizes what their return on investment will be. It resembles a <strong>lift pitch</strong> — it needs to <em>sell</em> the undertaking.' },
+    { topic: 'topic4', section: 't4_charter', q: 'How does a Project Charter serve as a primary sales document?', a: 'After showing it to partners, they have an <strong>outline to disperse or display</strong> when approached about other ventures, so they can center their assets where they\'re required.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Why does the Project Charter stay with you throughout the life cycle?', a: 'It\'s referred to at meetings and to assist with scope management. The charter acts like a <strong>roadmap</strong> without all the minutiae that would distract you from other project materials.' },
+    { topic: 'topic4', section: 't4_charter', q: 'What does a Project Charter define about the Project Manager?', a: 'It <strong>defines the authority</strong> of the project manager.' },
+    { topic: 'topic4', section: 't4_charter', q: 'What process starts a Project Charter?', a: '<strong>Defining the roles and responsibilities of participants</strong>, drafting the objectives and goals of the project, and <strong>marking the main stakeholders</strong>.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 1 (Vision): What is an "Objective"?', a: 'A list of <strong>3 to 5 targets</strong> of the project — must be <strong>SMART</strong> (specific, measurable, achievable, responsible, time-bound).' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 1 (Vision): What is "Scope"?', a: 'An outline of the <strong>formal boundaries</strong> of the task — describes how the business might alter by shipping the project and notes <strong>what\'s relevant vs. what is not</strong>. Helps you maintain higher control of the project.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 1 (Vision): What are "Deliverables"?', a: 'A <strong>description of each deliverable</strong> the project is tasked to produce. Once you\'ve gotten them all down, you have a foothold on your charter.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 2 (Organize): Who are "Customers / End Users"?', a: 'Whoever is a consumer or end user in context of the project. Includes the <strong>project customers</strong> and any character or entity <strong>accountable for accepting the deliverables</strong>.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 2 (Organize): What are "Roles"?', a: 'The <strong>key roles and responsibilities</strong> assigned to those involved in delivering the project — project <strong>sponsor</strong>, project <strong>board</strong>, project <strong>manager</strong> — each with a short summary of role and obligations.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 2 (Organize): What is "Structure"?', a: 'The <strong>lines of reporting</strong> between the various roles in the project. Diagrammed using a <strong>project organization chart</strong>.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Step 3 (Implementation): What is the "Plan"?', a: 'A strategy to execute the project — develops an atmosphere of trust for clients and stakeholders by listing <strong>phases, activities, and timelines</strong> of the life cycle. <strong>Gantt charts</strong> are the traditional tool.' },
+    { topic: 'topic4', section: 't4_charter', q: 'SMART — what does <b>S</b> stand for?', a: '<strong>Specific</strong>' },
+    { topic: 'topic4', section: 't4_charter', q: 'SMART — what does <b>M</b> stand for?', a: '<strong>Measurable</strong>' },
+    { topic: 'topic4', section: 't4_charter', q: 'SMART — what does <b>A</b> stand for?', a: '<strong>Achievable</strong>' },
+    { topic: 'topic4', section: 't4_charter', q: 'SMART — what does <b>R</b> stand for?', a: '<strong>Responsible</strong>' },
+    { topic: 'topic4', section: 't4_charter', q: 'SMART — what does <b>T</b> stand for?', a: '<strong>Time-bound</strong>' },
+    { topic: 'topic4', section: 't4_charter', q: 'Quick recall: What <em>tense</em> is a Risk?', a: '<strong>Future tense</strong> — a plausible issue that <em>may or may not</em> appear.' },
+    { topic: 'topic4', section: 't4_charter', q: 'Quick recall: What <em>tense</em> is an Issue?', a: '<strong>Present tense</strong> — something that has <em>already happened</em> in the project.' },
+    { topic: 'topic4', section: 't4_charter', q: 'What is the final output of Step 4 (Risks, Issues &amp; Budget)?', a: 'A <strong>rough estimate of cost</strong> to deliver the project within the allowed timeframe. Once the charter is <strong>accepted and signed</strong>, the real work begins.' },
+    { topic: 'topic4', section: 't4_charter', q: 'What kind of chart do Gantt charts categorize as?', a: 'A <strong>bar chart</strong> — they turn tasks and deadlines into visual timelines.' },
+    { topic: 'topic4', section: 't4_execution', q: 'What does "Direct and manage project execution" refer to?', a: 'The activity within <strong>Project Execution</strong> where the Project Manager <strong>leads the team</strong> and <strong>manages stakeholder relationships</strong> to execute the PM plan.' },
+
+    // ===== Topic 5: Project Scope Management =====
+    { topic: 'topic5', section: 't5_intro', q: 'What is Project Scope Management?', a: 'A set of <strong>activities and processes</strong> that ensures a project is performed correctly and accurately. It allocates the proper quantity of tasks needed to complete the project and filters what <strong>is / is not covered</strong> in the task scope.' },
+    { topic: 'topic5', section: 't5_scope_stmt', q: 'What is the Project Scope Statement?', a: 'A document used to <strong>improve and confirm a common perception</strong> of the project scope. Describes the work in detail and is a necessary device for preventing <strong>scope creep</strong>. It may vary by type of project.' },
+    { topic: 'topic5', section: 't5_scope_stmt', q: 'What is scope creep?', a: 'The <strong>tendency for project scope to keep getting bigger</strong>.' },
+    { topic: 'topic5', section: 't5_scope_stmt', q: 'What are the contents of the Preliminary Scope Statement?', a: '<ul><li>Project Objectives</li><li>Product or Service Requirements and Characteristics</li><li>Project Boundaries</li><li>Project Deliverables</li><li>Product Acceptance Criteria</li><li>Project Assumptions and Constraints</li><li>Organizational Structure for Project</li><li>Initial List of Defined Risks</li><li>Summary of Schedule Milestones</li><li>Rough Order of Magnitude Cost Estimate</li><li>Configuration Management Requirements</li><li>Description of Approval Requirements</li></ul>' },
+    { topic: 'topic5', section: 't5_wbs', q: 'How did Esther Cohen define a WBS?', a: '"A Work Breakdown Structure defines <strong>all the things a project needs to accomplish</strong>, organized into <strong>multiple levels</strong>, and <strong>displayed graphically</strong>."' },
+    { topic: 'topic5', section: 't5_wbs', q: 'What are the 6 Steps to Create a WBS?', a: '<ol><li>Identify the <strong>deliverables</strong> by reviewing the scope statement</li><li>Decide the <strong>structure / layout</strong> (Horizontal, Outline, Tree View)</li><li>Decide the <strong>organization</strong> (by phase or by deliverables)</li><li>Decompose the upper-level WBS into <strong>lower-level detailed components</strong></li><li>Assign <strong>unique identification codes</strong> to each WBS component</li><li><strong>Verify</strong> the degree of decomposition is appropriate</li></ol>' },
+    { topic: 'topic5', section: 't5_wbs', q: 'What are the 3 WBS structure/layout options?', a: '<ol><li>Horizontal View</li><li>Outline View</li><li>Tree View</li></ol>' },
+    { topic: 'topic5', section: 't5_gantt', q: 'What is a Gantt Chart and who created it?', a: 'A <strong>kind of bar chart</strong>, created by <strong>Henry Gantt</strong>, showing a <strong>schedule of assignments</strong>. It shows start and end dates of a project\'s terminal factors.' },
+    { topic: 'topic5', section: 't5_verify', q: 'What is Scope Verification?', a: 'The process of <strong>formalizing acceptance of the project scope through the stakeholders</strong>. It requires reviewing work products and results, and takes place at the <strong>end of every project phase</strong> and as part of the <strong>task closeout process</strong>.' },
+    { topic: 'topic5', section: 't5_control', q: 'What are the 3 steps of Scope Control?', a: '<ol><li><strong>Know the scope</strong> of the project</li><li><strong>Train your team</strong></li><li><strong>Communication</strong></li></ol>' },
+    { topic: 'topic5', section: 't5_wbs', q: 'What are the two organization approaches for a WBS?', a: 'Organize by <strong>phase</strong> or organize by <strong>deliverables</strong>.' },
+    { topic: 'topic5', section: 't5_gantt', q: 'What makes a Gantt chart useful as a first tool?', a: 'It can be <strong>drawn quickly and easily</strong>, giving a rough estimate of the time to complete key tasks. Starting with the target closing date makes it obvious if the time scale is too short or unnecessarily long.' },
+
+    // ----- Topic 5: Deep-dive & quick recall -----
+    { topic: 'topic5', section: 't5_wbs', q: 'What does WBS stand for?', a: '<strong>Work Breakdown Structure</strong>' },
+    { topic: 'topic5', section: 't5_wbs', q: 'Who defined the WBS (and when)?', a: '<strong>Esther Cohen</strong> &mdash; March 15, 2018.' },
+    { topic: 'topic5', section: 't5_wbs', q: 'WBS &mdash; Step 1?', a: '<strong>Identify the deliverables</strong> by reviewing the scope statement.' },
+    { topic: 'topic5', section: 't5_wbs', q: 'WBS &mdash; Step 2?', a: 'Decide the <strong>structure / layout</strong> of the WBS (Horizontal View, Outline View, Tree View).' },
+    { topic: 'topic5', section: 't5_wbs', q: 'WBS &mdash; Step 3?', a: 'Decide the <strong>organization</strong> of the WBS &mdash; organize by <strong>phase</strong> or by <strong>deliverables</strong>.' },
+    { topic: 'topic5', section: 't5_wbs', q: 'WBS &mdash; Step 4?', a: '<strong>Decompose</strong> the upper-level WBS into <strong>lower-level detailed components</strong>.' },
+    { topic: 'topic5', section: 't5_wbs', q: 'WBS &mdash; Step 5?', a: 'Assign <strong>unique identification codes</strong> to each WBS component.' },
+    { topic: 'topic5', section: 't5_wbs', q: 'WBS &mdash; Step 6?', a: '<strong>Verify</strong> the degree of decomposition is appropriate.' },
+    { topic: 'topic5', section: 't5_control', q: 'Scope Control &mdash; Step 1?', a: '<strong>Know the scope</strong> of the project.' },
+    { topic: 'topic5', section: 't5_control', q: 'Scope Control &mdash; Step 2?', a: 'You need to <strong>train your team</strong>.' },
+    { topic: 'topic5', section: 't5_control', q: 'Scope Control &mdash; Step 3?', a: '<strong>Communication</strong>.' },
+    { topic: 'topic5', section: 't5_gantt', q: 'Quick fact: Who created the Gantt Chart?', a: '<strong>Henry Gantt</strong>' },
+    { topic: 'topic5', section: 't5_gantt', q: 'What does a Gantt chart actually show?', a: 'Start and end dates of a project\'s <strong>terminal factors</strong> and <strong>accuracy factors</strong>. Terminal elements and description elements contain operating interruptions.' },
+    { topic: 'topic5', section: 't5_verify', q: 'What is Scope Verification&rsquo;s purpose?', a: 'To ensure all work has been done <strong>successfully and satisfactorily</strong>, and to <strong>formalize stakeholder acceptance</strong> of the completed work.' },
+    { topic: 'topic5', section: 't5_verify', q: 'When does Scope Verification take place?', a: 'At the <strong>end of every project phase</strong> and as part of the <strong>task closeout process</strong>.' },
+    { topic: 'topic5', section: 't5_verify', q: 'What happens to work that is not accepted in Scope Verification?', a: 'Work is sometimes <strong>denied</strong> and must be <strong>re-worked</strong>.' },
+    { topic: 'topic5', section: 't5_scope_stmt', q: 'What is the purpose of Scope Definition / the Scope Statement?', a: 'To <strong>improve and confirm a common perception</strong> of the project scope. It describes in detail the work to accomplish.' },
+    { topic: 'topic5', section: 't5_scope_stmt', q: 'Why is the Project Scope Statement important?', a: 'It is a <strong>necessary device for preventing scope creep</strong>.' },
+    { topic: 'topic5', section: 't5_scope_stmt', q: 'Is the Project Scope Statement the same for every project?', a: '<strong>No</strong> &mdash; it may <strong>vary by type of project</strong>.' },
+    { topic: 'topic5', section: 't5_intro', q: 'What does Project Scope Management filter?', a: 'It truly <strong>filters the matters that are or are not covered</strong> in the task scope, so the right quantity of tasks is allocated to complete the project.' },
+
+    // ----- Synthesis / comparison -----
+    { topic: 'topic4', section: 't4_pm_plan', q: 'Compare: Project Charter vs. Project Management Plan', a: '<ul><li><strong>Project Charter</strong> &mdash; a formal & <em>quick</em> record that <strong>authorizes</strong> the project and defines scope, objectives, and people.</li><li><strong>PM Plan</strong> &mdash; a formal & authorized record that <em>guides</em> project <strong>execution and task control</strong> (more detailed / operational).</li></ul>' },
+    { topic: 'topic5', section: 't5_verify', q: 'Compare: Scope Verification vs. Scope Control', a: '<ul><li><strong>Scope Verification</strong> &mdash; formalizes <em>stakeholder acceptance</em> of completed work.</li><li><strong>Scope Control</strong> &mdash; <em>monitors and manages changes</em> to scope (know the scope, train your team, communicate).</li></ul>' },
+    { topic: 'topic4', section: 't4_charter', q: 'Compare: Milestones vs. Dependencies', a: '<ul><li><strong>Milestones</strong> mark <em>significant stages</em>, gathering smaller tasks into larger pieces of work.</li><li><strong>Dependencies</strong> are duties or activities <em>linked to one another</em> that impact the project during its life cycle.</li></ul>' },
+    { topic: 'topic5', section: 't5_wbs', q: 'Which process uses a WBS, and which creates the timeline?', a: '<ul><li><strong>WBS</strong> organizes <em>what</em> must be accomplished (deliverables broken into levels).</li><li><strong>Gantt chart</strong> turns those tasks into a <em>visual timeline</em> with start and end dates.</li></ul>' },
+];
+
+const SECTIONS = {
+    t4_intro:      { topic: 'topic4', label: 'Integration Management (Intro)' },
+    t4_planning:   { topic: 'topic4', label: 'Strategic Planning & Selection' },
+    t4_charter:    { topic: 'topic4', label: 'Project Charter' },
+    t4_scope_stmt: { topic: 'topic4', label: 'Preliminary Scope Statement' },
+    t4_pm_plan:    { topic: 'topic4', label: 'Project Management Plan' },
+    t4_execution:  { topic: 'topic4', label: 'Project Execution' },
+    t4_monitor:    { topic: 'topic4', label: 'Monitoring & Controlling' },
+    t4_change:     { topic: 'topic4', label: 'Integrated Change Control' },
+    t4_closing:    { topic: 'topic4', label: 'Closing Projects' },
+    t5_intro:      { topic: 'topic5', label: 'Scope Management (Intro)' },
+    t5_scope_stmt: { topic: 'topic5', label: 'Scope Definition & Statement' },
+    t5_wbs:        { topic: 'topic5', label: 'Work Breakdown Structure' },
+    t5_gantt:      { topic: 'topic5', label: 'Gantt Chart' },
+    t5_verify:     { topic: 'topic5', label: 'Scope Verification' },
+    t5_control:    { topic: 'topic5', label: 'Scope Control' },
+};
+
+let filteredCards = CARDS.slice();
+let currentIdx = 0;
+let currentFilter = 'all';
+let currentSection = 'all';
+let order = CARDS.map((_, i) => i);
+
+const cardEl = document.getElementById('card');
+const questionEl = document.getElementById('cardQuestion');
+const answerEl = document.getElementById('cardAnswer');
+const topicTagFront = document.getElementById('topicTagFront');
+const topicTagBack = document.getElementById('topicTagBack');
+const topicTag = document.getElementById('topicTag');
+const cardPosition = document.getElementById('cardPosition');
+const progressFill = document.getElementById('progressFill');
+const gotoInput = document.getElementById('gotoInput');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const flipBtn = document.getElementById('flipBtn');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const resetBtn = document.getElementById('resetBtn');
+const toggleViewBtn = document.getElementById('toggleViewBtn');
+const totalCount = document.getElementById('totalCount');
+const emptyState = document.getElementById('emptyState');
+const studyArea = document.getElementById('studyArea');
+const gridArea = document.getElementById('gridArea');
+const cardWrapper = document.getElementById('cardWrapper');
+const filterGroup = document.getElementById('filterGroup');
+const sectionSelect = document.getElementById('sectionSelect');
+
+function populateSectionSelect() {
+    const prev = currentSection;
+    sectionSelect.innerHTML = '';
+
+    const allOpt = document.createElement('option');
+    allOpt.value = 'all';
+    allOpt.textContent = currentFilter === 'all' ? 'All sections' : (currentFilter === 'topic4' ? 'All Topic 4 sections' : 'All Topic 5 sections');
+    sectionSelect.appendChild(allOpt);
+
+    function addGroup(topicKey, label) {
+        const group = document.createElement('optgroup');
+        group.label = label;
+        Object.keys(SECTIONS).forEach(function(key) {
+            if (SECTIONS[key].topic !== topicKey) return;
+            const count = CARDS.filter(c => c.section === key).length;
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = SECTIONS[key].label + ' (' + count + ')';
+            group.appendChild(opt);
+        });
+        sectionSelect.appendChild(group);
+    }
+
+    if (currentFilter === 'all') {
+        addGroup('topic4', 'Topic 4 — Integration Management');
+        addGroup('topic5', 'Topic 5 — Scope Management');
+    } else if (currentFilter === 'topic4') {
+        addGroup('topic4', 'Topic 4 — Integration Management');
+    } else {
+        addGroup('topic5', 'Topic 5 — Scope Management');
+    }
+
+    const stillAvailable = prev === 'all' || (SECTIONS[prev] && (currentFilter === 'all' || SECTIONS[prev].topic === currentFilter));
+    currentSection = stillAvailable ? prev : 'all';
+    sectionSelect.value = currentSection;
+}
+
+function applyFilter() {
+    let pool = order.map(i => CARDS[i]);
+    if (currentFilter !== 'all') pool = pool.filter(c => c.topic === currentFilter);
+    if (currentSection !== 'all') pool = pool.filter(c => c.section === currentSection);
+    filteredCards = pool;
+    currentIdx = 0;
+    renderCard();
+}
+
+function renderCard() {
+    totalCount.textContent = filteredCards.length + ' Cards';
+    if (filteredCards.length === 0) {
+        emptyState.style.display = 'block';
+        cardWrapper.style.display = 'none';
+        document.querySelector('.nav-controls').style.display = 'none';
+        document.querySelector('.progress-row').style.display = 'none';
+        document.querySelector('.progress-bar').style.display = 'none';
+        return;
+    }
+    emptyState.style.display = 'none';
+    cardWrapper.style.display = 'block';
+    document.querySelector('.nav-controls').style.display = 'flex';
+    document.querySelector('.progress-row').style.display = 'flex';
+    document.querySelector('.progress-bar').style.display = 'block';
+
+    const card = filteredCards[currentIdx];
+    cardEl.classList.remove('flipped');
+    questionEl.innerHTML = card.q;
+    answerEl.innerHTML = card.a;
+    const tClass = card.topic === 'topic4' ? 'topic4' : 'topic5';
+    const tLabel = card.topic === 'topic4' ? 'Topic 4 · Integration' : 'Topic 5 · Scope';
+    topicTagFront.className = 'topic-tag ' + tClass;
+    topicTagFront.textContent = card.topic === 'topic4' ? 'Topic 4' : 'Topic 5';
+    topicTagBack.className = 'topic-tag ' + tClass;
+    topicTagBack.textContent = topicTagFront.textContent;
+    topicTag.textContent = tLabel;
+    topicTag.style.background = card.topic === 'topic4' ? '#008eea' : '#d97706';
+
+    cardPosition.textContent = 'Card ' + (currentIdx + 1) + ' of ' + filteredCards.length;
+    progressFill.style.width = (((currentIdx + 1) / filteredCards.length) * 100) + '%';
+    gotoInput.max = filteredCards.length;
+    gotoInput.value = currentIdx + 1;
+
+    prevBtn.disabled = currentIdx === 0;
+    nextBtn.disabled = currentIdx === filteredCards.length - 1;
+}
+
+function flipCard() { cardEl.classList.toggle('flipped'); }
+function nextCard() { if (currentIdx < filteredCards.length - 1) { currentIdx++; renderCard(); } }
+function prevCard() { if (currentIdx > 0) { currentIdx--; renderCard(); } }
+
+function shuffle() {
+    for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+    }
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+}
+
+function resetOrder() {
+    order = CARDS.map((_, i) => i);
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+}
+
+cardEl.addEventListener('click', flipCard);
+flipBtn.addEventListener('click', function(e) { e.stopPropagation(); flipCard(); });
+prevBtn.addEventListener('click', prevCard);
+nextBtn.addEventListener('click', nextCard);
+shuffleBtn.addEventListener('click', shuffle);
+resetBtn.addEventListener('click', resetOrder);
+
+gotoInput.addEventListener('change', function() {
+    const n = parseInt(this.value, 10);
+    if (!isNaN(n) && n >= 1 && n <= filteredCards.length) { currentIdx = n - 1; renderCard(); }
+});
+
+filterGroup.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('filter-btn')) return;
+    filterGroup.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentFilter = e.target.dataset.filter;
+    populateSectionSelect();
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+sectionSelect.addEventListener('change', function() {
+    currentSection = this.value;
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (gridArea.classList.contains('show')) return;
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight') { nextCard(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { prevCard(); e.preventDefault(); }
+    else if (e.key === ' ' || e.key === 'Enter') { flipCard(); e.preventDefault(); }
+});
+
+function renderGrid() {
+    gridArea.innerHTML = '';
+    const sectionKeys = Object.keys(SECTIONS).filter(function(key) {
+        if (currentFilter !== 'all' && SECTIONS[key].topic !== currentFilter) return false;
+        if (currentSection !== 'all' && key !== currentSection) return false;
+        return true;
+    });
+
+    sectionKeys.forEach(function(key) {
+        const cards = order.map(i => CARDS[i]).filter(c => c.section === key);
+        if (cards.length === 0) return;
+        const h = document.createElement('h3');
+        const topicLabel = SECTIONS[key].topic === 'topic4' ? 'Topic 4' : 'Topic 5';
+        h.textContent = topicLabel + ' · ' + SECTIONS[key].label + ' (' + cards.length + ')';
+        gridArea.appendChild(h);
+        const grid = document.createElement('div');
+        grid.className = 'mini-grid';
+        cards.forEach(function(card, idx) {
+            const wrap = document.createElement('div');
+            wrap.className = 'mini-card';
+            wrap.innerHTML =
+                '<div class="mini-card-inner">' +
+                    '<div class="mini-card-face">' + card.q + '<span class="idx">#' + (idx + 1) + '</span></div>' +
+                    '<div class="mini-card-face mini-card-back">' + card.a + '<span class="idx">#' + (idx + 1) + '</span></div>' +
+                '</div>';
+            const inner = wrap.querySelector('.mini-card-inner');
+            inner.addEventListener('click', () => inner.classList.toggle('flipped'));
+            grid.appendChild(wrap);
+        });
+        gridArea.appendChild(grid);
+    });
+
+    if (gridArea.children.length === 0) {
+        gridArea.innerHTML = '<div class="empty-state"><h3>No cards for this filter</h3><p>Try a different topic or section.</p></div>';
+    }
+}
+
+toggleViewBtn.addEventListener('click', function() {
+    if (gridArea.classList.contains('show')) {
+        gridArea.classList.remove('show');
+        studyArea.classList.remove('hide');
+        toggleViewBtn.textContent = 'Grid View';
+    } else {
+        renderGrid();
+        gridArea.classList.add('show');
+        studyArea.classList.add('hide');
+        toggleViewBtn.textContent = 'Study View';
+    }
+});
+
+populateSectionSelect();
+applyFilter();
+</script>
+
+</body>
+</html>
