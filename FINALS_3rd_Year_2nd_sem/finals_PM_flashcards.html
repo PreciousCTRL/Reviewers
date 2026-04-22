@@ -86,6 +86,38 @@
         .mini-card-back { transform: rotateY(180deg); background: #f0f8ff; border-color: #008eea; overflow-y: auto; }
         .mini-card-back ul, .mini-card-back ol { margin-left: 18px; margin-top: 4px; }
 
+        /* ===== Spaced repetition ===== */
+        .status-bar { background: #fafafa; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .status-bar .toggle-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-weight: 500; color: #2d3b45; font-size: 13px; }
+        .status-bar .toggle-switch input { display: none; }
+        .status-bar .toggle-switch .switch-ui { width: 36px; height: 20px; background: #c7cdd1; border-radius: 10px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+        .status-bar .toggle-switch .switch-ui::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: left 0.2s; }
+        .status-bar .toggle-switch input:checked + .switch-ui { background: #008eea; }
+        .status-bar .toggle-switch input:checked + .switch-ui::after { left: 18px; }
+        .status-bar .stat { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; }
+        .status-bar .stat.mastered { background: #d4f4dd; color: #0b874b; }
+        .status-bar .stat.review { background: #fff3cd; color: #a07010; }
+        .status-bar .stat.unseen { background: #e5e5e5; color: #6b7780; }
+        .status-bar .reset-progress { margin-left: auto; padding: 5px 10px; background: transparent; border: 1px solid #c7cdd1; color: #6b7780; border-radius: 3px; font-size: 12px; cursor: pointer; font-family: inherit; }
+        .status-bar .reset-progress:hover { background: #fff0f0; border-color: #ee3a3a; color: #a72a2a; }
+
+        .card-status-badge { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; padding: 3px 10px; border-radius: 10px; z-index: 2; }
+        .card-status-badge.mastered { background: #d4f4dd; color: #0b874b; }
+        .card-status-badge.review { background: #fff3cd; color: #a07010; }
+        .card-status-badge.unseen { background: #e5e5e5; color: #6b7780; }
+
+        .grade-row { display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .grade-btn { padding: 10px 20px; border: 2px solid; border-radius: 3px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.4px; }
+        .grade-btn.again { border-color: #ee3a3a; color: #a72a2a; background: #fff; }
+        .grade-btn.again:hover { background: #fff0f0; }
+        .grade-btn.good { border-color: #0b874b; color: #0b874b; background: #fff; }
+        .grade-btn.good:hover { background: #effdf3; }
+
+        .session-complete { text-align: center; padding: 40px 20px; color: #6b7780; display: none; }
+        .session-complete.show { display: block; }
+        .session-complete h3 { color: #0b874b; font-size: 20px; margin-bottom: 6px; }
+        .session-complete .session-stats { margin: 14px auto; max-width: 400px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
         .actions { padding: 20px 30px; background: #f5f5f5; border-top: 1px solid #c7cdd1; display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
         .actions .left-group, .actions .right-group { display: flex; gap: 10px; }
         .btn { padding: 10px 22px; border: none; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
@@ -137,6 +169,18 @@
     <a class="view-link" href="finals_PM.html">Take the Quiz &rarr;</a>
 </nav>
 
+<div class="status-bar" id="statusBar">
+    <label class="toggle-switch" title="Study mode hides mastered cards and prioritizes cards you marked for review">
+        <input type="checkbox" id="studyModeToggle">
+        <span class="switch-ui"></span>
+        <span>Study Mode (Spaced Repetition)</span>
+    </label>
+    <span class="stat mastered">&#10003; Mastered <span id="statMastered">0</span></span>
+    <span class="stat review">&#8634; Review <span id="statReview">0</span></span>
+    <span class="stat unseen">&#9675; Unseen <span id="statUnseen">0</span></span>
+    <button class="reset-progress" id="resetProgressBtn">Reset Progress</button>
+</div>
+
 <div class="study-area" id="studyArea">
 
     <div class="progress-row">
@@ -155,12 +199,14 @@
         <div class="card" id="card">
             <div class="card-face card-front">
                 <div class="face-label">Question</div>
+                <span class="card-status-badge unseen" id="statusBadgeFront">Unseen</span>
                 <div class="topic-tag topic4" id="topicTagFront">Topic 4</div>
                 <div class="question" id="cardQuestion">Loading...</div>
                 <div class="face-hint">Click to reveal answer</div>
             </div>
             <div class="card-face card-back">
                 <div class="face-label">Answer</div>
+                <span class="card-status-badge unseen" id="statusBadgeBack">Unseen</span>
                 <div class="topic-tag topic4" id="topicTagBack">Topic 4</div>
                 <div class="answer" id="cardAnswer"></div>
                 <div class="face-hint">Click to flip back</div>
@@ -172,6 +218,21 @@
         <button class="nav-btn" id="prevBtn">&larr; Prev</button>
         <button class="nav-btn primary" id="flipBtn">Flip</button>
         <button class="nav-btn" id="nextBtn">Next &rarr;</button>
+    </div>
+
+    <div class="grade-row">
+        <button class="grade-btn again" id="gradeAgainBtn" title="Mark card to review again">&#8634; Review Again</button>
+        <button class="grade-btn good" id="gradeGoodBtn" title="Mark card as mastered">&#10003; Got It</button>
+    </div>
+
+    <div class="session-complete" id="sessionComplete">
+        <h3>&#127881; Session Complete!</h3>
+        <p>You've worked through every card in your current filter.</p>
+        <div class="session-stats">
+            <span class="stat mastered">&#10003; <span id="sessionMastered">0</span> mastered</span>
+            <span class="stat review">&#8634; <span id="sessionReview">0</span> to review</span>
+        </div>
+        <p style="margin-top:14px;"><button class="btn btn-secondary" id="restartSessionBtn">Start Another Session</button></p>
     </div>
 
     <div class="empty-state" id="emptyState" style="display:none;">
@@ -316,6 +377,28 @@ let currentIdx = 0;
 let currentFilter = 'all';
 let currentSection = 'all';
 let order = CARDS.map((_, i) => i);
+let studyMode = false;
+
+/* ===== SRS state ===== */
+const SRS_KEY = 'pm_flashcards_srs_v1';
+function cardKey(card) {
+    let h = 0;
+    for (let i = 0; i < card.q.length; i++) {
+        h = ((h << 5) - h) + card.q.charCodeAt(i);
+        h |= 0;
+    }
+    return 'c' + (h >>> 0);
+}
+function loadSrs() { try { return JSON.parse(localStorage.getItem(SRS_KEY) || '{}'); } catch(e) { return {}; } }
+function saveSrs() { try { localStorage.setItem(SRS_KEY, JSON.stringify(srs)); } catch(e) {} }
+let srs = loadSrs();
+function getStatus(card) { return srs[cardKey(card)] || 'unseen'; }
+function setStatus(card, status) {
+    const key = cardKey(card);
+    if (status === 'unseen') delete srs[key];
+    else srs[key] = status;
+    saveSrs();
+}
 
 const cardEl = document.getElementById('card');
 const questionEl = document.getElementById('cardQuestion');
@@ -381,26 +464,75 @@ function applyFilter() {
     let pool = order.map(i => CARDS[i]);
     if (currentFilter !== 'all') pool = pool.filter(c => c.topic === currentFilter);
     if (currentSection !== 'all') pool = pool.filter(c => c.section === currentSection);
+
+    if (studyMode) {
+        const reviews = pool.filter(c => getStatus(c) === 'review');
+        const unseen = pool.filter(c => getStatus(c) === 'unseen');
+        pool = reviews.concat(unseen);
+    }
+
     filteredCards = pool;
     currentIdx = 0;
     renderCard();
+    updateStats();
+}
+
+function updateStats() {
+    let pool = CARDS;
+    if (currentFilter !== 'all') pool = pool.filter(c => c.topic === currentFilter);
+    if (currentSection !== 'all') pool = pool.filter(c => c.section === currentSection);
+    let m = 0, r = 0, u = 0;
+    pool.forEach(c => {
+        const s = getStatus(c);
+        if (s === 'mastered') m++;
+        else if (s === 'review') r++;
+        else u++;
+    });
+    document.getElementById('statMastered').textContent = m;
+    document.getElementById('statReview').textContent = r;
+    document.getElementById('statUnseen').textContent = u;
 }
 
 function renderCard() {
     totalCount.textContent = filteredCards.length + ' Cards';
+    const sessionPanel = document.getElementById('sessionComplete');
+    const gradeRow = document.querySelector('.grade-row');
+
     if (filteredCards.length === 0) {
-        emptyState.style.display = 'block';
-        cardWrapper.style.display = 'none';
-        document.querySelector('.nav-controls').style.display = 'none';
-        document.querySelector('.progress-row').style.display = 'none';
-        document.querySelector('.progress-bar').style.display = 'none';
+        if (studyMode) {
+            sessionPanel.classList.add('show');
+            cardWrapper.style.display = 'none';
+            emptyState.style.display = 'none';
+            document.querySelector('.nav-controls').style.display = 'none';
+            document.querySelector('.progress-row').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            gradeRow.style.display = 'none';
+            let m = 0, r = 0;
+            CARDS.forEach(c => {
+                const s = getStatus(c);
+                if (s === 'mastered') m++;
+                else if (s === 'review') r++;
+            });
+            document.getElementById('sessionMastered').textContent = m;
+            document.getElementById('sessionReview').textContent = r;
+        } else {
+            emptyState.style.display = 'block';
+            cardWrapper.style.display = 'none';
+            document.querySelector('.nav-controls').style.display = 'none';
+            document.querySelector('.progress-row').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            gradeRow.style.display = 'none';
+            sessionPanel.classList.remove('show');
+        }
         return;
     }
+    sessionPanel.classList.remove('show');
     emptyState.style.display = 'none';
     cardWrapper.style.display = 'block';
     document.querySelector('.nav-controls').style.display = 'flex';
     document.querySelector('.progress-row').style.display = 'flex';
     document.querySelector('.progress-bar').style.display = 'block';
+    gradeRow.style.display = 'flex';
 
     const card = filteredCards[currentIdx];
     cardEl.classList.remove('flipped');
@@ -415,6 +547,14 @@ function renderCard() {
     topicTag.textContent = tLabel;
     topicTag.style.background = card.topic === 'topic4' ? '#008eea' : '#d97706';
 
+    const status = getStatus(card);
+    const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+    ['statusBadgeFront', 'statusBadgeBack'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'card-status-badge ' + status;
+        el.textContent = statusLabel;
+    });
+
     cardPosition.textContent = 'Card ' + (currentIdx + 1) + ' of ' + filteredCards.length;
     progressFill.style.width = (((currentIdx + 1) / filteredCards.length) * 100) + '%';
     gotoInput.max = filteredCards.length;
@@ -422,6 +562,30 @@ function renderCard() {
 
     prevBtn.disabled = currentIdx === 0;
     nextBtn.disabled = currentIdx === filteredCards.length - 1;
+}
+
+function gradeCard(status) {
+    if (filteredCards.length === 0) return;
+    const card = filteredCards[currentIdx];
+    setStatus(card, status);
+    updateStats();
+
+    if (studyMode) {
+        if (status === 'mastered') {
+            filteredCards.splice(currentIdx, 1);
+            if (currentIdx >= filteredCards.length) currentIdx = Math.max(0, filteredCards.length - 1);
+        } else {
+            if (currentIdx < filteredCards.length - 1) currentIdx++;
+            else {
+                filteredCards.splice(currentIdx, 1);
+                if (currentIdx >= filteredCards.length) currentIdx = Math.max(0, filteredCards.length - 1);
+            }
+        }
+        renderCard();
+    } else {
+        if (currentIdx < filteredCards.length - 1) { currentIdx++; renderCard(); }
+        else renderCard();
+    }
 }
 
 function flipCard() { cardEl.classList.toggle('flipped'); }
@@ -449,6 +613,27 @@ prevBtn.addEventListener('click', prevCard);
 nextBtn.addEventListener('click', nextCard);
 shuffleBtn.addEventListener('click', shuffle);
 resetBtn.addEventListener('click', resetOrder);
+
+document.getElementById('gradeAgainBtn').addEventListener('click', function(e) { e.stopPropagation(); gradeCard('review'); });
+document.getElementById('gradeGoodBtn').addEventListener('click', function(e) { e.stopPropagation(); gradeCard('mastered'); });
+
+document.getElementById('studyModeToggle').addEventListener('change', function() {
+    studyMode = this.checked;
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.getElementById('resetProgressBtn').addEventListener('click', function() {
+    if (!confirm('Clear all spaced-repetition progress? This will reset every card back to Unseen.')) return;
+    srs = {};
+    saveSrs();
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.getElementById('restartSessionBtn').addEventListener('click', function() {
+    applyFilter();
+});
 
 gotoInput.addEventListener('change', function() {
     const n = parseInt(this.value, 10);

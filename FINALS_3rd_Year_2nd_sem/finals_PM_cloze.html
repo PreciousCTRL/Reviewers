@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM Cloze Notes - Topics 4 &amp; 5</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Lato", "Helvetica Neue", Arial, sans-serif; background: #f5f5f5; color: #2d3b45; line-height: 1.6; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: #fff; border: 1px solid #c7cdd1; border-radius: 3px; overflow: clip; }
+
+        .header { background: linear-gradient(135deg, #2d3b45 0%, #394b59 100%); color: #fff; padding: 24px 30px; }
+        .header h1 { font-size: 24px; margin-bottom: 4px; font-weight: 500; }
+        .header .subtitle { font-size: 13px; color: #c7cdd1; }
+        .header .meta { margin-top: 10px; font-size: 12px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .header .meta span { background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 3px; }
+
+        .section-nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; z-index: 101; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .section-nav .nav-home { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #e5e5e5; color: #2d3b45; text-decoration: none; border-radius: 3px; font-size: 13px; font-weight: 500; }
+        .section-nav .nav-home:hover { background: #d0d0d0; }
+        .section-nav .nav-home::before { content: "\2190"; font-size: 14px; }
+        .section-nav .nav-divider { width: 1px; height: 22px; background: #e5e5e5; margin: 0 4px; }
+        .section-nav .nav-links { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+        .section-nav a.nav-link { padding: 7px 12px; text-decoration: none; color: #394b59; font-size: 13px; font-weight: 500; border-radius: 3px; border: 1px solid transparent; }
+        .section-nav a.nav-link:hover { background: #f0f8ff; color: #008eea; }
+        .section-nav a.nav-link.active { background: #e6f4ff; color: #008eea; border-color: #008eea; }
+        .section-nav .view-link { padding: 7px 12px; background: transparent; color: #008eea; font-size: 13px; font-weight: 500; border-radius: 3px; text-decoration: none; }
+        .section-nav .view-link:hover { background: #f0f8ff; }
+
+        .instructions { background: #f0f8ff; border-left: 4px solid #008eea; padding: 14px 20px; font-size: 14px; }
+        .score-bar { position: sticky; top: 44px; background: #fff; border-bottom: 2px solid #008eea; padding: 12px 30px; z-index: 100; display: none; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .score-bar.show { display: flex; }
+        .score-bar .score { font-size: 16px; font-weight: bold; }
+        .score-bar .score.pass { color: #0b874b; }
+        .score-bar .score.fail { color: #ee3a3a; }
+        .score-bar .percentage { font-size: 24px; font-weight: bold; }
+
+        .section { border-top: 1px solid #e5e5e5; padding: 22px 32px; scroll-margin-top: 60px; }
+        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+        .section-icon { width: 32px; height: 32px; background: #008eea; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+        .section-title { font-size: 18px; font-weight: 500; }
+        .section-points { margin-left: auto; font-size: 12px; background: #e5e5e5; padding: 4px 10px; border-radius: 3px; }
+
+        .subsection { margin-bottom: 22px; }
+        .subsection h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; color: #008eea; margin-bottom: 8px; font-weight: 600; padding-bottom: 4px; border-bottom: 1px solid #e6f4ff; }
+        .subsection p { font-size: 15px; color: #2d3b45; margin-bottom: 10px; line-height: 1.9; }
+
+        .cloze { display: inline-block; position: relative; vertical-align: baseline; margin: 0 2px; }
+        .cloze input { padding: 3px 8px; border: 0; border-bottom: 2px solid #008eea; border-radius: 3px 3px 0 0; background: #f0f8ff; font-size: 14px; font-family: inherit; color: #2d3b45; min-width: 90px; transition: all 0.15s; }
+        .cloze input:focus { outline: none; border-bottom-color: #0072bd; background: #e6f4ff; }
+        .cloze input.correct { border-bottom-color: #0b874b; background: #d4f4dd; color: #0b874b; font-weight: 600; }
+        .cloze input.wrong { border-bottom-color: #ee3a3a; background: #fbd9d9; color: #a72a2a; }
+        .cloze .correct-ans { display: none; position: absolute; top: calc(100% + 2px); left: 0; font-size: 11px; color: #0b874b; font-weight: 600; background: #d4f4dd; padding: 2px 6px; border-radius: 3px; white-space: nowrap; z-index: 2; }
+        .cloze.show-ans .correct-ans { display: inline-block; }
+
+        .actions { padding: 20px 30px; background: #f5f5f5; border-top: 1px solid #c7cdd1; display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
+        .actions .left-group, .actions .right-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #008eea; color: #fff; }
+        .btn-primary:hover { background: #0072bd; }
+        .btn-secondary { background: #e5e5e5; color: #2d3b45; }
+        .btn-secondary:hover { background: #d0d0d0; }
+
+        .results-banner { padding: 20px 30px; text-align: center; display: none; }
+        .results-banner.show { display: block; }
+        .results-banner h2 { font-size: 24px; margin-bottom: 4px; }
+        .results-banner.pass { background: #effdf3; border-top: 3px solid #0b874b; }
+        .results-banner.pass h2 { color: #0b874b; }
+        .results-banner.fail { background: #fff0f0; border-top: 3px solid #ee3a3a; }
+        .results-banner.fail h2 { color: #a72a2a; }
+        .results-banner .detail { font-size: 13px; color: #6b7780; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>Project Management Cloze Notes</h1>
+    <div class="subtitle">Topic 4: Project Integration Management &nbsp;|&nbsp; Topic 5: Project Scope Management</div>
+    <div class="meta">
+        <span id="totalBlanks">0 Blanks</span>
+        <span>Paragraph recall</span>
+        <span>Auto-scored</span>
+    </div>
+</div>
+
+<div class="instructions">
+    <strong>How to use:</strong> Fill in each blank to complete the paragraphs. Answers are <b>case-insensitive</b> and accept close variations (singular/plural). Click <b>Check Answers</b> to grade, <b>Reveal All</b> to see every answer, or <b>Reset</b> to clear. Each blank is <b>1 point</b>.
+</div>
+
+<nav class="section-nav" id="sectionNav">
+    <a class="nav-home" href="../index.html" title="Back to Home">Home</a>
+    <div class="nav-divider"></div>
+    <div class="nav-links">
+        <a class="nav-link" href="#section-t4" data-target="section-t4">Topic 4</a>
+        <a class="nav-link" href="#section-t5" data-target="section-t5">Topic 5</a>
+    </div>
+    <div class="nav-divider"></div>
+    <a class="view-link" href="finals_PM.html">Quiz</a>
+    <a class="view-link" href="finals_PM_flashcards.html">Flashcards</a>
+</nav>
+
+<div class="score-bar" id="scoreBar">
+    <div>Your Score: <span class="score" id="scoreText">0 / 0</span></div>
+    <div class="percentage" id="percentText">0%</div>
+</div>
+
+<!-- ===== Topic 4 ===== -->
+<div class="section" id="section-t4">
+    <div class="section-header">
+        <div class="section-icon">4</div>
+        <div class="section-title">Topic 4: Project Integration Management</div>
+        <div class="section-points" id="t4Points">0 blanks</div>
+    </div>
+
+    <div class="subsection">
+        <h3>What is Project Integration Management?</h3>
+        <p>Project Integration Management is the <span class="cloze" data-answer="coordination"><input type="text" size="12"></span> of all parts of a <span class="cloze" data-answer="project"><input type="text" size="8"></span>, which includes the <span class="cloze" data-answer="stakeholders"><input type="text" size="12"></span>, activities, resources, and other elements.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Strategic Planning &amp; Project Selection</h3>
+        <p>All organizations operate under the limitations of <span class="cloze" data-answer="resources"><input type="text" size="10"></span>. The top constrained organizational resources are Time, <span class="cloze" data-answer="financing"><input type="text" size="10"></span>, <span class="cloze" data-answer="human"><input type="text" size="8"></span> resources, Material, and <span class="cloze" data-answer="skills"><input type="text" size="8"></span>. Project selection depends on how <span class="cloze" data-answer="big"><input type="text" size="6"></span> the project is and on the company and its resources.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Project Charter</h3>
+        <p>A Project Charter is a <span class="cloze" data-answer="formal"><input type="text" size="8"></span> and quick record that describes the whole task and its <span class="cloze" data-answer="goals"><input type="text" size="7"></span>, how it will be carried out, and who will be in charge. It states the scope, <span class="cloze" data-answer="objectives"><input type="text" size="10"></span>, and people involved, and defines the <span class="cloze" data-answer="authority"><input type="text" size="10"></span> of the project manager.</p>
+        <p>A project charter has three main uses: it <span class="cloze" data-answer="authorizes"><input type="text" size="10"></span> your project, serves as a primary <span class="cloze" data-answer="sales"><input type="text" size="7"></span> document for partners, and stays with you throughout the <span class="cloze" data-answer="life"><input type="text" size="6"></span> cycle of the project like a <span class="cloze" data-answer="roadmap"><input type="text" size="8"></span>.</p>
+        <p>There are four steps to make a Project Charter: define the Project <span class="cloze" data-answer="vision"><input type="text" size="8"></span>, organize the Project <span class="cloze" data-answer="structure"><input type="text" size="10"></span>, have an <span class="cloze" data-answer="implementation"><input type="text" size="12"></span> Plan, and estimate Risks, Issues &amp; <span class="cloze" data-answer="budget"><input type="text" size="8"></span>.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Step 1: Vision</h3>
+        <p>The three parts of Vision are: Objective, Scope, and <span class="cloze" data-answer="deliverables"><input type="text" size="12"></span>. The Objective should list <span class="cloze" data-answer="3"><input type="text" size="3"></span> to <span class="cloze" data-answer="5"><input type="text" size="3"></span> targets, and each must be SMART: <span class="cloze" data-answer="specific"><input type="text" size="9"></span>, <span class="cloze" data-answer="measurable"><input type="text" size="10"></span>, <span class="cloze" data-answer="achievable"><input type="text" size="10"></span>, <span class="cloze" data-answer="responsible"><input type="text" size="11"></span>, and <span class="cloze" data-answer="time"><input type="text" size="5"></span>-bound.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Step 2: Organize</h3>
+        <p>The four subsets to identify are: <span class="cloze" data-answer="customers"><input type="text" size="10"></span>/End Users, <span class="cloze" data-answer="stakeholders"><input type="text" size="12"></span>, <span class="cloze" data-answer="roles"><input type="text" size="7"></span>, and <span class="cloze" data-answer="structure"><input type="text" size="10"></span>. Stakeholders are the person or entity within or outside the project with a unique key <span class="cloze" data-answer="interest"><input type="text" size="9"></span> in that project.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Step 3: Implementation</h3>
+        <p>The four parts are: Plan, <span class="cloze" data-answer="milestones"><input type="text" size="10"></span>, <span class="cloze" data-answer="dependencies"><input type="text" size="12"></span>, and Resource Plan. <span class="cloze" data-answer="gantt"><input type="text" size="7"></span> charts are the traditional project-planning tool &mdash; they turn tasks and deadlines into visual <span class="cloze" data-answer="timelines"><input type="text" size="10"></span>. Milestones mark significant <span class="cloze" data-answer="stages"><input type="text" size="8"></span> in the project. Dependencies are duties or activities <span class="cloze" data-answer="linked"><input type="text" size="8"></span> to one another. The Resource Plan breaks down resources into <span class="cloze" data-answer="labor"><input type="text" size="7"></span>, <span class="cloze" data-answer="equipment"><input type="text" size="10"></span>, and <span class="cloze" data-answer="materials"><input type="text" size="10"></span>.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Step 4: Risks, Issues &amp; Budget</h3>
+        <p>A <span class="cloze" data-answer="risk"><input type="text" size="6"></span> is a plausible issue that may or may not appear &mdash; it is <span class="cloze" data-answer="future"><input type="text" size="7"></span> tense. An <span class="cloze" data-answer="issue"><input type="text" size="6"></span> is something that has already happened &mdash; it is <span class="cloze" data-answer="present"><input type="text" size="8"></span> tense. Risk is not always negative; there is also <span class="cloze" data-answer="positive"><input type="text" size="9"></span> risk.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Preliminary Scope Statement</h3>
+        <p>The Preliminary Scope Statement occurs during the <span class="cloze" data-answer="initiation"><input type="text" size="10"></span> phase. It consists of Scope Planning, Scope <span class="cloze" data-answer="definition"><input type="text" size="10"></span>, Creating the <span class="cloze" data-answer="wbs"><input type="text" size="5"></span>, Scope <span class="cloze" data-answer="verification"><input type="text" size="12"></span>, and Scope <span class="cloze" data-answer="control"><input type="text" size="8"></span>.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Project Management Plan</h3>
+        <p>A Project Management Plan is a formal and authorized record that guides project <span class="cloze" data-answer="execution"><input type="text" size="10"></span> and task <span class="cloze" data-answer="control"><input type="text" size="8"></span>. Its 8 steps are: identify the <span class="cloze" data-answer="goal"><input type="text" size="6"></span>, map out the <span class="cloze" data-answer="scope"><input type="text" size="7"></span>, develop an <span class="cloze" data-answer="outline"><input type="text" size="8"></span>, share with your <span class="cloze" data-answer="team"><input type="text" size="6"></span>, finalize your plan, use a <span class="cloze" data-answer="gantt"><input type="text" size="7"></span> chart, distribute the plan, and hold a project post <span class="cloze" data-answer="mortem"><input type="text" size="8"></span>.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Execution, Monitoring &amp; Change Control</h3>
+        <p>In Project Execution, the PM's role is leading the project <span class="cloze" data-answer="team"><input type="text" size="6"></span> and managing <span class="cloze" data-answer="stakeholder"><input type="text" size="11"></span> relationships. Monitoring and Controlling involves collecting performance <span class="cloze" data-answer="information"><input type="text" size="11"></span>, analyzing <span class="cloze" data-answer="trends"><input type="text" size="8"></span>, and recommending <span class="cloze" data-answer="corrective"><input type="text" size="10"></span> and preventive actions. Integrated Change Control measures the impact of change on all project <span class="cloze" data-answer="limitations"><input type="text" size="11"></span>.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Closing Projects</h3>
+        <p>Closing a project includes <span class="cloze" data-answer="administrative"><input type="text" size="13"></span> closure procedures, <span class="cloze" data-answer="contract"><input type="text" size="9"></span> closure procedures, final products/services/results, and organizational process <span class="cloze" data-answer="asset"><input type="text" size="7"></span> updates.</p>
+    </div>
+</div>
+
+<!-- ===== Topic 5 ===== -->
+<div class="section" id="section-t5">
+    <div class="section-header">
+        <div class="section-icon">5</div>
+        <div class="section-title">Topic 5: Project Scope Management</div>
+        <div class="section-points" id="t5Points">0 blanks</div>
+    </div>
+
+    <div class="subsection">
+        <h3>What is Project Scope Management?</h3>
+        <p>Project Scope Management is a set of <span class="cloze" data-answer="activities"><input type="text" size="10"></span> and <span class="cloze" data-answer="processes"><input type="text" size="10"></span> that ensures a project is performed correctly and accurately. It filters what is or is not covered in the task <span class="cloze" data-answer="scope"><input type="text" size="7"></span>.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Scope Definition &amp; the Project Scope Statement</h3>
+        <p>The Project Scope Statement is used to <span class="cloze" data-answer="improve"><input type="text" size="8"></span> and confirm a common perception of the project scope. It describes in detail the work to accomplish and is a necessary device for preventing scope <span class="cloze" data-answer="creep"><input type="text" size="7"></span> &mdash; the tendency for project scope to keep getting <span class="cloze" data-answer="bigger"><input type="text" size="8"></span>. It may <span class="cloze" data-answer="vary"><input type="text" size="6"></span> by type of project.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Preliminary Scope Statement Contents</h3>
+        <p>Contents include Project Objectives, Product or Service <span class="cloze" data-answer="requirements"><input type="text" size="11"></span> and Characteristics, Project <span class="cloze" data-answer="boundaries"><input type="text" size="10"></span>, Project Deliverables, Product Acceptance <span class="cloze" data-answer="criteria"><input type="text" size="9"></span>, Project Assumptions and <span class="cloze" data-answer="constraints"><input type="text" size="11"></span>, Organizational Structure, Initial List of Defined <span class="cloze" data-answer="risks"><input type="text" size="7"></span>, Summary of Schedule <span class="cloze" data-answer="milestones"><input type="text" size="10"></span>, Rough Order of Magnitude <span class="cloze" data-answer="cost"><input type="text" size="6"></span> Estimate, and Configuration Management Requirements.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Creating the Work Breakdown Structure</h3>
+        <p>According to Esther <span class="cloze" data-answer="cohen"><input type="text" size="7"></span>, a WBS defines all the things a project needs to accomplish, organized into multiple <span class="cloze" data-answer="levels"><input type="text" size="8"></span>, and displayed <span class="cloze" data-answer="graphically"><input type="text" size="11"></span>.</p>
+        <p>The 6 Steps to Create a WBS are: (1) <span class="cloze" data-answer="identify"><input type="text" size="9"></span> the deliverables by reviewing the scope statement; (2) decide the structure/<span class="cloze" data-answer="layout"><input type="text" size="7"></span> &mdash; Horizontal, Outline, or Tree View; (3) decide the <span class="cloze" data-answer="organization"><input type="text" size="12"></span> &mdash; by phase or by deliverables; (4) <span class="cloze" data-answer="decompose"><input type="text" size="10"></span> the upper-level WBS into lower-level detailed components; (5) assign unique <span class="cloze" data-answer="identification"><input type="text" size="12"></span> codes to each WBS component; (6) <span class="cloze" data-answer="verify"><input type="text" size="7"></span> the degree of decomposition is appropriate.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Gantt Chart</h3>
+        <p>A Gantt Chart is a kind of <span class="cloze" data-answer="bar"><input type="text" size="5"></span> chart, created by Henry <span class="cloze" data-answer="gantt"><input type="text" size="7"></span>, showing a schedule of <span class="cloze" data-answer="assignments"><input type="text" size="11"></span>. It shows start and end dates of a project's <span class="cloze" data-answer="terminal"><input type="text" size="9"></span> factors and accuracy factors.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Scope Verification</h3>
+        <p>Scope Verification is the process of formalizing <span class="cloze" data-answer="acceptance"><input type="text" size="10"></span> of the project scope through the <span class="cloze" data-answer="stakeholders"><input type="text" size="12"></span>. It takes place at the end of every project <span class="cloze" data-answer="phase"><input type="text" size="7"></span> and as part of the task <span class="cloze" data-answer="closeout"><input type="text" size="9"></span> process. Work is sometimes <span class="cloze" data-answer="denied"><input type="text" size="7"></span> and must be re-worked.</p>
+    </div>
+
+    <div class="subsection">
+        <h3>Scope Control</h3>
+        <p>Scope Control has three steps: know the <span class="cloze" data-answer="scope"><input type="text" size="7"></span> of the project, <span class="cloze" data-answer="train"><input type="text" size="7"></span> your team, and <span class="cloze" data-answer="communication"><input type="text" size="12"></span>.</p>
+    </div>
+</div>
+
+<div class="results-banner" id="resultsBanner">
+    <h2 id="resultsTitle"></h2>
+    <div class="detail" id="resultsDetail"></div>
+</div>
+
+<div class="actions">
+    <div class="left-group">
+        <a class="btn btn-secondary" href="../index.html">&larr; Home</a>
+        <button class="btn btn-secondary" onclick="resetCloze()">Reset</button>
+    </div>
+    <div class="right-group">
+        <button class="btn btn-secondary" onclick="revealAll()">Reveal All</button>
+        <button class="btn btn-primary" onclick="checkCloze()">Check Answers</button>
+    </div>
+</div>
+
+</div>
+
+<script>
+function normalize(s) {
+    return (s || '').toString().trim().toLowerCase()
+        .replace(/[.,!?;:]$/g, '')
+        .replace(/\s+/g, ' ');
+}
+
+function matchesAnswer(user, correct) {
+    const u = normalize(user);
+    const c = normalize(correct);
+    if (u === c) return true;
+    if (u + 's' === c || u === c + 's') return true;
+    if (u + 'es' === c || u === c + 'es') return true;
+    if (u.replace(/y$/, 'ies') === c || c.replace(/y$/, 'ies') === u) return true;
+    return false;
+}
+
+function countBlanks() {
+    const all = document.querySelectorAll('.cloze');
+    document.getElementById('totalBlanks').textContent = all.length + ' Blanks';
+    document.getElementById('t4Points').textContent = document.querySelectorAll('#section-t4 .cloze').length + ' blanks';
+    document.getElementById('t5Points').textContent = document.querySelectorAll('#section-t5 .cloze').length + ' blanks';
+}
+
+function checkCloze() {
+    let total = 0, correct = 0;
+    document.querySelectorAll('.cloze').forEach(function(cloze) {
+        total++;
+        const input = cloze.querySelector('input');
+        const answer = cloze.dataset.answer;
+        input.classList.remove('correct', 'wrong');
+        const old = cloze.querySelector('.correct-ans');
+        if (old) old.remove();
+        cloze.classList.remove('show-ans');
+
+        if (matchesAnswer(input.value, answer)) {
+            input.classList.add('correct');
+            correct++;
+        } else {
+            input.classList.add('wrong');
+            const hint = document.createElement('span');
+            hint.className = 'correct-ans';
+            hint.textContent = answer;
+            cloze.appendChild(hint);
+            cloze.classList.add('show-ans');
+        }
+    });
+
+    const pct = total === 0 ? 0 : Math.round((correct / total) * 100);
+    const scoreBar = document.getElementById('scoreBar');
+    scoreBar.classList.add('show');
+    const scoreText = document.getElementById('scoreText');
+    scoreText.textContent = correct + ' / ' + total;
+    scoreText.className = 'score ' + (pct >= 75 ? 'pass' : 'fail');
+    document.getElementById('percentText').textContent = pct + '%';
+
+    const banner = document.getElementById('resultsBanner');
+    banner.classList.add('show');
+    banner.classList.remove('pass', 'fail');
+    if (pct >= 90) { banner.classList.add('pass'); document.getElementById('resultsTitle').textContent = 'Excellent! ' + pct + '%'; }
+    else if (pct >= 75) { banner.classList.add('pass'); document.getElementById('resultsTitle').textContent = 'Passed: ' + pct + '%'; }
+    else { banner.classList.add('fail'); document.getElementById('resultsTitle').textContent = 'Keep Reviewing: ' + pct + '%'; }
+    document.getElementById('resultsDetail').textContent = 'You filled in ' + correct + ' of ' + total + ' blanks correctly.';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function revealAll() {
+    document.querySelectorAll('.cloze').forEach(function(cloze) {
+        const input = cloze.querySelector('input');
+        input.value = cloze.dataset.answer;
+        input.classList.remove('wrong');
+        input.classList.add('correct');
+        const old = cloze.querySelector('.correct-ans');
+        if (old) old.remove();
+        cloze.classList.remove('show-ans');
+    });
+}
+
+function resetCloze() {
+    document.querySelectorAll('.cloze input').forEach(i => { i.value = ''; i.classList.remove('correct', 'wrong'); });
+    document.querySelectorAll('.correct-ans').forEach(s => s.remove());
+    document.querySelectorAll('.cloze').forEach(c => c.classList.remove('show-ans'));
+    document.getElementById('scoreBar').classList.remove('show');
+    document.getElementById('resultsBanner').classList.remove('show', 'pass', 'fail');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('.cloze input').forEach(function(input) {
+    input.addEventListener('input', function() {
+        input.classList.remove('correct', 'wrong');
+        const cloze = input.closest('.cloze');
+        const old = cloze.querySelector('.correct-ans');
+        if (old) old.remove();
+        cloze.classList.remove('show-ans');
+    });
+});
+
+document.querySelectorAll('.section-nav a.nav-link').forEach(function(link) {
+    link.addEventListener('click', function() {
+        document.querySelectorAll('.section-nav a.nav-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+    });
+});
+
+countBlanks();
+</script>
+
+</body>
+</html>

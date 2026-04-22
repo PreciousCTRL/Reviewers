@@ -91,6 +91,28 @@
         .results-banner .detail { font-size: 13px; color: #6b7780; margin-top: 4px; }
         .results-banner .breakdown { margin-top: 10px; font-size: 12px; color: #2d3b45; }
 
+        /* ===== One-question-at-a-time quiz mode ===== */
+        .quiz-progress { display: none; padding: 12px 30px; background: #fafafa; border-bottom: 1px solid #e5e5e5; align-items: center; gap: 16px; flex-wrap: wrap; }
+        body.quiz-mode .quiz-progress { display: flex; }
+        .quiz-progress .qp-label { font-size: 13px; color: #6b7780; font-weight: 500; white-space: nowrap; }
+        .quiz-progress .qp-label strong { color: #2d3b45; }
+        .quiz-progress .qp-bar { flex: 1; min-width: 120px; height: 6px; background: #e5e5e5; border-radius: 3px; overflow: hidden; }
+        .quiz-progress .qp-fill { height: 100%; background: #008eea; transition: width 0.25s ease; width: 0%; }
+        .quiz-progress .qp-section-tag { font-size: 11px; background: #008eea; color: #fff; padding: 3px 10px; border-radius: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+
+        body.quiz-mode .section { display: none; }
+        body.quiz-mode .section.active-section { display: block; }
+        body.quiz-mode .section.active-section .question { display: none; }
+        body.quiz-mode .section.active-section .question.active-question { display: block; }
+        body.quiz-mode .section.active-section .section-points { display: none; }
+
+        .quiz-controls { display: none; padding: 16px 30px; background: #fff; border-top: 1px solid #e5e5e5; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        body.quiz-mode .quiz-controls { display: flex; }
+        .quiz-controls .q-counter { font-size: 13px; color: #6b7780; font-weight: 500; }
+        .quiz-controls .q-counter strong { color: #008eea; font-size: 15px; }
+        .quiz-controls .goto-wrap { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #6b7780; }
+        .quiz-controls .goto-input { width: 55px; padding: 5px 8px; border: 1px solid #c7cdd1; border-radius: 3px; font-size: 13px; text-align: center; font-family: inherit; }
+
         .blank-input { display: inline-block; vertical-align: baseline; }
         .blank-input input { width: 150px; font-size: 14px; padding: 2px 6px; border: 0; border-bottom: 2px solid #008eea; border-radius: 0; background: transparent; }
         .blank-input input:focus { border-bottom-color: #0072bd; outline: none; }
@@ -114,7 +136,7 @@
 </div>
 
 <div class="instructions">
-    <strong>Instructions:</strong> Answer all questions below. Fill-in-the-blank questions have multiple blanks &mdash; each blank is worth 1 point. Click <b>Submit Quiz</b> at the bottom to see your score. Click <b>Reset</b> to try again.
+    <strong>Instructions:</strong> Answer one question at a time. Use <b>Next</b> / <b>Prev</b> (or the left/right arrow keys) to navigate, or jump to a specific question via the <b>Go to</b> input. Fill-in-the-blank questions have multiple blanks &mdash; each is worth 1 point. Click <b>Submit Quiz</b> on the last question (or the bottom button anytime) to see your score.
 </div>
 
 <nav class="section-nav" id="sectionNav">
@@ -127,6 +149,12 @@
         <a class="nav-link" href="#section-match" data-target="section-match">Matching</a>
     </div>
 </nav>
+
+<div class="quiz-progress" id="quizProgress">
+    <span class="qp-section-tag" id="qpSectionTag">Fill in the Blank</span>
+    <span class="qp-label">Question <strong id="qpCurrent">1</strong> of <strong id="qpTotal">65</strong></span>
+    <div class="qp-bar"><div class="qp-fill" id="qpFill"></div></div>
+</div>
 
 <div class="score-bar" id="scoreBar">
     <div>Your Score: <span class="score" id="scoreText">0 / 0</span></div>
@@ -931,9 +959,19 @@
     <div class="breakdown" id="resultsBreakdown"></div>
 </div>
 
+<div class="quiz-controls" id="quizControls">
+    <button class="btn btn-secondary" id="qPrevBtn">&larr; Previous</button>
+    <div class="goto-wrap">
+        Go to: <input type="number" class="goto-input" id="qGotoInput" min="1" value="1">
+    </div>
+    <div class="q-counter"><strong id="qCounterCurrent">1</strong> / <span id="qCounterTotal">65</span></div>
+    <button class="btn btn-primary" id="qNextBtn">Next &rarr;</button>
+</div>
+
 <div class="actions">
     <a class="btn btn-secondary" href="../index.html" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">&larr; Back to Home</a>
     <button class="btn btn-secondary" onclick="resetQuiz()">Reset Quiz</button>
+    <button class="btn btn-secondary" id="reviewAllBtn" onclick="showReviewMode()">Show All</button>
     <button class="btn btn-primary" onclick="submitQuiz()">Submit Quiz</button>
 </div>
 
@@ -945,6 +983,9 @@ function normalize(str) {
 }
 
 function submitQuiz() {
+    document.body.classList.remove('quiz-mode');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+    document.querySelectorAll('.question').forEach(q => q.classList.remove('active-question'));
     let totalPoints = 0, earnedPoints = 0, correctItems = 0, totalItems = 0;
 
     document.querySelectorAll('.question').forEach(function(q) {
@@ -1046,8 +1087,96 @@ function resetQuiz() {
     document.querySelectorAll('.correct-text, .match-correct-txt').forEach(s => s.remove());
     document.getElementById('scoreBar').classList.remove('show');
     document.getElementById('resultsBanner').classList.remove('show', 'pass', 'fail');
+    enterQuizMode();
+    showQuestion(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+/* ===== One-question-at-a-time quiz mode ===== */
+const allQuestions = Array.from(document.querySelectorAll('.question'));
+let currentQIdx = 0;
+
+function enterQuizMode() {
+    document.body.classList.add('quiz-mode');
+}
+function exitQuizMode() {
+    document.body.classList.remove('quiz-mode');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+    document.querySelectorAll('.question').forEach(q => q.classList.remove('active-question'));
+}
+function showReviewMode() {
+    exitQuizMode();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showQuestion(idx) {
+    if (idx < 0 || idx >= allQuestions.length) return;
+    currentQIdx = idx;
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+    document.querySelectorAll('.question').forEach(q => q.classList.remove('active-question'));
+    const q = allQuestions[idx];
+    q.classList.add('active-question');
+    const section = q.closest('.section');
+    section.classList.add('active-section');
+
+    const total = allQuestions.length;
+    document.getElementById('qpCurrent').textContent = idx + 1;
+    document.getElementById('qpTotal').textContent = total;
+    document.getElementById('qCounterCurrent').textContent = idx + 1;
+    document.getElementById('qCounterTotal').textContent = total;
+    document.getElementById('qpFill').style.width = (((idx + 1) / total) * 100) + '%';
+    document.getElementById('qpSectionTag').textContent = section.querySelector('.section-title').textContent;
+    document.getElementById('qGotoInput').value = idx + 1;
+    document.getElementById('qGotoInput').max = total;
+
+    document.getElementById('qPrevBtn').disabled = idx === 0;
+    const nextBtn = document.getElementById('qNextBtn');
+    if (idx === total - 1) { nextBtn.textContent = 'Submit Quiz'; nextBtn.dataset.final = 'true'; }
+    else { nextBtn.innerHTML = 'Next &rarr;'; nextBtn.dataset.final = 'false'; }
+
+    document.querySelectorAll('.section-nav a.nav-link').forEach(function(l) {
+        l.classList.toggle('active', l.dataset.target === section.id);
+    });
+
+    const scrollTarget = document.getElementById('quizProgress');
+    if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.getElementById('qPrevBtn').addEventListener('click', function() { showQuestion(currentQIdx - 1); });
+document.getElementById('qNextBtn').addEventListener('click', function() {
+    if (this.dataset.final === 'true') submitQuiz();
+    else showQuestion(currentQIdx + 1);
+});
+document.getElementById('qGotoInput').addEventListener('change', function() {
+    const n = parseInt(this.value, 10);
+    if (!isNaN(n) && n >= 1 && n <= allQuestions.length) showQuestion(n - 1);
+    else this.value = currentQIdx + 1;
+});
+
+document.addEventListener('keydown', function(e) {
+    if (!document.body.classList.contains('quiz-mode')) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') { if (currentQIdx < allQuestions.length - 1) showQuestion(currentQIdx + 1); }
+    else if (e.key === 'ArrowLeft') { if (currentQIdx > 0) showQuestion(currentQIdx - 1); }
+});
+
+document.querySelectorAll('.section-nav a.nav-link').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+        if (!document.body.classList.contains('quiz-mode')) return;
+        e.preventDefault();
+        const targetId = link.dataset.target;
+        const firstQ = document.querySelector('#' + targetId + ' .question');
+        if (firstQ) {
+            const idx = allQuestions.indexOf(firstQ);
+            if (idx >= 0) showQuestion(idx);
+        }
+        document.querySelectorAll('.section-nav a.nav-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+    });
+});
+
+enterQuizMode();
+showQuestion(0);
 
 (function() {
     const navLinks = document.querySelectorAll('.section-nav a.nav-link');
@@ -1058,6 +1187,7 @@ function resetQuiz() {
     }
 
     function onScroll() {
+        if (document.body.classList.contains('quiz-mode')) return;
         const offset = 80;
         let currentId = sections[0] && sections[0].id;
         for (const s of sections) {
