@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certiport Networking Flashcards</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Lato", "Helvetica Neue", Arial, sans-serif; background: #f5f5f5; color: #2d3b45; line-height: 1.5; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: #fff; border: 1px solid #c7cdd1; border-radius: 3px; overflow: clip; }
+
+        .header { background: linear-gradient(135deg, #1a4480 0%, #2562a3 100%); color: #fff; padding: 24px 30px; }
+        .header h1 { font-size: 24px; margin-bottom: 4px; font-weight: 500; }
+        .header .subtitle { font-size: 13px; color: #c7cdd1; }
+        .header .meta { margin-top: 10px; font-size: 12px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .header .meta span { background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 3px; }
+
+        .section-nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; z-index: 101; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .section-nav .nav-home { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #e5e5e5; color: #2d3b45; text-decoration: none; border-radius: 3px; font-size: 13px; font-weight: 500; }
+        .section-nav .nav-home:hover { background: #d0d0d0; }
+        .section-nav .nav-home::before { content: "\2190"; font-size: 14px; }
+        .section-nav .nav-divider { width: 1px; height: 22px; background: #e5e5e5; margin: 0 4px; }
+        .section-nav .section-select-wrap { display: inline-flex; align-items: center; gap: 6px; }
+        .section-nav .section-select-wrap label { font-size: 12px; color: #6b7780; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-nav select.section-select { padding: 6px 10px; font-size: 13px; border: 1px solid #c7cdd1; border-radius: 3px; background: #fff; color: #2d3b45; font-family: inherit; cursor: pointer; max-width: 320px; }
+        .section-nav select.section-select:focus { outline: none; border-color: #1a4480; box-shadow: 0 0 3px rgba(26,68,128,0.3); }
+        .section-nav .spacer { flex: 1; }
+        .section-nav .view-link { padding: 7px 12px; background: transparent; color: #1a4480; font-size: 13px; font-weight: 500; border-radius: 3px; text-decoration: none; }
+        .section-nav .view-link:hover { background: #f0f8ff; }
+
+        .instructions { background: #f0f8ff; border-left: 4px solid #1a4480; padding: 14px 20px; font-size: 14px; }
+
+        .study-area { padding: 30px; }
+        .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13px; color: #6b7780; flex-wrap: wrap; gap: 8px; }
+        .progress-row .tag { background: #1a4480; color: #fff; padding: 3px 10px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; margin-right: 8px; }
+        .progress-bar { height: 4px; background: #e5e5e5; border-radius: 2px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #1a4480; transition: width 0.25s ease; }
+
+        .card-wrapper { perspective: 1500px; margin-bottom: 20px; }
+        .card { position: relative; width: 100%; min-height: 320px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.55s; }
+        .card.flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 40px 44px; border-radius: 6px; border: 1px solid #c7cdd1; background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.05); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow-y: auto; }
+        .card-face .face-label { position: absolute; top: 14px; left: 18px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7780; }
+        .card-face .face-hint { position: absolute; bottom: 14px; right: 18px; font-size: 11px; color: #6b7780; }
+        .card-face .section-tag { position: absolute; top: 14px; right: 18px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; padding: 3px 8px; border-radius: 3px; background: #e6f4ff; color: #1a4480; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-front { background: #fff; }
+        .card-front .question { font-size: 20px; font-weight: 500; color: #2d3b45; text-align: center; line-height: 1.4; }
+        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #f0f8ff 0%, #e6f4ff 100%); border-color: #1a4480; }
+        .card-back .answer { font-size: 15px; color: #2d3b45; line-height: 1.65; }
+        .card-back .answer ul, .card-back .answer ol { margin-left: 22px; margin-top: 6px; }
+        .card-back .answer li { margin-bottom: 4px; }
+        .card-back .answer strong { color: #133564; }
+        .card-back .answer code { background: rgba(26,68,128,0.08); padding: 1px 5px; border-radius: 2px; font-size: 0.92em; font-family: Menlo, Consolas, monospace; }
+
+        .nav-controls { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 10px; }
+        .nav-btn { padding: 10px 18px; border: 1px solid #c7cdd1; background: #fff; color: #2d3b45; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s, border-color 0.15s; }
+        .nav-btn:hover:not(:disabled) { background: #f0f8ff; border-color: #1a4480; color: #1a4480; }
+        .nav-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .nav-btn.primary { background: #1a4480; color: #fff; border-color: #1a4480; }
+        .nav-btn.primary:hover:not(:disabled) { background: #133564; border-color: #133564; color: #fff; }
+
+        .counter-input { width: 66px; padding: 6px 8px; border: 1px solid #c7cdd1; border-radius: 3px; font-size: 14px; text-align: center; font-family: inherit; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #6b7780; }
+        .empty-state h3 { font-size: 18px; margin-bottom: 6px; color: #2d3b45; }
+
+        .grid-area { padding: 20px 30px 30px; display: none; }
+        .grid-area.show { display: block; }
+        .study-area.hide { display: none; }
+        .grid-area h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7780; margin: 18px 0 10px; font-weight: 500; }
+        .grid-area h3:first-child { margin-top: 0; }
+        .mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+        .mini-card { perspective: 1000px; }
+        .mini-card-inner { position: relative; min-height: 140px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.5s; }
+        .mini-card-inner.flipped { transform: rotateY(180deg); }
+        .mini-card-face { position: absolute; inset: 0; padding: 16px 18px 28px; border-radius: 4px; border: 1px solid #e5e5e5; background: #fff; backface-visibility: hidden; -webkit-backface-visibility: hidden; font-size: 13px; line-height: 1.5; overflow: hidden; }
+        .mini-card-face .idx { position: absolute; bottom: 8px; left: 12px; font-size: 10px; color: #6b7780; }
+        .mini-card-back { transform: rotateY(180deg); background: #f0f8ff; border-color: #1a4480; overflow-y: auto; }
+
+        .status-bar { background: #fafafa; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .status-bar .toggle-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-weight: 500; color: #2d3b45; font-size: 13px; }
+        .status-bar .toggle-switch input { display: none; }
+        .status-bar .toggle-switch .switch-ui { width: 36px; height: 20px; background: #c7cdd1; border-radius: 10px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+        .status-bar .toggle-switch .switch-ui::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: left 0.2s; }
+        .status-bar .toggle-switch input:checked + .switch-ui { background: #1a4480; }
+        .status-bar .toggle-switch input:checked + .switch-ui::after { left: 18px; }
+        .status-bar .stat { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; }
+        .status-bar .stat.mastered { background: #d4f4dd; color: #0b874b; }
+        .status-bar .stat.review { background: #fff3cd; color: #a07010; }
+        .status-bar .stat.unseen { background: #e5e5e5; color: #6b7780; }
+        .status-bar .reset-progress { margin-left: auto; padding: 5px 10px; background: transparent; border: 1px solid #c7cdd1; color: #6b7780; border-radius: 3px; font-size: 12px; cursor: pointer; font-family: inherit; }
+        .status-bar .reset-progress:hover { background: #fff0f0; border-color: #ee3a3a; color: #a72a2a; }
+
+        .card-status-badge { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; padding: 3px 10px; border-radius: 10px; z-index: 2; }
+        .card-status-badge.mastered { background: #d4f4dd; color: #0b874b; }
+        .card-status-badge.review { background: #fff3cd; color: #a07010; }
+        .card-status-badge.unseen { background: #e5e5e5; color: #6b7780; }
+
+        .grade-row { display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .grade-btn { padding: 10px 20px; border: 2px solid; border-radius: 3px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.4px; }
+        .grade-btn.again { border-color: #ee3a3a; color: #a72a2a; background: #fff; }
+        .grade-btn.again:hover { background: #fff0f0; }
+        .grade-btn.good { border-color: #0b874b; color: #0b874b; background: #fff; }
+        .grade-btn.good:hover { background: #effdf3; }
+
+        .session-complete { text-align: center; padding: 40px 20px; color: #6b7780; display: none; }
+        .session-complete.show { display: block; }
+        .session-complete h3 { color: #0b874b; font-size: 20px; margin-bottom: 6px; }
+        .session-complete .session-stats { margin: 14px auto; max-width: 400px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+        .actions { padding: 20px 30px; background: #f5f5f5; border-top: 1px solid #c7cdd1; display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
+        .actions .left-group, .actions .right-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 10px 22px; border: none; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #1a4480; color: #fff; }
+        .btn-primary:hover { background: #133564; }
+        .btn-secondary { background: #e5e5e5; color: #2d3b45; }
+        .btn-secondary:hover { background: #d0d0d0; }
+
+        @media (max-width: 600px) {
+            .card-face { padding: 30px 24px; }
+            .card-front .question { font-size: 17px; }
+            .card-back .answer { font-size: 14px; }
+            .study-area { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>Certiport Networking Flashcards</h1>
+    <div class="subtitle">IT Specialist: Networking &mdash; concepts, facts &amp; port numbers to memorize</div>
+    <div class="meta">
+        <span id="totalCount">0 Cards</span>
+        <span>Click to flip</span>
+        <span>Arrow keys to navigate</span>
+    </div>
+</div>
+
+<div class="instructions">
+    <strong>How to study:</strong> Click a card to flip between the prompt and the answer. Use <b>Prev</b> / <b>Next</b> or the left/right arrow keys to navigate. Filter by topic using the <b>Section</b> dropdown, toggle <b>Study Mode</b> for spaced repetition (cards you mark "Review" come back; "Got It" cards drop out), or switch to <b>Grid View</b> to scan all cards at once.
+</div>
+
+<nav class="section-nav" id="sectionNav">
+    <a class="nav-home" href="../index.html" title="Back to Home">Home</a>
+    <div class="nav-divider"></div>
+    <div class="section-select-wrap">
+        <label for="sectionSelect">Section</label>
+        <select class="section-select" id="sectionSelect"></select>
+    </div>
+    <div class="spacer"></div>
+    <a class="view-link" href="certiport_networking_quiz.html">Take the Quiz &rarr;</a>
+</nav>
+
+<div class="status-bar" id="statusBar">
+    <label class="toggle-switch" title="Study mode hides mastered cards and prioritizes cards you marked for review">
+        <input type="checkbox" id="studyModeToggle">
+        <span class="switch-ui"></span>
+        <span>Study Mode (Spaced Repetition)</span>
+    </label>
+    <span class="stat mastered">&#10003; Mastered <span id="statMastered">0</span></span>
+    <span class="stat review">&#8634; Review <span id="statReview">0</span></span>
+    <span class="stat unseen">&#9675; Unseen <span id="statUnseen">0</span></span>
+    <button class="reset-progress" id="resetProgressBtn">Reset Progress</button>
+</div>
+
+<div class="study-area" id="studyArea">
+
+    <div class="progress-row">
+        <div>
+            <span class="tag" id="topicTag">Section</span>
+            <span id="cardPosition">Card 1 of 1</span>
+        </div>
+        <div>
+            Go to: <input type="number" class="counter-input" id="gotoInput" min="1" value="1">
+        </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+
+    <div class="card-wrapper" id="cardWrapper">
+        <div class="card" id="card">
+            <div class="card-face card-front">
+                <div class="face-label">Question</div>
+                <span class="card-status-badge unseen" id="statusBadgeFront">Unseen</span>
+                <div class="section-tag" id="sectionTagFront">Section</div>
+                <div class="question" id="cardQuestion">Loading...</div>
+                <div class="face-hint">Click to reveal answer</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="face-label">Answer</div>
+                <span class="card-status-badge unseen" id="statusBadgeBack">Unseen</span>
+                <div class="section-tag" id="sectionTagBack">Section</div>
+                <div class="answer" id="cardAnswer"></div>
+                <div class="face-hint">Click to flip back</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn">&larr; Prev</button>
+        <button class="nav-btn primary" id="flipBtn">Flip</button>
+        <button class="nav-btn" id="nextBtn">Next &rarr;</button>
+    </div>
+
+    <div class="grade-row">
+        <button class="grade-btn again" id="gradeAgainBtn" title="Mark card to review again">&#8634; Review Again</button>
+        <button class="grade-btn good" id="gradeGoodBtn" title="Mark card as mastered">&#10003; Got It</button>
+    </div>
+
+    <div class="session-complete" id="sessionComplete">
+        <h3>&#127881; Session Complete!</h3>
+        <p>You&rsquo;ve worked through every card in your current filter.</p>
+        <div class="session-stats">
+            <span class="stat mastered">&#10003; <span id="sessionMastered">0</span> mastered</span>
+            <span class="stat review">&#8634; <span id="sessionReview">0</span> to review</span>
+        </div>
+        <p style="margin-top:14px;"><button class="btn btn-secondary" id="restartSessionBtn">Start Another Session</button></p>
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+        <h3>No cards for this filter</h3>
+        <p>Try selecting a different section.</p>
+    </div>
+</div>
+
+<div class="grid-area" id="gridArea"></div>
+
+<div class="actions">
+    <div class="left-group">
+        <a class="btn btn-secondary" href="../index.html">&larr; Home</a>
+        <a class="btn btn-secondary" href="certiport_networking_quiz.html">Go to Quiz</a>
+    </div>
+    <div class="right-group">
+        <button class="btn btn-secondary" id="shuffleBtn">Shuffle</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset Order</button>
+        <button class="btn btn-primary" id="toggleViewBtn">Grid View</button>
+    </div>
+</div>
+
+</div>
+
+<script>
+const SECTIONS = {
+    fund:        'Networking Fundamentals & Topologies',
+    osi:         'OSI Model & TCP/IP',
+    ip:          'IP Addressing, Subnetting & NAT',
+    hardware:    'Network Hardware & Cabling',
+    protocols:   'Protocols, Ports & Services',
+    wireless:    'Wireless Networking',
+    wan:         'WAN Technologies',
+    security:    'Network Security & VPN',
+    troubleshoot:'Troubleshooting & CLI Tools',
+    windows:     'Windows Networking & Active Directory'
+};
+
+const CARDS = [
+    // ===== Networking Fundamentals & Topologies =====
+    { section: 'fund', q: 'What is a <em>LAN</em>?', a: '<strong>Local Area Network</strong> &mdash; a network limited to a <strong>single building, office, or small campus</strong>.' },
+    { section: 'fund', q: 'What is a <em>WAN</em>?', a: '<strong>Wide Area Network</strong> &mdash; spans <strong>large geographic distances</strong> (cities, countries, continents). The Internet is the largest WAN.' },
+    { section: 'fund', q: 'What is a <em>MAN</em>?', a: '<strong>Metropolitan Area Network</strong> &mdash; covers a <strong>city or metropolitan area</strong>. Between LAN and WAN in scale.' },
+    { section: 'fund', q: 'What is a <em>PAN</em>?', a: '<strong>Personal Area Network</strong> &mdash; very short range (~10 m) for personal devices. Examples: <strong>Bluetooth, USB, Zigbee</strong>.' },
+    { section: 'fund', q: 'What is a <em>WLAN</em>?', a: '<strong>Wireless LAN</strong> &mdash; uses <strong>radio signals (Wi-Fi / 802.11)</strong> instead of cables for LAN connectivity.' },
+    { section: 'fund', q: '<em>Star</em> topology &mdash; describe it.', a: 'Every device cabled to a <strong>central switch or hub</strong>. Most modern Ethernet networks are physical stars.<ul><li>&#10003; Simple, scalable</li><li>&#10007; Central device is a single point of failure</li></ul>' },
+    { section: 'fund', q: '<em>Bus</em> topology &mdash; describe it.', a: 'All devices connected to <strong>one shared cable</strong> with <strong>terminators at both ends</strong>.<ul><li>&#10003; Cheap, simple</li><li>&#10007; <strong>One cable break kills the entire network</strong></li></ul>' },
+    { section: 'fund', q: '<em>Ring</em> topology &mdash; describe it.', a: 'Each device connects to <strong>two neighboring devices forming a closed loop</strong>. Data passes around (often via a token). Examples: FDDI, Token Ring.' },
+    { section: 'fund', q: '<em>Mesh</em> topology &mdash; describe it.', a: 'Every device connects to <strong>many others</strong>, creating redundant paths.<ul><li>&#10003; <strong>Most fault-tolerant</strong> &mdash; traffic reroutes on link failure</li><li>&#10007; Most expensive &mdash; lots of cabling</li></ul>The internet itself is a partial mesh.' },
+    { section: 'fund', q: '<em>Hybrid</em> topology?', a: 'A <strong>combination of two or more</strong> topologies. Example: a <strong>star-bus</strong> &mdash; multiple stars connected by a bus backbone.' },
+    { section: 'fund', q: 'Ethernet is what kind of topology?', a: 'A <strong>physical star</strong> (each device connects to a central switch) with a <strong>logical bus</strong> (shared medium behavior from a collision-domain perspective).' },
+    { section: 'fund', q: '<em>Client-server</em> vs <em>peer-to-peer</em>?', a: '<ul><li><strong>Client-server</strong> &mdash; dedicated servers provide resources; centralized management, security, and backups.</li><li><strong>Peer-to-peer (P2P)</strong> &mdash; every device is an equal; each can both serve and request. Simple but no central control.</li></ul>' },
+    { section: 'fund', q: 'What is a <em>collision domain</em>?', a: 'A network segment where packet <strong>collisions can occur</strong>. Each port on a <strong>switch</strong> is its own collision domain; a <strong>hub</strong> puts all its ports in ONE collision domain.' },
+    { section: 'fund', q: 'What is a <em>broadcast domain</em>?', a: 'A segment where a broadcast frame <strong>reaches every device</strong>. Switches keep all ports in ONE broadcast domain; <strong>routers separate them</strong> (each router interface = its own broadcast domain).' },
+
+    // ===== OSI Model & TCP/IP =====
+    { section: 'osi', q: 'How many layers in the <em>OSI</em> model, and what are they (top to bottom)?', a: '<strong>7 layers</strong>:<ol><li>Application</li><li>Presentation</li><li>Session</li><li>Transport</li><li>Network</li><li>Data Link</li><li>Physical</li></ol>' },
+    { section: 'osi', q: 'OSI mnemonic (top to bottom)?', a: '<strong>"All People Seem To Need Data Processing"</strong><br>(Application &rarr; Presentation &rarr; Session &rarr; Transport &rarr; Network &rarr; Data Link &rarr; Physical)' },
+    { section: 'osi', q: 'OSI mnemonic (bottom to top)?', a: '<strong>"Please Do Not Throw Sausage Pizza Away"</strong><br>(Physical &rarr; Data Link &rarr; Network &rarr; Transport &rarr; Session &rarr; Presentation &rarr; Application)' },
+    { section: 'osi', q: 'OSI <em>Layer 1 &mdash; Physical</em>. Function &amp; examples?', a: '<strong>Raw bit transmission</strong> &mdash; voltages, cables, pinouts, connectors.<br><strong>Devices:</strong> hub, repeater.<br><strong>PDU:</strong> bits.' },
+    { section: 'osi', q: 'OSI <em>Layer 2 &mdash; Data Link</em>. Function &amp; examples?', a: '<strong>Frames and MAC addresses</strong>. Handles error detection on the local link.<br><strong>Devices:</strong> switch, bridge, NIC.<br><strong>Protocols:</strong> Ethernet, PPP.<br><strong>PDU:</strong> frame.' },
+    { section: 'osi', q: 'OSI <em>Layer 3 &mdash; Network</em>. Function &amp; examples?', a: '<strong>Logical addressing (IP) and routing</strong> between networks.<br><strong>Devices:</strong> router, L3 switch.<br><strong>Protocols:</strong> IP, ICMP, IPsec.<br><strong>PDU:</strong> packet.' },
+    { section: 'osi', q: 'OSI <em>Layer 4 &mdash; Transport</em>. Function &amp; examples?', a: '<strong>Reliable or unreliable end-to-end delivery</strong> using <strong>ports</strong>.<br><strong>Protocols:</strong> TCP, UDP.<br><strong>PDU:</strong> segment (TCP) / datagram (UDP).' },
+    { section: 'osi', q: 'OSI <em>Layer 5 &mdash; Session</em>. Function &amp; examples?', a: '<strong>Opens, manages, and closes sessions</strong> between applications.<br><strong>Protocols:</strong> NetBIOS, RPC, PPTP, SQL sessions.' },
+    { section: 'osi', q: 'OSI <em>Layer 6 &mdash; Presentation</em>. Function &amp; examples?', a: '<strong>Data format, encoding, encryption, compression.</strong><br><strong>Examples:</strong> ASCII, JPEG, MP3, MPEG, <strong>SSL/TLS</strong>.' },
+    { section: 'osi', q: 'OSI <em>Layer 7 &mdash; Application</em>. Function &amp; examples?', a: '<strong>User-facing network protocols.</strong><br><strong>Protocols:</strong> HTTP, HTTPS, FTP, SMTP, DNS, DHCP, SSH, Telnet, POP3, IMAP, SNMP.' },
+    { section: 'osi', q: 'PDU order (L1 to L4)?', a: '<strong>Bits &rarr; Frame &rarr; Packet &rarr; Segment</strong><ul><li>L1 = <strong>Bits</strong></li><li>L2 = <strong>Frame</strong></li><li>L3 = <strong>Packet</strong></li><li>L4 = <strong>Segment</strong></li></ul>' },
+    { section: 'osi', q: 'TCP/IP model &mdash; how many layers and what are they?', a: '<strong>4 layers</strong>:<ol><li><strong>Network Access</strong> (Link)</li><li><strong>Internet</strong></li><li><strong>Transport</strong></li><li><strong>Application</strong></li></ol>' },
+    { section: 'osi', q: 'TCP/IP Application layer maps to which OSI layers?', a: 'TCP/IP Application = <strong>OSI Session + Presentation + Application (L5 + L6 + L7)</strong> &mdash; three OSI layers combined into one.' },
+    { section: 'osi', q: 'Which devices operate at which OSI layers? (quick map)', a: '<ul><li><strong>Hub / Repeater</strong> &mdash; L1 (Physical)</li><li><strong>Switch / Bridge / NIC</strong> &mdash; L2 (Data Link)</li><li><strong>Router / L3 switch</strong> &mdash; L3 (Network)</li><li><strong>Firewall</strong> &mdash; L3/L4 (some NGFWs go to L7)</li><li><strong>Load balancer (L7)</strong> &mdash; L7 (Application)</li></ul>' },
+    { section: 'osi', q: 'Encryption (SSL/TLS) lives at which layer?', a: 'Traditionally <strong>Presentation (L6)</strong>. But <strong>HTTPS as a whole</strong> is often placed at <strong>Application (L7)</strong> since it is an application-layer protocol using TLS underneath.' },
+
+    // ===== IP Addressing, Subnetting & NAT =====
+    { section: 'ip', q: 'IPv4 &mdash; how many bits?', a: '<strong>32 bits</strong> &mdash; four 8-bit octets written in dotted decimal (e.g., <code>192.168.1.1</code>).' },
+    { section: 'ip', q: 'IPv6 &mdash; how many bits?', a: '<strong>128 bits</strong> &mdash; eight groups of 4 hex digits separated by colons (e.g., <code>2001:0db8::1</code>). Drop leading zeros in a group; one run of zero-groups can collapse to <code>::</code>.' },
+    { section: 'ip', q: '<em>Class A</em> range and mask?', a: '<strong>First octet 1&ndash;126</strong>. Default mask <code>255.0.0.0</code> (/8). Used for very large networks.<br><strong>Private:</strong> <code>10.0.0.0 &ndash; 10.255.255.255</code>.' },
+    { section: 'ip', q: '<em>Class B</em> range and mask?', a: '<strong>First octet 128&ndash;191</strong>. Default mask <code>255.255.0.0</code> (/16).<br><strong>Private:</strong> <code>172.16.0.0 &ndash; 172.31.255.255</code>.' },
+    { section: 'ip', q: '<em>Class C</em> range and mask?', a: '<strong>First octet 192&ndash;223</strong>. Default mask <code>255.255.255.0</code> (/24).<br><strong>Private:</strong> <code>192.168.0.0 &ndash; 192.168.255.255</code>.' },
+    { section: 'ip', q: '<em>Class D</em> range?', a: '<strong>First octet 224&ndash;239</strong>. Used for <strong>multicast</strong>.' },
+    { section: 'ip', q: '<em>Class E</em> range?', a: '<strong>First octet 240&ndash;255</strong>. <strong>Experimental / reserved.</strong>' },
+    { section: 'ip', q: 'All three <em>private IP</em> ranges (RFC 1918)?', a: '<ul><li><strong>Class A:</strong> 10.0.0.0 &ndash; 10.255.255.255</li><li><strong>Class B:</strong> 172.16.0.0 &ndash; 172.31.255.255</li><li><strong>Class C:</strong> 192.168.0.0 &ndash; 192.168.255.255</li></ul>' },
+    { section: 'ip', q: 'What is <em>APIPA</em> and what range does it use?', a: '<strong>Automatic Private IP Addressing</strong> &mdash; auto-assigned when DHCP fails.<br><strong>Range:</strong> <code>169.254.0.0 &ndash; 169.254.255.255</code>.<br>Seeing 169.254.x.x = "the DHCP server is unreachable."' },
+    { section: 'ip', q: 'IPv4 <em>loopback</em> address?', a: '<strong><code>127.0.0.1</code></strong> (the entire <code>127.0.0.0/8</code> block is loopback). Pinging it tests the local TCP/IP stack.' },
+    { section: 'ip', q: 'IPv6 <em>loopback</em> address?', a: '<strong><code>::1</code></strong> (equivalent to IPv4 <code>127.0.0.1</code>).' },
+    { section: 'ip', q: 'IPv6 <em>link-local</em> prefix?', a: '<strong><code>FE80::/10</code></strong> &mdash; auto-configured per interface (similar role to IPv4 APIPA but not a fallback). Used for neighbor discovery and local-only traffic.' },
+    { section: 'ip', q: 'IPv6 <em>multicast</em> prefix?', a: '<strong><code>FF00::/8</code></strong>. IPv6 has <strong>no broadcast</strong> &mdash; it uses multicast to reach groups of hosts.' },
+    { section: 'ip', q: 'IPv6 <em>global unicast</em> prefix?', a: '<strong><code>2000::/3</code></strong> &mdash; the publicly routable IPv6 range (what the internet uses).' },
+    { section: 'ip', q: 'What are <code>0.0.0.0</code> and <code>255.255.255.255</code>?', a: '<ul><li><code>0.0.0.0</code> &mdash; "this network" / default route</li><li><code>255.255.255.255</code> &mdash; limited broadcast</li></ul>' },
+    { section: 'ip', q: 'Subnetting &mdash; usable-hosts formula?', a: '<strong>Usable hosts = 2<sup>host bits</sup> &minus; 2</strong><br>The &minus;2 accounts for the <strong>network address</strong> and the <strong>broadcast address</strong>.' },
+    { section: 'ip', q: '/24 mask and usable hosts?', a: '<code>255.255.255.0</code> &mdash; <strong>254 usable hosts</strong> (8 host bits, 2<sup>8</sup>&minus;2).' },
+    { section: 'ip', q: '/25 mask and usable hosts?', a: '<code>255.255.255.128</code> &mdash; <strong>126 usable hosts</strong>.' },
+    { section: 'ip', q: '/26 mask and usable hosts?', a: '<code>255.255.255.192</code> &mdash; <strong>62 usable hosts</strong>.' },
+    { section: 'ip', q: '/27 mask and usable hosts?', a: '<code>255.255.255.224</code> &mdash; <strong>30 usable hosts</strong>.' },
+    { section: 'ip', q: '/28 mask and usable hosts?', a: '<code>255.255.255.240</code> &mdash; <strong>14 usable hosts</strong>.' },
+    { section: 'ip', q: '/29 mask and usable hosts?', a: '<code>255.255.255.248</code> &mdash; <strong>6 usable hosts</strong>.' },
+    { section: 'ip', q: '/30 mask and usable hosts?', a: '<code>255.255.255.252</code> &mdash; <strong>2 usable hosts</strong>. Perfect for <strong>point-to-point</strong> links.' },
+    { section: 'ip', q: 'What does <em>NAT</em> do?', a: '<strong>Network Address Translation</strong> &mdash; translates between <strong>private internal IPs and public external IPs</strong>, letting devices on a private network share a public IP when communicating with the internet.' },
+    { section: 'ip', q: 'Three <em>NAT</em> types?', a: '<ul><li><strong>Static NAT</strong> &mdash; 1:1 fixed mapping (used for public-facing servers).</li><li><strong>Dynamic NAT</strong> &mdash; pool of public IPs, assigned on demand.</li><li><strong>PAT (NAT Overload)</strong> &mdash; many private IPs share <strong>one</strong> public IP using unique source ports. What home routers do.</li></ul>' },
+
+    // ===== Network Hardware & Cabling =====
+    { section: 'hardware', q: '<em>Hub</em> &mdash; OSI layer, function, domains?', a: '<strong>L1 (Physical)</strong>. Floods all frames out every port. <strong>One collision domain, one broadcast domain.</strong> No addressing intelligence.' },
+    { section: 'hardware', q: '<em>Bridge</em> &mdash; OSI layer, function?', a: '<strong>L2 (Data Link)</strong>. Connects two network segments and <strong>separates collision domains</strong>. Largely replaced by switches.' },
+    { section: 'hardware', q: '<em>Switch</em> &mdash; OSI layer, function, domains?', a: '<strong>L2 (Data Link)</strong>. Forwards frames using a <strong>MAC address table</strong>. Each port = its own <strong>collision domain</strong>, but all ports share <strong>one broadcast domain</strong> (unless VLANs split it).' },
+    { section: 'hardware', q: '<em>Router</em> &mdash; OSI layer, function?', a: '<strong>L3 (Network)</strong>. Routes packets between <strong>different networks</strong> using IP. <strong>Separates broadcast domains</strong> &mdash; each interface = its own.' },
+    { section: 'hardware', q: '<em>Layer 3 / multilayer switch</em>?', a: 'A switch that <strong>also routes</strong> &mdash; performs L2 switching AND L3 routing. Commonly used for <strong>inter-VLAN routing</strong> without a separate router.' },
+    { section: 'hardware', q: '<em>Firewall</em> &mdash; OSI layer, function?', a: 'Operates at <strong>L3/L4</strong> (sometimes L7 for NGFWs). Allows or blocks traffic based on rules (IP, port, protocol).' },
+    { section: 'hardware', q: '<em>NIC</em> &mdash; what is it?', a: '<strong>Network Interface Card</strong> &mdash; device-to-network interface. Operates at L1/L2 and <strong>holds the MAC address</strong>.' },
+    { section: 'hardware', q: '<em>Modem</em> &mdash; function?', a: '<strong>Modulator/Demodulator</strong> &mdash; converts digital &harr; analog. Used for DSL, cable, dial-up connections. L1.' },
+    { section: 'hardware', q: '<em>Wireless Access Point (WAP)</em>?', a: 'Bridges wireless clients to a wired network. Operates at <strong>L1/L2</strong>. In infrastructure mode, all wireless devices connect through the WAP.' },
+    { section: 'hardware', q: 'Cat 3 &mdash; speed and distance?', a: '<strong>10 Mbps</strong>, 100 m. Old phone / Ethernet cable.' },
+    { section: 'hardware', q: 'Cat 5 &mdash; speed and distance?', a: '<strong>100 Mbps</strong>, 100 m. 100BaseTX. Mostly obsolete.' },
+    { section: 'hardware', q: 'Cat 5e &mdash; speed and distance?', a: '<strong>1 Gbps</strong>, 100 m. 1000BaseT. <strong>Most common</strong> modern Ethernet cable.' },
+    { section: 'hardware', q: 'Cat 6 &mdash; speed and distance? (Watch the special rule!)', a: '<strong>1 Gbps at 100 m</strong>, but <strong>10 Gbps only at 55 m</strong>. Exam trap!' },
+    { section: 'hardware', q: 'Cat 6a &mdash; speed and distance?', a: '<strong>10 Gbps at full 100 m.</strong> "Augmented" Cat 6, less-restrictive length for 10 Gbps.' },
+    { section: 'hardware', q: 'Cat 7 &mdash; speed and distance?', a: '<strong>10 Gbps at 100 m.</strong> Heavily shielded; proprietary connectors.' },
+    { section: 'hardware', q: '<em>Single-mode fiber (SMF)</em>?', a: '<strong>Long distances (km+)</strong>. Small core, uses <strong>laser</strong> light. Used for ISP backbones and building-to-building.' },
+    { section: 'hardware', q: '<em>Multi-mode fiber (MMF)</em>?', a: '<strong>~2 km max</strong>. Larger core, uses <strong>LED</strong> light. Used inside buildings / on campuses.' },
+    { section: 'hardware', q: 'Why choose <em>fiber</em> over copper?', a: '<strong>Immune to EMI</strong> (uses light). Ideal for:<ul><li>Hospitals, factories (heavy machinery nearby)</li><li>Long runs beyond 100 m</li><li>High-speed backbones</li></ul>' },
+    { section: 'hardware', q: 'Common <em>fiber connectors</em>?', a: '<strong>LC</strong>, <strong>SC</strong>, ST, MT-RJ.<br>(RJ-45 = UTP Ethernet; RJ-11 = telephone; BNC = coaxial.)' },
+    { section: 'hardware', q: '<em>Straight-through</em> cable &mdash; when to use?', a: 'Connects <strong>different</strong> devices:<ul><li>PC &harr; switch</li><li>Switch &harr; router</li><li>PC &harr; router (directly)</li></ul>Standard patch cable.' },
+    { section: 'hardware', q: '<em>Crossover</em> cable &mdash; when to use?', a: 'Connects <strong>similar</strong> devices:<ul><li>Switch &harr; switch</li><li>PC &harr; PC</li><li>Router &harr; router</li></ul>Modern devices auto-negotiate (Auto-MDIX), but the textbook answer is still crossover.' },
+    { section: 'hardware', q: '<em>Rollover (console)</em> cable &mdash; when to use?', a: 'Connects a <strong>PC serial port to the console port</strong> on a router or switch for <strong>CLI management</strong>.' },
+    { section: 'hardware', q: 'T568A vs T568B wiring order?', a: '<ul><li><strong>T568B</strong> (common in US): Orange/W, Orange, Green/W, Blue, Blue/W, Green, Brown/W, Brown</li><li><strong>T568A</strong>: Green/W, Green, Orange/W, Blue, Blue/W, Orange, Brown/W, Brown</li></ul>Same standard on both ends = <strong>straight-through</strong>; different = <strong>crossover</strong>.' },
+    { section: 'hardware', q: '<em>PoE (Power over Ethernet)</em>?', a: '<strong>IEEE 802.3af/at/bt</strong>. Delivers <strong>both data and DC power</strong> over a single Ethernet cable. Commonly used for <strong>IP phones, cameras, wireless APs</strong>.' },
+
+    // ===== Protocols, Ports & Services =====
+    { section: 'protocols', q: 'Port <strong>20/21</strong>?', a: '<strong>FTP</strong> (TCP)<br>21 = control, 20 = data. File Transfer Protocol. Unencrypted.' },
+    { section: 'protocols', q: 'Port <strong>22</strong>?', a: '<strong>SSH / SFTP / SCP</strong> (TCP). Secure encrypted remote shell and file transfer.' },
+    { section: 'protocols', q: 'Port <strong>23</strong>?', a: '<strong>Telnet</strong> (TCP). Unencrypted remote shell &mdash; prefer SSH (22).' },
+    { section: 'protocols', q: 'Port <strong>25</strong>?', a: '<strong>SMTP</strong> (TCP). Simple Mail Transfer Protocol &mdash; used to <strong>send</strong> email (server-to-server). Client submission often on 587.' },
+    { section: 'protocols', q: 'Port <strong>53</strong>?', a: '<strong>DNS</strong> (TCP/UDP). Name resolution. <strong>UDP for queries</strong>, <strong>TCP for zone transfers</strong> and large responses.' },
+    { section: 'protocols', q: 'Port <strong>67 / 68</strong>?', a: '<strong>DHCP</strong> (UDP).<ul><li><strong>67</strong> = server</li><li><strong>68</strong> = client</li></ul>' },
+    { section: 'protocols', q: 'Port <strong>69</strong>?', a: '<strong>TFTP</strong> (UDP). Trivial FTP &mdash; lightweight, <strong>no authentication</strong>. Used for network boot / device config.' },
+    { section: 'protocols', q: 'Port <strong>80</strong>?', a: '<strong>HTTP</strong> (TCP). Unencrypted web.' },
+    { section: 'protocols', q: 'Port <strong>110</strong>?', a: '<strong>POP3</strong> (TCP). Post Office Protocol &mdash; legacy email retrieval (deletes from server).' },
+    { section: 'protocols', q: 'Port <strong>123</strong>?', a: '<strong>NTP</strong> (UDP). Network Time Protocol &mdash; keeps clocks synchronized.' },
+    { section: 'protocols', q: 'Ports <strong>137&ndash;139</strong>?', a: '<strong>NetBIOS</strong> over TCP/IP (TCP/UDP). Legacy Windows file sharing (pre-SMB-over-TCP).' },
+    { section: 'protocols', q: 'Port <strong>143</strong>?', a: '<strong>IMAP</strong> (TCP). Internet Message Access Protocol &mdash; modern email retrieval (keeps mail on server).' },
+    { section: 'protocols', q: 'Ports <strong>161 / 162</strong>?', a: '<strong>SNMP</strong> (UDP). Simple Network Management Protocol. 161 = requests to agent, 162 = traps to manager.' },
+    { section: 'protocols', q: 'Port <strong>389</strong>?', a: '<strong>LDAP</strong> (TCP). Lightweight Directory Access Protocol &mdash; directory services (Active Directory uses LDAP).' },
+    { section: 'protocols', q: 'Port <strong>443</strong>?', a: '<strong>HTTPS / SSTP</strong> (TCP). Secure web (HTTP over TLS). Also used by SSTP VPN.' },
+    { section: 'protocols', q: 'Port <strong>445</strong>?', a: '<strong>SMB</strong> (TCP). Modern Windows file/print sharing (Server Message Block over TCP).' },
+    { section: 'protocols', q: 'Port <strong>636</strong>?', a: '<strong>LDAPS</strong> (TCP). Secure LDAP (over TLS).' },
+    { section: 'protocols', q: 'Port <strong>993</strong>?', a: '<strong>IMAPS</strong> (TCP). Secure IMAP (over TLS).' },
+    { section: 'protocols', q: 'Port <strong>995</strong>?', a: '<strong>POP3S</strong> (TCP). Secure POP3 (over TLS).' },
+    { section: 'protocols', q: 'Port <strong>1701</strong>?', a: '<strong>L2TP</strong> (UDP). Layer 2 Tunneling Protocol &mdash; VPN tunneling (needs IPsec for encryption).' },
+    { section: 'protocols', q: 'Port <strong>1723</strong>?', a: '<strong>PPTP</strong> (TCP). Point-to-Point Tunneling Protocol &mdash; legacy/weak VPN.' },
+    { section: 'protocols', q: 'Port <strong>3389</strong>?', a: '<strong>RDP</strong> (TCP). Remote Desktop Protocol &mdash; Windows remote desktop.' },
+    { section: 'protocols', q: '<em>TCP vs UDP</em> &mdash; summarize.', a: '<ul><li><strong>TCP</strong> &mdash; connection-oriented, reliable, ordered. 3-way handshake (SYN, SYN-ACK, ACK). Slower. Used by HTTP, HTTPS, FTP, SMTP, SSH.</li><li><strong>UDP</strong> &mdash; connectionless, fire-and-forget. No handshake. Faster. Used by DNS queries, DHCP, TFTP, VoIP, streaming, games.</li></ul>' },
+    { section: 'protocols', q: 'TCP <em>3-way handshake</em>?', a: '<strong>SYN &rarr; SYN-ACK &rarr; ACK</strong><ol><li>Client sends SYN (synchronize)</li><li>Server replies SYN-ACK</li><li>Client sends ACK &mdash; connection established</li></ol>' },
+    { section: 'protocols', q: 'DNS <strong>A</strong> record?', a: 'Hostname &rarr; <strong>IPv4</strong> address.' },
+    { section: 'protocols', q: 'DNS <strong>AAAA</strong> record?', a: 'Hostname &rarr; <strong>IPv6</strong> address.' },
+    { section: 'protocols', q: 'DNS <strong>CNAME</strong> record?', a: '<strong>Alias</strong> &mdash; one hostname pointing to another (canonical name).<br>E.g., <code>www.example.com</code> &rarr; <code>example.com</code>.' },
+    { section: 'protocols', q: 'DNS <strong>MX</strong> record?', a: '<strong>Mail Exchanger</strong> &mdash; where to deliver email for a domain.' },
+    { section: 'protocols', q: 'DNS <strong>PTR</strong> record?', a: '<strong>Reverse lookup</strong> &mdash; IP &rarr; hostname.' },
+    { section: 'protocols', q: 'DNS <strong>NS</strong> record?', a: '<strong>Name Server</strong> &mdash; which servers are authoritative for a domain/zone.' },
+    { section: 'protocols', q: 'DNS <strong>SOA</strong> record?', a: '<strong>Start of Authority</strong> &mdash; authoritative zone info (primary server, serial number, TTLs, refresh/retry, etc.).' },
+    { section: 'protocols', q: 'DNS <strong>TXT</strong> record?', a: '<strong>Arbitrary text</strong>. Commonly used for <strong>SPF, DKIM, DMARC</strong>, domain-ownership verification.' },
+    { section: 'protocols', q: 'DNS <strong>SRV</strong> record?', a: '<strong>Service location</strong> &mdash; indicates the host and port of a service. Used heavily by <strong>Active Directory</strong> (DC locator), SIP, etc.' },
+    { section: 'protocols', q: 'What is <em>ARP</em>?', a: '<strong>Address Resolution Protocol</strong> &mdash; resolves an <strong>IP address to a MAC address</strong> on the same subnet. Broadcasts "who has this IP?" &mdash; the owner replies with its MAC.' },
+    { section: 'protocols', q: 'What is <em>ICMP</em>?', a: '<strong>Internet Control Message Protocol</strong> &mdash; diagnostic messaging at L3. Used by <strong>ping</strong> (Echo Request/Reply) and <strong>traceroute</strong> (TTL Exceeded messages).' },
+    { section: 'protocols', q: 'What is <em>DHCP</em>?', a: '<strong>Dynamic Host Configuration Protocol</strong> &mdash; auto-assigns <strong>IP, subnet mask, default gateway, and DNS</strong> to clients. UDP 67/68.' },
+    { section: 'protocols', q: 'DHCP 4-step process?', a: '<strong>DORA</strong><ol><li><strong>D</strong>iscover &mdash; client broadcasts</li><li><strong>O</strong>ffer &mdash; server offers an IP</li><li><strong>R</strong>equest &mdash; client requests the offered IP</li><li><strong>A</strong>cknowledge &mdash; server acknowledges</li></ol>' },
+    { section: 'protocols', q: 'What is <em>SNMP</em>?', a: '<strong>Simple Network Management Protocol</strong>. Used to monitor network devices (switches, routers, servers). UDP <strong>161</strong> (queries) and <strong>162</strong> (traps).' },
+
+    // ===== Wireless Networking =====
+    { section: 'wireless', q: '<em>802.11a</em> &mdash; frequency &amp; max speed?', a: '<strong>5 GHz</strong> only, <strong>54 Mbps</strong> max.' },
+    { section: 'wireless', q: '<em>802.11b</em> &mdash; frequency &amp; max speed?', a: '<strong>2.4 GHz</strong>, <strong>11 Mbps</strong> max.' },
+    { section: 'wireless', q: '<em>802.11g</em> &mdash; frequency &amp; max speed?', a: '<strong>2.4 GHz</strong>, <strong>54 Mbps</strong> max.' },
+    { section: 'wireless', q: '<em>802.11n (Wi-Fi 4)</em> &mdash; frequency &amp; max speed?', a: '<strong>2.4 and/or 5 GHz</strong>, up to <strong>600 Mbps</strong> with MIMO.' },
+    { section: 'wireless', q: '<em>802.11ac (Wi-Fi 5)</em> &mdash; frequency &amp; max speed?', a: '<strong>5 GHz</strong>, up to <strong>~1.3 Gbps+</strong>.' },
+    { section: 'wireless', q: '<em>802.11ax (Wi-Fi 6)</em> &mdash; frequency &amp; max speed?', a: '<strong>2.4 / 5 / 6 GHz</strong>, up to <strong>~9.6 Gbps</strong>. Wi-Fi 6E adds 6 GHz.' },
+    { section: 'wireless', q: 'Wi-Fi marketing names summary?', a: '<ul><li>Wi-Fi 4 = <strong>802.11n</strong></li><li>Wi-Fi 5 = <strong>802.11ac</strong></li><li>Wi-Fi 6 = <strong>802.11ax</strong></li><li>Wi-Fi 6E = 802.11ax with 6 GHz</li><li>Wi-Fi 7 = 802.11be</li></ul>' },
+    { section: 'wireless', q: 'Wireless security &mdash; <em>weakest to strongest</em>?', a: '<ol><li><strong>WEP</strong> &mdash; broken, easily cracked. Never use.</li><li><strong>WPA</strong> (TKIP) &mdash; improved WEP, still weak.</li><li><strong>WPA2</strong> (AES/CCMP) &mdash; strong, long-standing enterprise standard.</li><li><strong>WPA3</strong> &mdash; newest, uses SAE to resist offline dictionary attacks.</li></ol>' },
+    { section: 'wireless', q: 'Why is <em>WEP</em> bad?', a: 'WEP uses a short IV and weak stream cipher &mdash; <strong>crackable in minutes</strong> with off-the-shelf tools. Replaced by WPA / WPA2 / WPA3. Never deploy.' },
+    { section: 'wireless', q: 'What is <em>SSID</em>?', a: '<strong>Service Set Identifier</strong> &mdash; the <strong>name</strong> of a wireless network, broadcast by the AP.' },
+    { section: 'wireless', q: 'Wireless modes &mdash; <em>infrastructure</em> vs <em>ad-hoc</em>?', a: '<ul><li><strong>Infrastructure</strong> &mdash; clients connect through a central <strong>WAP / wireless router</strong>.</li><li><strong>Ad-hoc</strong> &mdash; <strong>peer-to-peer</strong>, no central device. Less common, less secure.</li></ul>' },
+    { section: 'wireless', q: 'Non-overlapping 2.4 GHz channels?', a: '<strong>Channels 1, 6, and 11</strong> &mdash; the only three non-overlapping 20 MHz channels in the 2.4 GHz band.' },
+    { section: 'wireless', q: '2.4 GHz interference sources?', a: '<ul><li><strong>Microwave ovens</strong></li><li><strong>Cordless phones</strong></li><li><strong>Bluetooth</strong></li><li><strong>Baby monitors</strong></li></ul>All operate in the 2.4 GHz band. (Thick walls, metal, water also reduce signal.)' },
+    { section: 'wireless', q: '<em>WPA2-Enterprise</em> &mdash; how are users authenticated?', a: 'Via <strong>802.1X</strong> with a <strong>RADIUS</strong> server (often Microsoft NPS). Each user has individual credentials rather than a shared PSK.' },
+    { section: 'wireless', q: 'Is hiding the SSID real security?', a: '<strong>No</strong> &mdash; it only prevents casual sighting. The SSID is still transmitted when clients associate and can easily be sniffed. Use <strong>strong encryption (WPA2/WPA3)</strong> instead.' },
+
+    // ===== WAN Technologies =====
+    { section: 'wan', q: '<em>Dial-up</em> &mdash; speed &amp; medium?', a: 'Up to <strong>56 Kbps</strong> over a standard phone line. Legacy, largely obsolete for broadband.' },
+    { section: 'wan', q: '<em>ISDN BRI</em> &mdash; speed?', a: '<strong>128 Kbps</strong> &mdash; 2&times; 64K "B" channels over a phone line.' },
+    { section: 'wan', q: '<em>T1</em> &mdash; speed &amp; structure?', a: '<strong>1.544 Mbps</strong> &mdash; 24&times; 64 Kbps channels. US/Japan leased line.' },
+    { section: 'wan', q: '<em>E1</em> &mdash; speed &amp; structure?', a: '<strong>2.048 Mbps</strong> &mdash; 32&times; 64 Kbps channels. European leased line.' },
+    { section: 'wan', q: '<em>T3</em> &mdash; speed?', a: '<strong>~44.736 Mbps</strong> &mdash; 28 T1s bundled together.' },
+    { section: 'wan', q: '<em>DSL</em> &mdash; speed &amp; medium?', a: '<strong>1&ndash;100+ Mbps</strong> over existing <strong>copper telephone lines</strong>. ADSL, VDSL common variants.' },
+    { section: 'wan', q: '<em>Cable internet</em> &mdash; speed &amp; medium?', a: 'Up to <strong>~1 Gbps</strong> over <strong>coaxial</strong> (shared DOCSIS from cable TV provider).' },
+    { section: 'wan', q: '<em>MPLS</em>?', a: '<strong>Multiprotocol Label Switching</strong> &mdash; modern carrier-grade WAN with <strong>QoS, traffic engineering, and label-switched paths</strong>. Common for enterprise site-to-site connectivity.' },
+    { section: 'wan', q: '<em>FTTH</em>?', a: '<strong>Fiber to the Home</strong> &mdash; multi-Gbps over fiber optic. Fastest widely available residential internet.' },
+
+    // ===== Network Security & VPN =====
+    { section: 'security', q: 'What does a <em>firewall</em> do?', a: 'Filters network traffic by <strong>rules</strong> (source/destination IP, port, protocol). Can be stateful (tracks connections) or stateless. Next-Gen firewalls (NGFW) add application and content inspection.' },
+    { section: 'security', q: 'What is a <em>DMZ</em>?', a: '<strong>Demilitarized Zone</strong> (perimeter network) &mdash; hosts <strong>public-facing servers</strong> (web, mail, DNS) isolated from the internal LAN by firewalls. Limits damage if a public server is compromised.' },
+    { section: 'security', q: 'What is a <em>VPN</em>?', a: '<strong>Virtual Private Network</strong> &mdash; a <strong>secure encrypted tunnel over a public network</strong> (usually the internet), letting remote users or sites connect to a private network as if they were local.' },
+    { section: 'security', q: '<em>Site-to-site</em> vs <em>client-to-site</em> VPN?', a: '<ul><li><strong>Site-to-site</strong> &mdash; connects two entire networks (e.g., HQ &harr; branch), gateway-to-gateway.</li><li><strong>Client-to-site (remote access)</strong> &mdash; a single user connecting to a company network from home.</li></ul>' },
+    { section: 'security', q: '<em>PPTP</em> VPN?', a: '<strong>Point-to-Point Tunneling Protocol</strong> &mdash; oldest and weakest VPN. <strong>TCP 1723</strong>. Has known vulnerabilities; avoid.' },
+    { section: 'security', q: '<em>L2TP</em> VPN?', a: '<strong>Layer 2 Tunneling Protocol</strong> &mdash; <strong>UDP 1701</strong>. Provides tunneling but <strong>no encryption</strong> on its own &mdash; typically paired with <strong>IPsec</strong>.' },
+    { section: 'security', q: '<em>SSTP</em> VPN?', a: '<strong>Secure Socket Tunneling Protocol</strong> &mdash; uses <strong>SSL/TLS on TCP 443</strong>. <strong>Passes through firewalls easily</strong> since 443 is almost always open.' },
+    { section: 'security', q: 'IPsec &mdash; <em>ESP</em> vs <em>AH</em>?', a: '<ul><li><strong>ESP (Encapsulating Security Payload)</strong> &mdash; <strong>confidentiality + integrity + authenticity</strong> (encrypts).</li><li><strong>AH (Authentication Header)</strong> &mdash; integrity + authenticity only, <strong>no encryption</strong>.</li></ul>' },
+    { section: 'security', q: 'What is an <em>ACL</em>?', a: '<strong>Access Control List</strong> &mdash; ordered permit/deny rules on routers/firewalls that filter traffic by source/destination IP, port, and protocol.' },
+    { section: 'security', q: 'What is a <em>DoS / DDoS</em> attack?', a: 'Flooding a target with traffic or requests so legitimate users cannot access it.<ul><li><strong>DoS</strong> &mdash; from one source</li><li><strong>DDoS (Distributed)</strong> &mdash; from many sources (often a botnet)</li></ul>' },
+    { section: 'security', q: 'What is <em>802.1X</em>?', a: '<strong>Port-based network access control</strong>. Authenticates devices (wired or wireless) <strong>before granting network access</strong>, typically with a RADIUS server.' },
+    { section: 'security', q: 'What is <em>port security</em> on a switch?', a: 'Restricts which <strong>MAC addresses</strong> are allowed to use a given switch port. Prevents unauthorized devices from plugging in.' },
+    { section: 'security', q: '<em>IDS</em> vs <em>IPS</em>?', a: '<ul><li><strong>IDS (Intrusion Detection System)</strong> &mdash; <em>alerts</em> on suspicious traffic.</li><li><strong>IPS (Intrusion Prevention System)</strong> &mdash; <em>blocks</em> suspicious traffic inline.</li></ul>' },
+    { section: 'security', q: 'What is <em>RADIUS</em>?', a: '<strong>Remote Authentication Dial-In User Service</strong>. A <strong>centralized authentication server</strong> commonly used with 802.1X for Wi-Fi and wired network access.' },
+
+    // ===== Troubleshooting & CLI Tools =====
+    { section: 'troubleshoot', q: '<code>ipconfig</code> &mdash; what does it do?', a: '<strong>Windows</strong> command &mdash; shows IP address, subnet mask, default gateway. Common flags:<ul><li><code>ipconfig /all</code> &mdash; adds MAC, DHCP, DNS info</li><li><code>ipconfig /release</code> &mdash; release DHCP lease</li><li><code>ipconfig /renew</code> &mdash; renew DHCP lease</li><li><code>ipconfig /flushdns</code> &mdash; clear DNS cache</li></ul>' },
+    { section: 'troubleshoot', q: '<code>ifconfig</code> / <code>ip addr</code> &mdash; what do they do?', a: '<strong>Linux / macOS</strong> commands &mdash; show IP configuration. <code>ifconfig</code> is older; <code>ip addr</code> is the modern replacement.' },
+    { section: 'troubleshoot', q: '<code>ping</code> &mdash; what does it do?', a: 'Tests <strong>reachability</strong> to a host using <strong>ICMP Echo</strong> (Request &amp; Reply). Reports round-trip time and packet loss.' },
+    { section: 'troubleshoot', q: '<code>tracert</code> / <code>traceroute</code> &mdash; what does it do?', a: 'Traces the <strong>path of packets hop by hop</strong> to a destination by sending probes with increasing TTL values.<ul><li><code>tracert</code> on Windows</li><li><code>traceroute</code> on Linux/macOS</li></ul>' },
+    { section: 'troubleshoot', q: '<code>pathping</code> &mdash; what does it do?', a: '<strong>Windows only</strong>. Combines <code>ping</code> + <code>tracert</code> &mdash; shows <strong>packet loss and latency at each hop</strong>. Best tool to pinpoint WHERE packet loss is happening.' },
+    { section: 'troubleshoot', q: '<code>nslookup</code> &mdash; what does it do?', a: 'Queries DNS for records (A, AAAA, MX, CNAME, etc.). Available on Windows and Unix-like systems.' },
+    { section: 'troubleshoot', q: '<code>dig</code> / <code>host</code> &mdash; what do they do?', a: '<strong>Linux/macOS</strong> &mdash; more detailed DNS query tools than nslookup. <code>dig</code> is the modern standard.' },
+    { section: 'troubleshoot', q: '<code>arp -a</code> &mdash; what does it do?', a: 'Displays the <strong>ARP table</strong> &mdash; known <strong>IP &harr; MAC</strong> mappings the device has learned recently.' },
+    { section: 'troubleshoot', q: '<code>netstat</code> &mdash; what does it do?', a: 'Shows <strong>active network connections</strong> and <strong>listening ports</strong>, plus various network statistics. Common flags: <code>-a</code> (all), <code>-n</code> (numeric), <code>-b</code> (process).' },
+    { section: 'troubleshoot', q: '<code>route print</code> &mdash; what does it do?', a: 'Shows the local <strong>routing table</strong>. On Linux/macOS, use <code>route -n</code> or <code>ip route</code>.' },
+    { section: 'troubleshoot', q: '<code>nbtstat</code> &mdash; what does it do?', a: '<strong>Windows</strong> &mdash; NetBIOS over TCP/IP statistics. Legacy tool for Windows naming/sharing troubleshooting.' },
+    { section: 'troubleshoot', q: 'User sees IP <code>169.254.x.x</code> &mdash; what does it mean?', a: '<strong>APIPA</strong> &mdash; the DHCP server was unreachable. Check:<ul><li>DHCP server status</li><li>Cable / link</li><li>Switch port / VLAN</li><li>DHCP scope exhaustion</li></ul>' },
+    { section: 'troubleshoot', q: 'Ping by IP works, by hostname fails &mdash; what\'s wrong?', a: '<strong>DNS resolution</strong> is failing. IP-level connectivity is fine; the issue is <strong>name resolution</strong>. Check DNS server configuration, reachability, and cache.' },
+    { section: 'troubleshoot', q: 'User can ping the gateway but not external sites. Cause?', a: 'Issue is <strong>upstream</strong> &mdash; gateway\'s WAN link or the ISP. Local LAN is fine; the path to the internet is broken.' },
+    { section: 'troubleshoot', q: 'No link light on Ethernet &mdash; where to start troubleshooting?', a: '<strong>Layer 1 (Physical).</strong> No link = no physical connection. Check:<ul><li>Cable</li><li>Wall jack / patch panel</li><li>Switch port</li><li>NIC / driver</li></ul>' },
+    { section: 'troubleshoot', q: 'Duplicate IP address warning &mdash; typical cause?', a: 'A <strong>static IP</strong> overlaps with a <strong>DHCP-assigned</strong> address. Fix by reconfiguring the static assignment or adding a DHCP exclusion/reservation for that address.' },
+
+    // ===== Windows Networking & Active Directory =====
+    { section: 'windows', q: 'What is <em>Active Directory (AD)</em>?', a: 'Microsoft\'s <strong>directory service</strong> for centrally managing <strong>users, computers, groups, and resources</strong> in a Windows domain. Hosted on <strong>domain controllers</strong>.' },
+    { section: 'windows', q: 'What is a <em>domain controller (DC)</em>?', a: 'A server that hosts <strong>Active Directory</strong>, <strong>authenticates</strong> users (Kerberos), and enforces <strong>security policy</strong>. Usually deploy at least two per domain for redundancy.' },
+    { section: 'windows', q: 'What is <em>Group Policy (GPO)</em>?', a: '<strong>Centralized configuration and policy management</strong> for Windows users and computers in a domain. Enforces security settings, software deployment, scripts, and preferences.' },
+    { section: 'windows', q: 'AD &mdash; <em>Domain</em>?', a: 'A <strong>logical group</strong> of users, computers, and resources sharing a directory and security boundary. Identified by a DNS name like <code>corp.example.com</code>.' },
+    { section: 'windows', q: 'AD &mdash; <em>Tree</em>?', a: 'A group of <strong>domains</strong> sharing a contiguous DNS namespace (e.g., <code>corp.example.com</code>, <code>sales.corp.example.com</code>). Domains in a tree trust each other automatically.' },
+    { section: 'windows', q: 'AD &mdash; <em>Forest</em>?', a: 'The <strong>top-level AD container</strong>. A collection of one or more <strong>trees</strong> sharing a common <strong>schema</strong>, <strong>configuration</strong>, and <strong>global catalog</strong>.' },
+    { section: 'windows', q: 'AD &mdash; <em>OU (Organizational Unit)</em>?', a: 'A sub-container within a domain for <strong>organizing objects</strong> (users, groups, computers) and <strong>delegating administration</strong> or <strong>applying GPOs</strong>.' },
+    { section: 'windows', q: 'Why is <em>DNS critical</em> to Active Directory?', a: 'AD relies on DNS <strong>SRV records</strong> to locate <strong>domain controllers, Kerberos, and LDAP</strong> services. If DNS is broken, AD is broken. Client logon, replication, and Group Policy all fail without DNS.' },
+    { section: 'windows', q: 'What protocol does Windows use for <em>file &amp; print sharing</em>, and on which port?', a: '<strong>SMB (Server Message Block)</strong> on <strong>TCP 445</strong> (modern). Older NetBIOS-over-TCP SMB used 137&ndash;139.' },
+    { section: 'windows', q: 'What is a <em>UNC path</em>?', a: '<strong>Universal Naming Convention</strong> &mdash; a path format for accessing network shares:<br><code>\\\\server\\share\\subfolder</code><br>Used on Windows to reference SMB shares.' },
+    { section: 'windows', q: '<em>Workgroup</em> vs <em>Domain</em>?', a: '<ul><li><strong>Workgroup</strong> &mdash; peer-to-peer, decentralized; each computer maintains its own users and security. Small office only.</li><li><strong>Domain</strong> &mdash; centralized via AD; single sign-on, centralized policy, scalable.</li></ul>' },
+    { section: 'windows', q: 'How do you <em>join a Windows computer to a domain</em>?', a: '<strong>Settings / Control Panel &rarr; System &rarr; Change (Domain / Workgroup)</strong>. Enter the domain name and credentials of an account with join privileges.' },
+
+    // ===== Miscellaneous Essentials =====
+    { section: 'troubleshoot', q: '<em>Duplex</em> &mdash; full, half, simplex?', a: '<ul><li><strong>Full duplex</strong> &mdash; send <em>and</em> receive <strong>simultaneously</strong>.</li><li><strong>Half duplex</strong> &mdash; send <em>or</em> receive, <strong>one at a time</strong>.</li><li><strong>Simplex</strong> &mdash; <strong>one direction only</strong>.</li></ul>' },
+    { section: 'troubleshoot', q: 'CSMA/CD vs CSMA/CA?', a: '<ul><li><strong>CSMA/CD</strong> &mdash; Collision <strong>Detection</strong>. Used by legacy wired Ethernet (half-duplex hubs).</li><li><strong>CSMA/CA</strong> &mdash; Collision <strong>Avoidance</strong>. Used by wireless (802.11), since wireless can\'t detect collisions directly.</li></ul>' },
+    { section: 'fund', q: 'What is a <em>VLAN</em>?', a: '<strong>Virtual LAN</strong> &mdash; logically segments a switch into multiple <strong>separate broadcast domains</strong>. Devices in different VLANs can\'t communicate without a router or L3 switch (inter-VLAN routing).' },
+    { section: 'fund', q: 'What is the <em>default gateway</em>?', a: 'The <strong>router IP</strong> that a device uses for <strong>any traffic destined outside its local subnet</strong>. Without a correct default gateway, a host can reach only its local LAN.' },
+    { section: 'hardware', q: 'Virtual switch types (Hyper-V/VMware)?', a: '<ul><li><strong>External</strong> &mdash; VMs can reach the physical network.</li><li><strong>Internal</strong> &mdash; VMs can talk to each other <em>and</em> to the host, but NOT to the outside network.</li><li><strong>Private</strong> &mdash; VMs talk <em>only to each other</em>.</li></ul>' },
+    { section: 'protocols', q: 'Name resolution mechanisms on Windows?', a: '<ul><li><strong>DNS</strong> &mdash; hostname &rarr; IP (modern standard)</li><li><strong>WINS / LMHOSTS</strong> &mdash; NetBIOS name &rarr; IP (legacy)</li><li><strong>HOSTS file</strong> &mdash; local override; checked before DNS</li></ul>' },
+    { section: 'ip', q: 'Administrative distance (AD) &mdash; typical values?', a: 'Lower = more trusted:<ul><li><strong>Directly connected:</strong> 0</li><li><strong>Static route:</strong> 1</li><li><strong>EIGRP (internal):</strong> 90</li><li><strong>OSPF:</strong> 110</li><li><strong>RIP:</strong> 120</li><li><strong>Unreachable:</strong> 255</li></ul>' },
+    { section: 'ip', q: 'Routing protocol types?', a: '<ul><li><strong>Distance-vector</strong> &mdash; RIP, RIPv2, IGRP. Hop-count based; slow convergence.</li><li><strong>Link-state</strong> &mdash; OSPF, IS-IS. Each router builds a topology map; fast convergence.</li><li><strong>Hybrid / Advanced DV</strong> &mdash; EIGRP (Cisco).</li></ul>RIP max hop count = 15 (16 = unreachable).' }
+];
+
+let filteredCards = CARDS.slice();
+let currentIdx = 0;
+let currentSection = 'all';
+let order = CARDS.map((_, i) => i);
+let studyMode = false;
+
+/* ===== SRS state ===== */
+const SRS_KEY = 'certiport_networking_srs_v1';
+function cardKey(card) {
+    let h = 0;
+    for (let i = 0; i < card.q.length; i++) {
+        h = ((h << 5) - h) + card.q.charCodeAt(i);
+        h |= 0;
+    }
+    return 'c' + (h >>> 0);
+}
+function loadSrs() { try { return JSON.parse(localStorage.getItem(SRS_KEY) || '{}'); } catch(e) { return {}; } }
+function saveSrs() { try { localStorage.setItem(SRS_KEY, JSON.stringify(srs)); } catch(e) {} }
+let srs = loadSrs();
+function getStatus(card) { return srs[cardKey(card)] || 'unseen'; }
+function setStatus(card, status) {
+    const key = cardKey(card);
+    if (status === 'unseen') delete srs[key];
+    else srs[key] = status;
+    saveSrs();
+}
+
+const cardEl = document.getElementById('card');
+const questionEl = document.getElementById('cardQuestion');
+const answerEl = document.getElementById('cardAnswer');
+const sectionTagFront = document.getElementById('sectionTagFront');
+const sectionTagBack = document.getElementById('sectionTagBack');
+const topicTag = document.getElementById('topicTag');
+const cardPosition = document.getElementById('cardPosition');
+const progressFill = document.getElementById('progressFill');
+const gotoInput = document.getElementById('gotoInput');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const flipBtn = document.getElementById('flipBtn');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const resetBtn = document.getElementById('resetBtn');
+const toggleViewBtn = document.getElementById('toggleViewBtn');
+const totalCount = document.getElementById('totalCount');
+const emptyState = document.getElementById('emptyState');
+const studyArea = document.getElementById('studyArea');
+const gridArea = document.getElementById('gridArea');
+const cardWrapper = document.getElementById('cardWrapper');
+const sectionSelect = document.getElementById('sectionSelect');
+
+function populateSectionSelect() {
+    sectionSelect.innerHTML = '';
+    const allOpt = document.createElement('option');
+    allOpt.value = 'all';
+    allOpt.textContent = 'All sections (' + CARDS.length + ')';
+    sectionSelect.appendChild(allOpt);
+    Object.keys(SECTIONS).forEach(function(key) {
+        const count = CARDS.filter(c => c.section === key).length;
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = SECTIONS[key] + ' (' + count + ')';
+        sectionSelect.appendChild(opt);
+    });
+    sectionSelect.value = currentSection;
+}
+
+function applyFilter() {
+    let pool = order.map(i => CARDS[i]);
+    if (currentSection !== 'all') pool = pool.filter(c => c.section === currentSection);
+
+    if (studyMode) {
+        const reviews = pool.filter(c => getStatus(c) === 'review');
+        const unseen = pool.filter(c => getStatus(c) === 'unseen');
+        pool = reviews.concat(unseen);
+    }
+
+    filteredCards = pool;
+    currentIdx = 0;
+    renderCard();
+    updateStats();
+}
+
+function updateStats() {
+    let pool = CARDS;
+    if (currentSection !== 'all') pool = pool.filter(c => c.section === currentSection);
+    let m = 0, r = 0, u = 0;
+    pool.forEach(c => {
+        const s = getStatus(c);
+        if (s === 'mastered') m++;
+        else if (s === 'review') r++;
+        else u++;
+    });
+    document.getElementById('statMastered').textContent = m;
+    document.getElementById('statReview').textContent = r;
+    document.getElementById('statUnseen').textContent = u;
+}
+
+function renderCard() {
+    totalCount.textContent = filteredCards.length + ' Cards';
+    const sessionPanel = document.getElementById('sessionComplete');
+    const gradeRow = document.querySelector('.grade-row');
+
+    if (filteredCards.length === 0) {
+        if (studyMode) {
+            sessionPanel.classList.add('show');
+            cardWrapper.style.display = 'none';
+            emptyState.style.display = 'none';
+            document.querySelector('.nav-controls').style.display = 'none';
+            document.querySelector('.progress-row').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            gradeRow.style.display = 'none';
+            let m = 0, r = 0;
+            CARDS.forEach(c => {
+                const s = getStatus(c);
+                if (s === 'mastered') m++;
+                else if (s === 'review') r++;
+            });
+            document.getElementById('sessionMastered').textContent = m;
+            document.getElementById('sessionReview').textContent = r;
+        } else {
+            emptyState.style.display = 'block';
+            cardWrapper.style.display = 'none';
+            document.querySelector('.nav-controls').style.display = 'none';
+            document.querySelector('.progress-row').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            gradeRow.style.display = 'none';
+            sessionPanel.classList.remove('show');
+        }
+        return;
+    }
+    sessionPanel.classList.remove('show');
+    emptyState.style.display = 'none';
+    cardWrapper.style.display = 'block';
+    document.querySelector('.nav-controls').style.display = 'flex';
+    document.querySelector('.progress-row').style.display = 'flex';
+    document.querySelector('.progress-bar').style.display = 'block';
+    gradeRow.style.display = 'flex';
+
+    const card = filteredCards[currentIdx];
+    cardEl.classList.remove('flipped');
+    questionEl.innerHTML = card.q;
+    answerEl.innerHTML = card.a;
+
+    const sectionLabel = SECTIONS[card.section] || card.section;
+    sectionTagFront.textContent = sectionLabel;
+    sectionTagBack.textContent = sectionLabel;
+    topicTag.textContent = sectionLabel;
+
+    const status = getStatus(card);
+    const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+    ['statusBadgeFront', 'statusBadgeBack'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'card-status-badge ' + status;
+        el.textContent = statusLabel;
+    });
+
+    cardPosition.textContent = 'Card ' + (currentIdx + 1) + ' of ' + filteredCards.length;
+    progressFill.style.width = (((currentIdx + 1) / filteredCards.length) * 100) + '%';
+    gotoInput.max = filteredCards.length;
+    gotoInput.value = currentIdx + 1;
+
+    prevBtn.disabled = currentIdx === 0;
+    nextBtn.disabled = currentIdx === filteredCards.length - 1;
+}
+
+function gradeCard(status) {
+    if (filteredCards.length === 0) return;
+    const card = filteredCards[currentIdx];
+    setStatus(card, status);
+    updateStats();
+
+    if (studyMode) {
+        if (status === 'mastered') {
+            filteredCards.splice(currentIdx, 1);
+            if (currentIdx >= filteredCards.length) currentIdx = Math.max(0, filteredCards.length - 1);
+        } else {
+            if (currentIdx < filteredCards.length - 1) currentIdx++;
+            else {
+                filteredCards.splice(currentIdx, 1);
+                if (currentIdx >= filteredCards.length) currentIdx = Math.max(0, filteredCards.length - 1);
+            }
+        }
+        renderCard();
+    } else {
+        if (currentIdx < filteredCards.length - 1) { currentIdx++; renderCard(); }
+        else renderCard();
+    }
+}
+
+function flipCard() { cardEl.classList.toggle('flipped'); }
+function nextCard() { if (currentIdx < filteredCards.length - 1) { currentIdx++; renderCard(); } }
+function prevCard() { if (currentIdx > 0) { currentIdx--; renderCard(); } }
+
+function shuffle() {
+    for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+    }
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+}
+
+function resetOrder() {
+    order = CARDS.map((_, i) => i);
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+}
+
+cardEl.addEventListener('click', flipCard);
+flipBtn.addEventListener('click', function(e) { e.stopPropagation(); flipCard(); });
+prevBtn.addEventListener('click', prevCard);
+nextBtn.addEventListener('click', nextCard);
+shuffleBtn.addEventListener('click', shuffle);
+resetBtn.addEventListener('click', resetOrder);
+
+document.getElementById('gradeAgainBtn').addEventListener('click', function(e) { e.stopPropagation(); gradeCard('review'); });
+document.getElementById('gradeGoodBtn').addEventListener('click', function(e) { e.stopPropagation(); gradeCard('mastered'); });
+
+document.getElementById('studyModeToggle').addEventListener('change', function() {
+    studyMode = this.checked;
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.getElementById('resetProgressBtn').addEventListener('click', function() {
+    if (!confirm('Clear all spaced-repetition progress? This will reset every card back to Unseen.')) return;
+    srs = {};
+    saveSrs();
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.getElementById('restartSessionBtn').addEventListener('click', function() {
+    applyFilter();
+});
+
+gotoInput.addEventListener('change', function() {
+    const n = parseInt(this.value, 10);
+    if (!isNaN(n) && n >= 1 && n <= filteredCards.length) { currentIdx = n - 1; renderCard(); }
+});
+
+sectionSelect.addEventListener('change', function() {
+    currentSection = this.value;
+    applyFilter();
+    if (gridArea.classList.contains('show')) renderGrid();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (gridArea.classList.contains('show')) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    if (e.key === 'ArrowRight') { nextCard(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { prevCard(); e.preventDefault(); }
+    else if (e.key === ' ' || e.key === 'Enter') { flipCard(); e.preventDefault(); }
+});
+
+function renderGrid() {
+    gridArea.innerHTML = '';
+    const sectionKeys = Object.keys(SECTIONS).filter(function(key) {
+        if (currentSection !== 'all' && key !== currentSection) return false;
+        return true;
+    });
+
+    sectionKeys.forEach(function(key) {
+        const cards = order.map(i => CARDS[i]).filter(c => c.section === key);
+        if (cards.length === 0) return;
+        const h = document.createElement('h3');
+        h.textContent = SECTIONS[key] + ' (' + cards.length + ')';
+        gridArea.appendChild(h);
+        const grid = document.createElement('div');
+        grid.className = 'mini-grid';
+        cards.forEach(function(card, idx) {
+            const wrap = document.createElement('div');
+            wrap.className = 'mini-card';
+            wrap.innerHTML =
+                '<div class="mini-card-inner">' +
+                    '<div class="mini-card-face">' + card.q + '<span class="idx">#' + (idx + 1) + '</span></div>' +
+                    '<div class="mini-card-face mini-card-back">' + card.a + '<span class="idx">#' + (idx + 1) + '</span></div>' +
+                '</div>';
+            const inner = wrap.querySelector('.mini-card-inner');
+            inner.addEventListener('click', () => inner.classList.toggle('flipped'));
+            grid.appendChild(wrap);
+        });
+        gridArea.appendChild(grid);
+    });
+
+    if (gridArea.children.length === 0) {
+        gridArea.innerHTML = '<div class="empty-state"><h3>No cards for this filter</h3><p>Try a different section.</p></div>';
+    }
+}
+
+toggleViewBtn.addEventListener('click', function() {
+    if (gridArea.classList.contains('show')) {
+        gridArea.classList.remove('show');
+        studyArea.classList.remove('hide');
+        toggleViewBtn.textContent = 'Grid View';
+    } else {
+        renderGrid();
+        gridArea.classList.add('show');
+        studyArea.classList.add('hide');
+        toggleViewBtn.textContent = 'Study View';
+    }
+});
+
+populateSectionSelect();
+applyFilter();
+</script>
+
+</body>
+</html>

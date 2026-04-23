@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certiport ITS Networking Reviewer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Lato", "Helvetica Neue", Arial, sans-serif; background: #f5f5f5; color: #2d3b45; line-height: 1.5; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: #fff; border: 1px solid #c7cdd1; border-radius: 3px; overflow: clip; }
+        .header { background: linear-gradient(135deg, #1a4480 0%, #2562a3 100%); color: #fff; padding: 24px 30px; }
+        .header h1 { font-size: 24px; margin-bottom: 4px; font-weight: 500; }
+        .header .subtitle { font-size: 13px; color: #c7cdd1; }
+        .header .meta { margin-top: 10px; font-size: 12px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .header .meta span { background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 3px; }
+
+        .instructions { background: #f0f8ff; border-left: 4px solid #1a4480; padding: 14px 20px; font-size: 14px; }
+
+        .section-nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #c7cdd1; padding: 10px 20px; z-index: 101; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .section-nav .nav-home { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #e5e5e5; color: #2d3b45; text-decoration: none; border-radius: 3px; font-size: 13px; font-weight: 500; }
+        .section-nav .nav-home:hover { background: #d0d0d0; }
+        .section-nav .nav-home::before { content: "\2190"; font-size: 14px; }
+        .section-nav .nav-divider { width: 1px; height: 22px; background: #e5e5e5; margin: 0 4px; }
+        .section-nav .section-select-wrap { display: inline-flex; align-items: center; gap: 6px; }
+        .section-nav .section-select-wrap label { font-size: 12px; color: #6b7780; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-nav select.section-select { padding: 6px 10px; font-size: 13px; border: 1px solid #c7cdd1; border-radius: 3px; background: #fff; color: #2d3b45; font-family: inherit; cursor: pointer; max-width: 320px; }
+        .section-nav select.section-select:focus { outline: none; border-color: #1a4480; box-shadow: 0 0 3px rgba(26,68,128,0.3); }
+        .section-nav .spacer { flex: 1; }
+
+        .quiz-progress { padding: 12px 30px; background: #fafafa; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .quiz-progress .qp-tag { font-size: 11px; background: #1a4480; color: #fff; padding: 3px 10px; border-radius: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
+        .quiz-progress .qp-label { font-size: 13px; color: #6b7780; font-weight: 500; white-space: nowrap; }
+        .quiz-progress .qp-label strong { color: #2d3b45; }
+        .quiz-progress .qp-bar { flex: 1; min-width: 120px; height: 6px; background: #e5e5e5; border-radius: 3px; overflow: hidden; }
+        .quiz-progress .qp-fill { height: 100%; background: #1a4480; transition: width 0.25s ease; width: 0%; }
+
+        .score-bar { position: sticky; top: 44px; background: #fff; border-bottom: 2px solid #1a4480; padding: 12px 30px; z-index: 100; display: none; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .score-bar.show { display: flex; }
+        .score-bar .score { font-size: 16px; font-weight: bold; }
+        .score-bar .score.pass { color: #0b874b; }
+        .score-bar .score.fail { color: #ee3a3a; }
+        .score-bar .percentage { font-size: 24px; font-weight: bold; }
+
+        .question-area { padding: 30px; }
+        .question { background: #fafafa; border: 1px solid #e5e5e5; border-radius: 4px; padding: 22px 26px; position: relative; margin-bottom: 20px; }
+        .question.correct { border-left: 4px solid #0b874b; background: #effdf3; }
+        .question.wrong { border-left: 4px solid #ee3a3a; background: #fff0f0; }
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
+        .q-num { color: #1a4480; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; }
+        .q-section { font-size: 11px; color: #6b7780; text-transform: uppercase; letter-spacing: 0.3px; }
+        .q-text { font-size: 16px; margin-bottom: 14px; color: #2d3b45; line-height: 1.6; font-weight: 500; }
+
+        .choice-block { margin: 6px 0; }
+        .choices label { display: block; padding: 10px 14px; border-radius: 3px; cursor: pointer; font-size: 14px; line-height: 1.55; border: 1px solid transparent; background: #fff; transition: background 0.12s, border-color 0.12s; }
+        .choices label:hover:not(.correct-answer):not(.user-wrong) { background: #f0f8ff; border-color: #c7cdd1; }
+        .choices input[type="radio"] { margin-right: 10px; }
+        .choices label.correct-answer { background: #d4f4dd; color: #0b874b; font-weight: 500; border-color: #0b874b; }
+        .choices label.user-wrong { background: #fbd9d9; color: #a72a2a; border-color: #ee3a3a; }
+
+        .option-note { display: none; font-size: 12.5px; margin: 5px 14px 0 36px; padding: 7px 11px; background: #f5f5f5; border-radius: 3px; color: #5a6571; line-height: 1.55; border-left: 3px solid #c7cdd1; }
+        .question.revealed .option-note { display: block; }
+        .option-note.correct-note { background: #effdf3; color: #0b6b40; border-left-color: #0b874b; }
+        .option-note.wrong-note { background: #fdf3f3; color: #8a3030; border-left-color: #ee3a3a; }
+        .option-note .marker { font-weight: bold; margin-right: 4px; }
+
+        .feedback { margin-top: 14px; padding: 11px 14px; font-size: 13px; border-radius: 3px; display: none; line-height: 1.6; }
+        .feedback.show { display: block; }
+        .feedback.correct-fb { background: #d4f4dd; color: #0b874b; border: 1px solid #0b874b; }
+        .feedback.wrong-fb { background: #fbd9d9; color: #a72a2a; border: 1px solid #ee3a3a; }
+        .feedback strong { font-weight: 700; }
+        .feedback .explain { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px dashed currentColor; font-size: 12.5px; color: #2d3b45; opacity: 0.95; }
+
+        .quiz-controls { padding: 16px 30px; background: #fff; border-top: 1px solid #e5e5e5; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .quiz-controls .ctl-left, .quiz-controls .ctl-mid, .quiz-controls .ctl-right { display: inline-flex; align-items: center; gap: 8px; }
+        .quiz-controls .q-counter { font-size: 13px; color: #6b7780; font-weight: 500; }
+        .quiz-controls .q-counter strong { color: #1a4480; font-size: 15px; }
+        .quiz-controls .goto-wrap { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #6b7780; }
+        .quiz-controls .goto-input { width: 60px; padding: 5px 8px; border: 1px solid #c7cdd1; border-radius: 3px; font-size: 13px; text-align: center; font-family: inherit; }
+
+        .actions { padding: 20px 30px; background: #f5f5f5; border-top: 1px solid #c7cdd1; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #1a4480; color: #fff; }
+        .btn-primary:hover { background: #133564; }
+        .btn-secondary { background: #e5e5e5; color: #2d3b45; }
+        .btn-secondary:hover { background: #d0d0d0; }
+        .btn-reveal { background: #f59e0b; color: #fff; }
+        .btn-reveal:hover { background: #d97706; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .results-banner { padding: 22px 30px; text-align: center; display: none; }
+        .results-banner.show { display: block; }
+        .results-banner h2 { font-size: 26px; margin-bottom: 4px; }
+        .results-banner.pass { background: #effdf3; border-top: 3px solid #0b874b; }
+        .results-banner.pass h2 { color: #0b874b; }
+        .results-banner.fail { background: #fff0f0; border-top: 3px solid #ee3a3a; }
+        .results-banner.fail h2 { color: #a72a2a; }
+        .results-banner .detail { font-size: 13px; color: #6b7780; margin-top: 4px; }
+        .results-banner .breakdown { margin-top: 10px; font-size: 12px; color: #2d3b45; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>Certiport ITS Networking Reviewer</h1>
+    <div class="subtitle">IT Specialist: Networking &mdash; Certiport-style practice with per-option discussion</div>
+    <div class="meta">
+        <span id="totalMeta">0 Questions</span>
+        <span>Multiple Choice</span>
+        <span>Reveal Answer + per-option notes</span>
+    </div>
+</div>
+
+<div class="instructions">
+    <strong>How to use:</strong> Pick your answer, then click <b>Reveal Answer</b> to see which option is correct AND a short explanation for <em>each</em> option (why right or why wrong). Use <b>Prev</b> / <b>Next</b> or arrow keys to navigate. Filter by topic with the <b>Section</b> dropdown, hit <b>Shuffle</b> for random order, or <b>Submit Quiz</b> any time to see your overall score.
+</div>
+
+<nav class="section-nav" id="sectionNav">
+    <a class="nav-home" href="../index.html" title="Back to Home">Home</a>
+    <div class="nav-divider"></div>
+    <div class="section-select-wrap">
+        <label for="sectionSelect">Section</label>
+        <select class="section-select" id="sectionSelect"></select>
+    </div>
+    <div class="spacer"></div>
+</nav>
+
+<div class="quiz-progress" id="quizProgress">
+    <span class="qp-tag" id="qpSectionTag">Networking</span>
+    <span class="qp-label">Question <strong id="qpCurrent">1</strong> of <strong id="qpTotal">0</strong></span>
+    <div class="qp-bar"><div class="qp-fill" id="qpFill"></div></div>
+</div>
+
+<div class="score-bar" id="scoreBar">
+    <div>Your Score: <span class="score" id="scoreText">0 / 0</span></div>
+    <div class="percentage" id="percentText">0%</div>
+</div>
+
+<div class="question-area" id="questionArea">
+    <!-- single question rendered here -->
+</div>
+
+<div class="quiz-controls" id="quizControls">
+    <div class="ctl-left">
+        <button class="btn btn-secondary" id="qPrevBtn">&larr; Previous</button>
+        <button class="btn btn-reveal" id="qRevealBtn">&#128161; Reveal Answer</button>
+    </div>
+    <div class="ctl-mid">
+        <div class="goto-wrap">
+            Go to: <input type="number" class="goto-input" id="qGotoInput" min="1" value="1">
+        </div>
+        <div class="q-counter"><strong id="qCounterCurrent">1</strong> / <span id="qCounterTotal">0</span></div>
+    </div>
+    <div class="ctl-right">
+        <button class="btn btn-primary" id="qNextBtn">Next &rarr;</button>
+    </div>
+</div>
+
+<div class="results-banner" id="resultsBanner">
+    <h2 id="resultsTitle"></h2>
+    <div class="detail" id="resultsDetail"></div>
+    <div class="breakdown" id="resultsBreakdown"></div>
+</div>
+
+<div class="actions">
+    <a class="btn btn-secondary" href="../index.html" style="text-decoration:none;">&larr; Home</a>
+    <button class="btn btn-secondary" onclick="resetQuiz()">Reset Quiz</button>
+    <button class="btn btn-secondary" onclick="shuffleQuiz()">&#x1F500; Shuffle</button>
+    <button class="btn btn-secondary" onclick="restoreOrder()">Original Order</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+</div>
+
+</div>
+
+<script>
+const SECTIONS = {
+    fund:        'Networking Fundamentals & Topologies',
+    osi:         'OSI Model & TCP/IP',
+    ip:          'IP Addressing, Subnetting & NAT',
+    hardware:    'Network Hardware & Cabling',
+    protocols:   'Protocols, Ports & Services',
+    wireless:    'Wireless Networking',
+    wan:         'WAN Technologies',
+    security:    'Network Security & VPN',
+    troubleshoot:'Troubleshooting & CLI Tools',
+    windows:     'Windows Networking & Active Directory',
+    scenario:    'Scenario-Based Questions'
+};
+
+const QUESTIONS = [
+  // ===== Networking Fundamentals & Topologies =====
+  { section: 'fund', q: 'Which network type is confined to a single building or small geographic area?',
+    choices: ['WAN (Wide Area Network)','LAN (Local Area Network)','MAN (Metropolitan Area Network)','PAN (Personal Area Network)'],
+    answer: 'b',
+    explanation: 'A LAN is limited to a single building, office, or small campus. WANs span large geographic areas (the internet is a WAN).',
+    optionNotes: [
+      'WANs span large geographic areas (cities, countries, continents) — far bigger than a single building.',
+      'A LAN covers a single building, office, or small campus — exactly the question.',
+      'MAN covers a city or metropolitan area, not a single building.',
+      'PAN is very short range (~10 m) like Bluetooth or USB — much smaller than a building.'
+    ]
+  },
+  { section: 'fund', q: 'The Internet is an example of which type of network?',
+    choices: ['LAN','PAN','MAN','WAN'],
+    answer: 'd',
+    explanation: 'The Internet is a global WAN — the largest network of networks, spanning continents.',
+    optionNotes: [
+      'LAN is local — too small for the global internet.',
+      'PAN is personal range only (a few meters).',
+      'MAN covers a city — far too small for the global internet.',
+      'The Internet is the largest WAN in existence — a network of networks across the globe.'
+    ]
+  },
+  { section: 'fund', q: 'Which network topology connects every device to a central switch or hub?',
+    choices: ['Bus','Ring','Star','Mesh'],
+    answer: 'c',
+    explanation: 'Star topology uses a central device (switch or hub). Most modern Ethernet networks are physical stars.',
+    optionNotes: [
+      'Bus topology runs all devices on a single shared cable — no central device.',
+      'Ring connects each device to two others in a closed loop — no central device.',
+      'Star = every device cabled to a central switch/hub. The standard for modern Ethernet.',
+      'Mesh has many interconnections between devices, not a single central device.'
+    ]
+  },
+  { section: 'fund', q: 'Which topology provides the highest fault tolerance due to redundant paths?',
+    choices: ['Star','Ring','Bus','Mesh'],
+    answer: 'd',
+    explanation: 'Mesh has multiple redundant paths between devices — if one link fails, traffic reroutes.',
+    optionNotes: [
+      'Star has a single point of failure — the central switch/hub.',
+      'A single break in a ring can disrupt the entire loop.',
+      'A single cable break in a bus topology kills the whole network.',
+      'Mesh uses redundant links between many devices — failures reroute around. Most fault-tolerant (but most expensive).'
+    ]
+  },
+  { section: 'fund', q: 'Which network type uses Bluetooth to connect personal devices in a very small range?',
+    choices: ['LAN','PAN','WAN','WLAN'],
+    answer: 'b',
+    explanation: 'PAN (Personal Area Network) covers ~10 m, using Bluetooth, USB, or Zigbee.',
+    optionNotes: [
+      'LANs span a building or office — much larger than personal range.',
+      'PAN = Personal Area Network — ~10 m range, typical for Bluetooth, USB, Zigbee.',
+      'WAN spans continents — vastly larger than personal range.',
+      'WLAN is wireless LAN (Wi-Fi), typically covering an office, not personal range.'
+    ]
+  },
+  { section: 'fund', q: 'Which network type covers a city-sized area?',
+    choices: ['LAN','PAN','MAN','WAN'],
+    answer: 'c',
+    explanation: 'MAN (Metropolitan Area Network) covers a city or metropolitan area.',
+    optionNotes: [
+      'LAN is far too small (single building).',
+      'PAN is even smaller — personal range.',
+      'MAN = Metropolitan Area Network — city or metropolitan scale.',
+      'WAN is much larger than a city (countries/continents).'
+    ]
+  },
+  { section: 'fund', q: 'In a client-server network, what does the server do?',
+    choices: ['Requests services from clients','Provides centralized resources and services to clients','Only routes traffic','Only acts as a print server'],
+    answer: 'b',
+    explanation: 'Servers provide services — file, print, web, database, email — to clients that request them.',
+    optionNotes: [
+      'It is the clients that request services; servers provide them.',
+      'Servers provide centralized resources (file, print, web, mail, etc.) to clients on the network.',
+      'Routing is done by routers, not by servers.',
+      'Servers can do many things — print is one role, but not the only one.'
+    ]
+  },
+  { section: 'fund', q: 'Which network model has each computer share resources as an equal?',
+    choices: ['Client-server','Peer-to-peer (P2P)','Thin client','Mainframe'],
+    answer: 'b',
+    explanation: 'In P2P, every device can act as both server and client.',
+    optionNotes: [
+      'Client-server has dedicated servers — devices are NOT equals.',
+      'Peer-to-peer (P2P) treats every device as an equal — each can serve and request.',
+      'Thin clients depend heavily on a central server, not equal sharing.',
+      'Mainframe is a centralized model with terminals, not equal sharing.'
+    ]
+  },
+  { section: 'fund', q: 'Which topology has devices connected in a closed loop where data travels around?',
+    choices: ['Star','Ring','Mesh','Bus'],
+    answer: 'b',
+    explanation: 'Ring topology passes data token-style around a circle. FDDI and Token Ring used this.',
+    optionNotes: [
+      'Star is centralized (switch/hub at the middle), not a loop.',
+      'Ring connects each device to two others in a closed loop — data circulates around.',
+      'Mesh has many interconnections, not a single loop.',
+      'Bus uses one shared cable in a line, not a loop.'
+    ]
+  },
+  { section: 'fund', q: 'What is a major disadvantage of bus topology?',
+    choices: ['Requires many cables','A single cable break disables the entire network','Only supports wireless','Too expensive'],
+    answer: 'b',
+    explanation: 'In a bus, all devices share one cable; one break = network down.',
+    optionNotes: [
+      'Bus uses ONE shared cable, not many.',
+      'All devices share one cable — a break anywhere takes the whole network down. Major weakness.',
+      'Bus is wired (typically coax), not wireless.',
+      'Bus is actually cheap; mesh is the expensive topology.'
+    ]
+  },
+  { section: 'fund', q: 'Ethernet operates with what physical and logical topologies, respectively?',
+    choices: ['Bus / Ring','Star / Bus','Mesh / Star','Ring / Star'],
+    answer: 'b',
+    explanation: 'Ethernet is physically a star but logically behaves like a bus.',
+    optionNotes: [
+      'Ethernet is physically a star (not bus), and logically a bus (not ring).',
+      'Physical star (devices cabled to a central switch) + logical bus (shared collision domain on hubs).',
+      'Ethernet is not mesh.',
+      'Physical layout for Ethernet is star, not ring.'
+    ]
+  },
+  { section: 'fund', q: 'Which wireless network type uses radio signals to connect devices within a LAN?',
+    choices: ['WAN','WLAN','MAN','PAN'],
+    answer: 'b',
+    explanation: 'WLAN (Wireless LAN, e.g., Wi-Fi / 802.11) uses radio signals instead of cables.',
+    optionNotes: [
+      'WAN spans large geographies and isn’t the LAN-specific wireless answer.',
+      'WLAN = Wireless LAN — Wi-Fi (802.11). Exactly the question.',
+      'MAN is metropolitan-scale, not specifically LAN wireless.',
+      'PAN is personal range, not LAN-scale.'
+    ]
+  },
+
+  // ===== OSI Model & TCP/IP =====
+  { section: 'osi', q: 'How many layers does the OSI model have?',
+    choices: ['4','5','7','8'],
+    answer: 'c',
+    explanation: 'OSI has 7 layers: Physical, Data Link, Network, Transport, Session, Presentation, Application.',
+    optionNotes: [
+      '4 is the TCP/IP model count, not OSI.',
+      '5 isn’t the count of either standard model.',
+      'OSI has 7 layers — Physical, Data Link, Network, Transport, Session, Presentation, Application.',
+      'No standard model uses 8 (some folks joke about a "user layer" 8).'
+    ]
+  },
+  { section: 'osi', q: 'Which OSI layer handles MAC addressing and frames?',
+    choices: ['Physical (L1)','Data Link (L2)','Network (L3)','Transport (L4)'],
+    answer: 'b',
+    explanation: 'Data Link layer (L2) uses MAC addresses, creates frames, and is where switches operate.',
+    optionNotes: [
+      'L1 deals with bits, voltages, and cables — no addressing.',
+      'L2 = Data Link — MAC addresses, frames, switches.',
+      'L3 = Network — IP addresses and packets, not MAC.',
+      'L4 = Transport — ports and segments, not MAC.'
+    ]
+  },
+  { section: 'osi', q: 'Which OSI layer handles IP addressing and routing?',
+    choices: ['Data Link','Network','Transport','Session'],
+    answer: 'b',
+    explanation: 'Network layer (L3) uses logical (IP) addressing and routes packets between networks.',
+    optionNotes: [
+      'L2 (Data Link) uses MAC addresses, not IP.',
+      'L3 = Network — IP addresses and routing. Routers operate here.',
+      'L4 (Transport) uses port numbers, not IP routing.',
+      'L5 (Session) manages sessions, not addressing.'
+    ]
+  },
+  { section: 'osi', q: 'Which OSI layer uses port numbers?',
+    choices: ['Network','Data Link','Transport','Application'],
+    answer: 'c',
+    explanation: 'Transport layer (L4) uses ports to identify processes — TCP/UDP operate here.',
+    optionNotes: [
+      'L3 uses IP addresses, not ports.',
+      'L2 uses MAC addresses, not ports.',
+      'L4 (Transport) uses port numbers — TCP/UDP. Example: port 443 for HTTPS.',
+      'L7 hosts the application protocols, but the port number itself is L4.'
+    ]
+  },
+  { section: 'osi', q: 'What is the Protocol Data Unit (PDU) at the Transport layer?',
+    choices: ['Frame','Packet','Segment','Bits'],
+    answer: 'c',
+    explanation: 'PDU order (L1→L4): Bits → Frame → Packet → Segment.',
+    optionNotes: [
+      'Frame is the L2 (Data Link) PDU.',
+      'Packet is the L3 (Network) PDU.',
+      'Segment is the L4 (Transport) PDU — TCP segment / UDP datagram.',
+      'Bits are the L1 (Physical) PDU.'
+    ]
+  },
+  { section: 'osi', q: 'What is the PDU at the Network layer?',
+    choices: ['Bits','Frame','Packet','Segment'],
+    answer: 'c',
+    explanation: 'Network layer PDU is a Packet.',
+    optionNotes: [
+      'Bits = L1 (Physical).',
+      'Frame = L2 (Data Link).',
+      'Packet = L3 (Network) — segments are placed inside packets for routing.',
+      'Segment = L4 (Transport).'
+    ]
+  },
+  { section: 'osi', q: 'Which OSI layer is responsible for data encryption and format translation (e.g., ASCII, JPEG)?',
+    choices: ['Application','Presentation','Session','Transport'],
+    answer: 'b',
+    explanation: 'Presentation layer (L6) formats data and traditionally handles encryption.',
+    optionNotes: [
+      'L7 (Application) is the user-facing protocols, not formatting.',
+      'L6 (Presentation) handles formatting, encoding (ASCII/JPEG), and traditionally SSL/TLS encryption.',
+      'L5 (Session) manages session establishment, not formatting.',
+      'L4 (Transport) handles ports and reliable delivery, not formatting.'
+    ]
+  },
+  { section: 'osi', q: 'HTTP, FTP, DNS, and SMTP operate at which OSI layer?',
+    choices: ['Transport','Session','Presentation','Application'],
+    answer: 'd',
+    explanation: 'Application layer (L7) — user-facing network protocols live here.',
+    optionNotes: [
+      'L4 hosts TCP/UDP, not user-facing protocols.',
+      'L5 manages sessions; HTTP/FTP/etc. live higher up.',
+      'L6 handles formatting/encryption — not the home of user-facing protocols.',
+      'L7 (Application) is exactly where HTTP, FTP, DNS, SMTP, SSH, SNMP, etc. live.'
+    ]
+  },
+  { section: 'osi', q: 'A hub is a Layer __ device.',
+    choices: ['1 (Physical)','2 (Data Link)','3 (Network)','4 (Transport)'],
+    answer: 'a',
+    explanation: 'Hubs just repeat electrical signals on all ports — no addressing intelligence.',
+    optionNotes: [
+      'L1 — hubs are dumb signal repeaters with zero addressing intelligence.',
+      'L2 devices read MAC addresses (switches/bridges) — hubs don’t.',
+      'L3 devices route based on IP (routers) — hubs don’t.',
+      'L4 devices read ports (firewalls/load balancers) — hubs don’t.'
+    ]
+  },
+  { section: 'osi', q: 'A router primarily operates at which OSI layer?',
+    choices: ['Layer 1','Layer 2','Layer 3','Layer 4'],
+    answer: 'c',
+    explanation: 'Routers use IP addresses to route packets between networks — Network layer (L3).',
+    optionNotes: [
+      'L1 is hubs/repeaters — pure physical signal.',
+      'L2 is switches/bridges — MAC-based forwarding within a subnet.',
+      'L3 = Network — routers route packets between networks using IP addresses.',
+      'L4 is transport (ports) — firewalls work here too, but routers primarily are L3.'
+    ]
+  },
+  { section: 'osi', q: 'The TCP/IP model has how many layers?',
+    choices: ['3','4','5','7'],
+    answer: 'b',
+    explanation: 'TCP/IP has 4 layers: Network Access, Internet, Transport, Application.',
+    optionNotes: [
+      '3 doesn’t match either standard model.',
+      'TCP/IP has 4 layers — Network Access (Link), Internet, Transport, Application.',
+      '5 isn’t the standard layer count.',
+      '7 is the OSI count, not TCP/IP.'
+    ]
+  },
+  { section: 'osi', q: 'The TCP/IP Application layer maps to which OSI layers?',
+    choices: ['Only L7','L6 + L7','L5 + L6 + L7','L4 + L5 + L6 + L7'],
+    answer: 'c',
+    explanation: 'TCP/IP Application = OSI Session (5) + Presentation (6) + Application (7).',
+    optionNotes: [
+      'TCP/IP App is broader — it covers more than just OSI L7.',
+      'It includes L5 (Session) too, not just L6 + L7.',
+      'TCP/IP Application = OSI Session + Presentation + Application combined into one layer.',
+      'L4 (Transport) is its own separate layer in TCP/IP, not folded into Application.'
+    ]
+  },
+
+  // ===== IP Addressing, Subnetting & NAT =====
+  { section: 'ip', q: 'An IPv4 address consists of how many bits?',
+    choices: ['16','32','64','128'],
+    answer: 'b',
+    explanation: 'IPv4 is 32 bits, written as four 8-bit octets in dotted decimal.',
+    optionNotes: [
+      '16 bits is far too small (would only allow ~65K addresses).',
+      'IPv4 = 32 bits → 4 octets, dotted decimal (e.g., 192.168.1.1).',
+      '64 isn’t the IPv4 standard.',
+      '128 bits is IPv6, not IPv4.'
+    ]
+  },
+  { section: 'ip', q: 'An IPv6 address consists of how many bits?',
+    choices: ['32','64','128','256'],
+    answer: 'c',
+    explanation: 'IPv6 is 128 bits — 8 groups of 4 hexadecimal digits separated by colons.',
+    optionNotes: [
+      '32 is IPv4.',
+      '64 is the size of an IPv6 interface ID (lower half), not the whole address.',
+      'IPv6 = 128 bits → 8 hex groups separated by colons.',
+      '256 isn’t a standard IP address size.'
+    ]
+  },
+  { section: 'ip', q: 'Which of the following is a Class A private IP address?',
+    choices: ['10.5.5.5','172.16.1.1','192.168.1.1','169.254.1.1'],
+    answer: 'a',
+    explanation: '10.0.0.0/8 is the Class A private range.',
+    optionNotes: [
+      '10.x is the Class A private range (10.0.0.0/8).',
+      '172.16–31.x is Class B private — not Class A.',
+      '192.168.x is Class C private — not Class A.',
+      '169.254.x is APIPA (link-local), not a private class.'
+    ]
+  },
+  { section: 'ip', q: 'Which is the private IP range for Class B?',
+    choices: ['10.0.0.0 – 10.255.255.255','172.16.0.0 – 172.31.255.255','192.168.0.0 – 192.168.255.255','169.254.0.0 – 169.254.255.255'],
+    answer: 'b',
+    explanation: 'Class B private: 172.16.0.0 – 172.31.255.255 (/12).',
+    optionNotes: [
+      '10.x = Class A private range.',
+      '172.16–31.x = Class B private (RFC 1918, /12).',
+      '192.168.x = Class C private range.',
+      '169.254.x = APIPA, not a private class.'
+    ]
+  },
+  { section: 'ip', q: 'Which first-octet range indicates a Class C IP address?',
+    choices: ['1–126','128–191','192–223','224–239'],
+    answer: 'c',
+    explanation: 'Class A: 1–126. Class B: 128–191. Class C: 192–223. Class D: 224–239 (multicast).',
+    optionNotes: [
+      '1–126 = Class A.',
+      '128–191 = Class B.',
+      '192–223 = Class C.',
+      '224–239 = Class D (multicast).'
+    ]
+  },
+  { section: 'ip', q: 'What does the IPv4 address 127.0.0.1 represent?',
+    choices: ['Default gateway','Broadcast address','Loopback (localhost)','DHCP server'],
+    answer: 'c',
+    explanation: '127.0.0.1 is the loopback address — pinging it tests the local TCP/IP stack.',
+    optionNotes: [
+      'Default gateway is the local router IP — varies, not 127.0.0.1.',
+      'Limited broadcast is 255.255.255.255, not 127.0.0.1.',
+      '127.0.0.1 = loopback (localhost). Pinging it tests the local TCP/IP stack.',
+      'DHCP server has its own real IP, not 127.0.0.1.'
+    ]
+  },
+  { section: 'ip', q: 'A Windows PC shows 169.254.25.100 as its IP address. What does this mean?',
+    choices: ['A static IP assigned by admin','Public IP from ISP','APIPA — the DHCP server was unreachable','IPv6 link-local'],
+    answer: 'c',
+    explanation: '169.254.0.0/16 is APIPA. Windows auto-assigns it when it cannot reach a DHCP server.',
+    optionNotes: [
+      'Static IPs are configured by an admin, not auto-assigned in 169.254.x.',
+      'Public IPs are not in 169.254.x — that’s reserved for APIPA.',
+      'APIPA (169.254.0.0/16) is auto-assigned when DHCP is unreachable. Indicates a DHCP problem.',
+      'IPv6 link-local uses FE80::/10, not 169.254 (that’s IPv4 APIPA).'
+    ]
+  },
+  { section: 'ip', q: 'What subnet mask corresponds to /24?',
+    choices: ['255.0.0.0','255.255.0.0','255.255.255.0','255.255.255.255'],
+    answer: 'c',
+    explanation: '/24 = 24 network bits = 255.255.255.0.',
+    optionNotes: [
+      '255.0.0.0 = /8.',
+      '255.255.0.0 = /16.',
+      '255.255.255.0 = /24 — 24 network bits, 8 host bits.',
+      '255.255.255.255 = /32 (single host).'
+    ]
+  },
+  { section: 'ip', q: 'How many usable host addresses does a /28 subnet provide?',
+    choices: ['6','14','30','62'],
+    answer: 'b',
+    explanation: '/28 has 4 host bits → 2^4 − 2 = 14 usable hosts.',
+    optionNotes: [
+      '6 hosts = /29 (2^3 − 2).',
+      '14 hosts = /28 (2^4 − 2). Correct.',
+      '30 hosts = /27 (2^5 − 2).',
+      '62 hosts = /26 (2^6 − 2).'
+    ]
+  },
+  { section: 'ip', q: 'Which CIDR block provides exactly 2 usable hosts, ideal for a router-to-router link?',
+    choices: ['/28','/29','/30','/32'],
+    answer: 'c',
+    explanation: '/30 has 2 host bits → 2^2 − 2 = 2 usable hosts.',
+    optionNotes: [
+      '/28 gives 14 hosts — way more than needed.',
+      '/29 gives 6 hosts — still more than needed.',
+      '/30 gives exactly 2 usable hosts — perfect for point-to-point links.',
+      '/32 gives 0 usable hosts (a single address).'
+    ]
+  },
+  { section: 'ip', q: 'A company needs 30 usable host addresses per subnet. What is the smallest subnet that fits?',
+    choices: ['/26','/27','/28','/29'],
+    answer: 'b',
+    explanation: '/27 = 255.255.255.224 → 2^5 − 2 = 30 usable hosts.',
+    optionNotes: [
+      '/26 fits but wastes addresses — provides 62 hosts.',
+      '/27 is the smallest that holds 30 hosts (exactly 30 usable).',
+      '/28 only gives 14 hosts — too few.',
+      '/29 only gives 6 hosts — far too few.'
+    ]
+  },
+  { section: 'ip', q: 'What is the IPv6 loopback address?',
+    choices: ['::1','FE80::1','FF00::1','2001::1'],
+    answer: 'a',
+    explanation: 'IPv6 loopback is ::1 (equivalent to IPv4’s 127.0.0.1).',
+    optionNotes: [
+      '::1 is the IPv6 loopback (equivalent to 127.0.0.1).',
+      'FE80::/10 is the link-local prefix, not loopback.',
+      'FF00::/8 is multicast, not loopback.',
+      '2001:: is global unicast, not loopback.'
+    ]
+  },
+  { section: 'ip', q: 'IPv6 link-local addresses begin with which prefix?',
+    choices: ['FC00::/7','FE80::/10','FF00::/8','2000::/3'],
+    answer: 'b',
+    explanation: 'Link-local addresses start with FE80::/10 and are auto-configured.',
+    optionNotes: [
+      'FC00::/7 is unique local addresses (ULA), not link-local.',
+      'FE80::/10 = link-local (auto-configured per interface).',
+      'FF00::/8 = multicast.',
+      '2000::/3 = global unicast (publicly routable).'
+    ]
+  },
+  { section: 'ip', q: 'What replaces broadcast in IPv6?',
+    choices: ['Anycast','Multicast','Unicast','Loopback'],
+    answer: 'b',
+    explanation: 'IPv6 has no broadcast. It uses multicast (FF00::/8) to send to groups of hosts.',
+    optionNotes: [
+      'Anycast sends to the nearest of a group — not the broadcast replacement.',
+      'IPv6 uses multicast (FF00::/8) to reach groups of hosts — replacing broadcast.',
+      'Unicast is one-to-one — not the replacement for broadcast.',
+      'Loopback is a self-test address, unrelated to broadcast replacement.'
+    ]
+  },
+  { section: 'ip', q: 'What does NAT do?',
+    choices: ['Resolves hostnames','Translates private IPs to public IPs (and vice versa)','Routes packets between subnets','Encrypts data'],
+    answer: 'b',
+    explanation: 'NAT lets internal devices with private IPs share a public IP when communicating with the internet.',
+    optionNotes: [
+      'Resolving hostnames is DNS, not NAT.',
+      'NAT translates between private internal IPs and public external IPs — the right answer.',
+      'Routing between subnets is the router’s general function — NAT is specifically about address translation.',
+      'Encrypting data is what VPN/IPsec do, not NAT.'
+    ]
+  },
+  { section: 'ip', q: 'Which NAT variant allows many internal devices to share ONE public IP using unique ports?',
+    choices: ['Static NAT','Dynamic NAT','PAT (NAT Overload)','Double NAT'],
+    answer: 'c',
+    explanation: 'PAT multiplexes many inside hosts onto a single outside IP using unique source ports.',
+    optionNotes: [
+      'Static NAT is one-to-one — for fixed mappings (e.g., a public-facing server).',
+      'Dynamic NAT uses a pool of public IPs but is still one-to-one per session.',
+      'PAT (Port Address Translation / NAT Overload) — many private IPs share one public IP via port numbers. Standard home/SOHO setup.',
+      'Double NAT just means two NATs in series — not the technique that shares one IP.'
+    ]
+  },
+
+  // ===== Network Hardware & Cabling =====
+  { section: 'hardware', q: 'A switch forwards frames based on what?',
+    choices: ['IP addresses','MAC addresses','Port numbers','Hostnames'],
+    answer: 'b',
+    explanation: 'Switches build a MAC address table and forward Layer 2 frames based on destination MAC addresses.',
+    optionNotes: [
+      'IP addresses are used by routers (L3), not standard switches.',
+      'Switches forward L2 frames using MAC addresses learned in their MAC table.',
+      'Port numbers are L4 (transport) — used by firewalls/load balancers, not switches.',
+      'Hostnames are resolved by DNS — switches don’t care about hostnames.'
+    ]
+  },
+  { section: 'hardware', q: 'Which device separates broadcast domains?',
+    choices: ['Hub','Unmanaged switch','Router','Repeater'],
+    answer: 'c',
+    explanation: 'A router separates broadcast domains — each interface is its own broadcast domain.',
+    optionNotes: [
+      'Hubs put everything in one collision and one broadcast domain.',
+      'A plain switch keeps all ports in one broadcast domain (unless VLANs are configured).',
+      'Routers separate broadcast domains — each interface = a separate broadcast domain.',
+      'Repeaters are L1 amplifiers — they don’t separate domains at all.'
+    ]
+  },
+  { section: 'hardware', q: 'What does a NIC do?',
+    choices: ['Provides power to the PC','Serves as the hardware interface to the network and holds the MAC address','Encrypts wireless traffic','Resolves hostnames'],
+    answer: 'b',
+    explanation: 'The Network Interface Card connects a device to the network and contains its unique MAC address.',
+    optionNotes: [
+      'PC power is the PSU’s job — not the NIC.',
+      'NIC = Network Interface Card — connects the device to the network and holds its MAC address.',
+      'Wireless encryption is configured by the OS/driver, not strictly by the NIC.',
+      'Hostname resolution is handled by DNS, not the NIC.'
+    ]
+  },
+  { section: 'hardware', q: 'Which cable type is completely immune to electromagnetic interference?',
+    choices: ['UTP Cat 5e','STP Cat 6','Coaxial','Fiber optic'],
+    answer: 'd',
+    explanation: 'Fiber uses light, not electricity, so it is immune to EMI.',
+    optionNotes: [
+      'UTP has no shielding — vulnerable to EMI.',
+      'STP has shielding that reduces EMI but isn’t fully immune.',
+      'Coaxial has some shielding but is still electrical and susceptible to EMI.',
+      'Fiber transmits light — completely immune to electromagnetic interference. Ideal for hospitals, factories, long runs.'
+    ]
+  },
+  { section: 'hardware', q: 'What is the maximum cable length for standard Cat 5e Ethernet?',
+    choices: ['55 m','100 m','185 m','500 m'],
+    answer: 'b',
+    explanation: '100 meters is the standard maximum for most twisted-pair Ethernet.',
+    optionNotes: [
+      '55 m is the special Cat 6 limit at 10 Gbps.',
+      '100 m is the standard max for Cat 5e (and most twisted-pair Ethernet categories).',
+      '185 m was the limit for old 10Base2 (Thinnet) coaxial.',
+      '500 m was the limit for old 10Base5 (Thicknet) coaxial.'
+    ]
+  },
+  { section: 'hardware', q: 'Which Ethernet category supports 10 Gbps at the full 100 m?',
+    choices: ['Cat 5','Cat 5e','Cat 6','Cat 6a'],
+    answer: 'd',
+    explanation: 'Cat 6a supports 10 Gbps at 100 m. Cat 6 only supports 10 Gbps up to 55 m.',
+    optionNotes: [
+      'Cat 5 maxes out at 100 Mbps.',
+      'Cat 5e supports up to 1 Gbps (not 10 Gbps).',
+      'Cat 6 supports 10 Gbps but only to 55 m, not 100 m.',
+      'Cat 6a supports 10 Gbps at the full 100 m — the right answer.'
+    ]
+  },
+  { section: 'hardware', q: 'Which cable connects two switches directly (in the classical textbook sense)?',
+    choices: ['Straight-through','Crossover','Rollover','Coaxial'],
+    answer: 'b',
+    explanation: 'Connecting similar devices (switch↔switch, PC↔PC, router↔router) classically uses a crossover cable.',
+    optionNotes: [
+      'Straight-through is for different devices (PC↔switch, switch↔router).',
+      'Crossover is the textbook answer for similar devices like switch↔switch (modern auto-MDIX often makes it unnecessary, but exam answer is crossover).',
+      'Rollover is for connecting a PC to a router/switch console port.',
+      'Coaxial is an entirely different cable type, used for cable internet etc.'
+    ]
+  },
+  { section: 'hardware', q: 'A rollover cable is most commonly used to connect a PC to what?',
+    choices: ['A printer','A router/switch console port for CLI management','Another PC','A wireless access point'],
+    answer: 'b',
+    explanation: 'Rollover (console) cables connect a PC serial port to the console port for CLI management.',
+    optionNotes: [
+      'Printers use USB or Ethernet, not rollover cables.',
+      'Rollover (console) cables connect a PC’s serial port to the console port on Cisco-style routers and switches for CLI management.',
+      'Connecting two PCs uses a crossover cable, not rollover.',
+      'WAPs connect via Ethernet, not rollover cables.'
+    ]
+  },
+  { section: 'hardware', q: 'Which connector is used with fiber optic cables?',
+    choices: ['RJ-45','RJ-11','LC or SC','BNC'],
+    answer: 'c',
+    explanation: 'Fiber connectors include LC, SC, ST, and MT-RJ.',
+    optionNotes: [
+      'RJ-45 is for UTP Ethernet.',
+      'RJ-11 is for telephone cables.',
+      'LC and SC are common fiber connectors (also ST, MT-RJ). Correct.',
+      'BNC is for coaxial cable.'
+    ]
+  },
+  { section: 'hardware', q: 'Single-mode fiber is typically used for?',
+    choices: ['Short runs inside an office','Long-distance runs (kilometers, ISP/backbone)','Connecting monitors','Power delivery only'],
+    answer: 'b',
+    explanation: 'Single-mode fiber (SMF) uses laser light through a small core, carrying signals for kilometers.',
+    optionNotes: [
+      'Short office runs typically use multi-mode fiber or copper.',
+      'SMF uses a laser through a small core — long-distance (kilometers), ISP backbone, building-to-building.',
+      'Monitors use HDMI/DisplayPort/USB-C, not fiber.',
+      'Power delivery on networks uses PoE on copper, not fiber.'
+    ]
+  },
+  { section: 'hardware', q: 'What does PoE provide?',
+    choices: ['Wireless encryption','Power and data through a single Ethernet cable','Faster internet','Hostname resolution'],
+    answer: 'b',
+    explanation: 'PoE delivers both data and DC power over the same Ethernet cable.',
+    optionNotes: [
+      'Wireless encryption is provided by WPA2/WPA3, not PoE.',
+      'PoE (IEEE 802.3af/at/bt) delivers power AND data over one Ethernet cable — used for IP phones, cameras, WAPs.',
+      'PoE doesn’t increase internet speed.',
+      'Hostname resolution is DNS, not PoE.'
+    ]
+  },
+  { section: 'hardware', q: 'Which device operates at BOTH Layer 2 and Layer 3?',
+    choices: ['Hub','Standard switch','Multilayer (Layer 3) switch','Repeater'],
+    answer: 'c',
+    explanation: 'A multilayer (Layer 3) switch performs L2 switching AND L3 routing.',
+    optionNotes: [
+      'Hubs are L1 only — pure signal repetition.',
+      'Standard switches are L2 only — MAC-based forwarding.',
+      'Multilayer / L3 switches handle L2 switching AND L3 routing — often used for inter-VLAN routing.',
+      'Repeaters are L1 only — no addressing logic.'
+    ]
+  },
+
+  // ===== Protocols, Ports & Services =====
+  { section: 'protocols', q: 'Which port does HTTPS use?',
+    choices: ['80','443','8080','22'],
+    answer: 'b',
+    explanation: 'HTTPS = TCP 443.',
+    optionNotes: [
+      '80 is HTTP (unencrypted).',
+      '443 is HTTPS (HTTP over TLS) — correct.',
+      '8080 is a common alternate HTTP port (proxies, dev servers), not HTTPS.',
+      '22 is SSH.'
+    ]
+  },
+  { section: 'protocols', q: 'FTP uses which two ports?',
+    choices: ['20 (data) and 21 (control)','22 and 23','80 and 443','25 and 110'],
+    answer: 'a',
+    explanation: 'FTP uses TCP 20 for data transfer and TCP 21 for control/commands.',
+    optionNotes: [
+      'FTP = TCP 20 (data) + TCP 21 (control). Correct pair.',
+      '22 = SSH/SFTP, 23 = Telnet — not FTP.',
+      '80 = HTTP, 443 = HTTPS.',
+      '25 = SMTP, 110 = POP3 — both for email.'
+    ]
+  },
+  { section: 'protocols', q: 'Which port does SSH use?',
+    choices: ['21','22','23','25'],
+    answer: 'b',
+    explanation: 'SSH (Secure Shell) = TCP 22.',
+    optionNotes: [
+      '21 is FTP control.',
+      '22 is SSH — secure remote shell. Correct.',
+      '23 is Telnet (unencrypted, insecure).',
+      '25 is SMTP.'
+    ]
+  },
+  { section: 'protocols', q: 'What port does Telnet use?',
+    choices: ['21','22','23','3389'],
+    answer: 'c',
+    explanation: 'Telnet = TCP 23.',
+    optionNotes: [
+      '21 is FTP control.',
+      '22 is SSH (secure replacement for Telnet).',
+      '23 is Telnet — correct, but it’s unencrypted; use SSH instead.',
+      '3389 is RDP.'
+    ]
+  },
+  { section: 'protocols', q: 'Which port does SMTP use for sending email?',
+    choices: ['110','143','25','443'],
+    answer: 'c',
+    explanation: 'SMTP = TCP 25 (server-to-server). Modern client submission often uses 587.',
+    optionNotes: [
+      '110 is POP3 (retrieve email).',
+      '143 is IMAP (retrieve email).',
+      '25 is SMTP (sending email server-to-server). Correct.',
+      '443 is HTTPS, not email.'
+    ]
+  },
+  { section: 'protocols', q: 'DNS uses which port number?',
+    choices: ['53','67','80','443'],
+    answer: 'a',
+    explanation: 'DNS uses port 53 (UDP for queries, TCP for zone transfers).',
+    optionNotes: [
+      '53 is DNS — UDP for queries, TCP for zone transfers.',
+      '67 is DHCP server.',
+      '80 is HTTP.',
+      '443 is HTTPS.'
+    ]
+  },
+  { section: 'protocols', q: 'DHCP servers listen on which UDP port?',
+    choices: ['67','68','53','123'],
+    answer: 'a',
+    explanation: 'DHCP server = UDP 67; DHCP client = UDP 68.',
+    optionNotes: [
+      '67 = DHCP server (correct).',
+      '68 = DHCP client port — server replies to clients on 68.',
+      '53 = DNS.',
+      '123 = NTP (time sync).'
+    ]
+  },
+  { section: 'protocols', q: 'RDP (Remote Desktop Protocol) uses which port?',
+    choices: ['22','23','3389','5900'],
+    answer: 'c',
+    explanation: 'RDP = TCP 3389.',
+    optionNotes: [
+      '22 is SSH.',
+      '23 is Telnet.',
+      '3389 is RDP — Microsoft Remote Desktop. Correct.',
+      '5900 is VNC.'
+    ]
+  },
+  { section: 'protocols', q: 'Which protocol resolves hostnames to IP addresses?',
+    choices: ['DHCP','DNS','ARP','NetBIOS'],
+    answer: 'b',
+    explanation: 'DNS resolves hostnames to IP addresses via a distributed hierarchy.',
+    optionNotes: [
+      'DHCP assigns IP addresses, doesn’t resolve hostnames.',
+      'DNS resolves hostnames (www.example.com) to IPs — correct.',
+      'ARP maps IP to MAC, not hostname to IP.',
+      'NetBIOS is legacy Windows naming, largely replaced by DNS.'
+    ]
+  },
+  { section: 'protocols', q: 'Which protocol maps a known IP address to a MAC address on the same subnet?',
+    choices: ['DNS','ARP','DHCP','RARP'],
+    answer: 'b',
+    explanation: 'ARP broadcasts "who has this IP?" on the LAN; the owner replies with its MAC.',
+    optionNotes: [
+      'DNS maps hostname to IP, not IP to MAC.',
+      'ARP (Address Resolution Protocol) maps IP → MAC on the local subnet. Correct.',
+      'DHCP assigns IPs, doesn’t resolve to MAC.',
+      'RARP did MAC → IP and is largely obsolete.'
+    ]
+  },
+  { section: 'protocols', q: 'Ping and traceroute rely on which protocol?',
+    choices: ['TCP','UDP','ICMP','ARP'],
+    answer: 'c',
+    explanation: 'ICMP handles diagnostic messaging — Echo Request/Reply (ping) and TTL-Exceeded (traceroute).',
+    optionNotes: [
+      'TCP is for reliable connection-oriented data, not diagnostics.',
+      'UDP is connectionless data; some traceroute variants use UDP for the probes but the responses are ICMP.',
+      'ICMP (Internet Control Message Protocol) — Echo for ping, TTL-Exceeded for traceroute. Correct.',
+      'ARP is for IP-to-MAC resolution, not ping/traceroute.'
+    ]
+  },
+  { section: 'protocols', q: 'Which transport protocol is connection-oriented and reliable?',
+    choices: ['TCP','UDP','IP','ICMP'],
+    answer: 'a',
+    explanation: 'TCP uses a 3-way handshake, ACKs, and retransmission for reliable, ordered delivery.',
+    optionNotes: [
+      'TCP — connection-oriented, reliable, ordered. Correct.',
+      'UDP is connectionless and unreliable (fire-and-forget).',
+      'IP is the network layer protocol — connectionless, not reliable on its own.',
+      'ICMP is for diagnostic messages, not reliable data delivery.'
+    ]
+  },
+  { section: 'protocols', q: 'Which DNS record maps a hostname to an IPv4 address?',
+    choices: ['A','AAAA','CNAME','PTR'],
+    answer: 'a',
+    explanation: 'A (Address) record maps hostname to IPv4.',
+    optionNotes: [
+      'A = Address record → IPv4. Correct.',
+      'AAAA → IPv6 address.',
+      'CNAME → alias to another hostname.',
+      'PTR → reverse lookup (IP → hostname).'
+    ]
+  },
+  { section: 'protocols', q: 'Which DNS record identifies the email server for a domain?',
+    choices: ['A','MX','CNAME','TXT'],
+    answer: 'b',
+    explanation: 'MX (Mail Exchanger) tells sending servers where to deliver email for a domain.',
+    optionNotes: [
+      'A is hostname → IPv4, not specifically email.',
+      'MX = Mail Exchanger — tells the world where to deliver email for a domain. Correct.',
+      'CNAME is an alias for another hostname.',
+      'TXT carries arbitrary text (SPF, DKIM, verification), not email routing.'
+    ]
+  },
+  { section: 'protocols', q: 'Which DNS record creates an alias for another hostname?',
+    choices: ['A','PTR','CNAME','NS'],
+    answer: 'c',
+    explanation: 'CNAME (Canonical Name) points one hostname to another.',
+    optionNotes: [
+      'A maps a hostname to an IPv4 address (not an alias).',
+      'PTR is reverse lookup (IP → hostname).',
+      'CNAME = Canonical Name — an alias pointing one hostname to another. Correct.',
+      'NS lists authoritative name servers for a zone.'
+    ]
+  },
+  { section: 'protocols', q: 'Which protocol is used to collect performance and status data from network devices?',
+    choices: ['SNMP','SMTP','SFTP','SSH'],
+    answer: 'a',
+    explanation: 'SNMP uses UDP 161/162 to monitor devices (switches, routers, servers).',
+    optionNotes: [
+      'SNMP (Simple Network Management Protocol) — UDP 161/162 — used for monitoring devices. Correct.',
+      'SMTP is for sending email, not monitoring.',
+      'SFTP is secure file transfer over SSH.',
+      'SSH is for secure remote shell, not monitoring.'
+    ]
+  },
+
+  // ===== Wireless Networking =====
+  { section: 'wireless', q: 'Which 802.11 standard operates only at 5 GHz with a max of 54 Mbps?',
+    choices: ['802.11b','802.11g','802.11a','802.11n'],
+    answer: 'c',
+    explanation: '802.11a: 5 GHz only, 54 Mbps.',
+    optionNotes: [
+      '802.11b is 2.4 GHz, 11 Mbps.',
+      '802.11g is 2.4 GHz, 54 Mbps.',
+      '802.11a — 5 GHz only, 54 Mbps. Correct.',
+      '802.11n is dual-band (2.4 and/or 5 GHz), up to 600 Mbps with MIMO.'
+    ]
+  },
+  { section: 'wireless', q: 'Which marketing name corresponds to 802.11ax?',
+    choices: ['Wi-Fi 4','Wi-Fi 5','Wi-Fi 6','Wi-Fi 7'],
+    answer: 'c',
+    explanation: 'Wi-Fi 4 = 802.11n. Wi-Fi 5 = 802.11ac. Wi-Fi 6 = 802.11ax.',
+    optionNotes: [
+      'Wi-Fi 4 = 802.11n.',
+      'Wi-Fi 5 = 802.11ac.',
+      'Wi-Fi 6 = 802.11ax. Correct (Wi-Fi 6E adds the 6 GHz band).',
+      'Wi-Fi 7 = 802.11be (newest standard).'
+    ]
+  },
+  { section: 'wireless', q: 'Which wireless security standard is now considered broken?',
+    choices: ['WPA2','WPA3','WEP','WPA'],
+    answer: 'c',
+    explanation: 'WEP can be cracked in minutes with readily available tools.',
+    optionNotes: [
+      'WPA2 is still strong and widely deployed.',
+      'WPA3 is the latest and most secure.',
+      'WEP — broken; can be cracked quickly with off-the-shelf tools. Never deploy.',
+      'WPA is weaker than WPA2 but not as broken as WEP — still avoid it.'
+    ]
+  },
+  { section: 'wireless', q: 'What does SSID stand for?',
+    choices: ['Secure Server Identification','Service Set Identifier','Signal Strength Identifier','System Set Interface Device'],
+    answer: 'b',
+    explanation: 'SSID = Service Set Identifier = the wireless network name.',
+    optionNotes: [
+      '"Secure Server Identification" is not a real term.',
+      'SSID = Service Set Identifier — the wireless network name broadcast by an access point.',
+      '"Signal Strength" describes RSSI/dBm, not the SSID.',
+      '"System Set Interface Device" is made up.'
+    ]
+  },
+  { section: 'wireless', q: 'Which 2.4 GHz channels are non-overlapping?',
+    choices: ['1, 2, 3','1, 5, 9','1, 6, 11','3, 6, 11'],
+    answer: 'c',
+    explanation: 'Only channels 1, 6, and 11 are non-overlapping 20 MHz channels in 2.4 GHz.',
+    optionNotes: [
+      '1, 2, 3 are heavily overlapping (each is 20 MHz wide; they’re only 5 MHz apart).',
+      '1, 5, 9 still overlap.',
+      '1, 6, 11 — the only non-overlapping 20 MHz set in 2.4 GHz. Correct.',
+      '3 and 6 overlap, so this set isn’t non-overlapping.'
+    ]
+  },
+  { section: 'wireless', q: 'Which of the following is a common source of 2.4 GHz Wi-Fi interference?',
+    choices: ['Fluorescent lights','Microwave ovens','LED bulbs','USB cables'],
+    answer: 'b',
+    explanation: 'Microwaves emit 2.4 GHz signals that interfere with Wi-Fi.',
+    optionNotes: [
+      'Fluorescent lights cause EMI on copper cables, not on Wi-Fi.',
+      'Microwave ovens emit at 2.4 GHz — same band as Wi-Fi b/g/n. Common interference source.',
+      'LED bulbs typically don’t emit interfering RF in the 2.4 GHz band.',
+      'USB cables don’t emit RF interference at significant levels.'
+    ]
+  },
+  { section: 'wireless', q: 'In a WPA2-Enterprise deployment, which server authenticates wireless users?',
+    choices: ['DNS','DHCP','RADIUS','WINS'],
+    answer: 'c',
+    explanation: 'WPA2/WPA3 Enterprise uses 802.1X with a RADIUS server.',
+    optionNotes: [
+      'DNS resolves names — not authentication.',
+      'DHCP assigns IPs — not authentication.',
+      'RADIUS handles 802.1X authentication for WPA2/WPA3 Enterprise. Correct.',
+      'WINS is legacy Windows NetBIOS name resolution — not authentication.'
+    ]
+  },
+  { section: 'wireless', q: 'Hiding the SSID provides what level of security?',
+    choices: ['Strong encryption','Weak/minimal — it only hides the name from casual scans','Disables all attacks','Makes the network invisible to everyone'],
+    answer: 'b',
+    explanation: 'A hidden SSID is not broadcast in beacons but is still transmitted when clients connect.',
+    optionNotes: [
+      'Hiding the SSID provides no encryption at all.',
+      'Weak/minimal — it just prevents casual sightings; the SSID is sniffable.',
+      'It does not stop attacks; tools easily discover hidden SSIDs.',
+      'Not invisible — the SSID leaks whenever a client connects.'
+    ]
+  },
+  { section: 'wireless', q: 'Which wireless mode connects devices directly to each other without a central AP?',
+    choices: ['Infrastructure','Ad-hoc','Managed','Bridged'],
+    answer: 'b',
+    explanation: 'Ad-hoc mode is peer-to-peer — no access point.',
+    optionNotes: [
+      'Infrastructure mode uses a central WAP / wireless router.',
+      'Ad-hoc — peer-to-peer wireless without a central AP. Correct.',
+      'Managed is a client mode that uses an AP (same as infrastructure).',
+      'Bridged is for bridging two networks, not direct peer connections.'
+    ]
+  },
+  { section: 'wireless', q: 'Which wireless encryption standard is the strongest currently available?',
+    choices: ['WEP','WPA','WPA2','WPA3'],
+    answer: 'd',
+    explanation: 'WPA3 uses SAE (Simultaneous Authentication of Equals) to resist offline dictionary attacks.',
+    optionNotes: [
+      'WEP — broken.',
+      'WPA — weaker, uses TKIP.',
+      'WPA2 — strong (AES/CCMP), still widely deployed.',
+      'WPA3 — newest and strongest, with SAE. Correct.'
+    ]
+  },
+
+  // ===== WAN Technologies =====
+  { section: 'wan', q: 'What is the bandwidth of a T1 line?',
+    choices: ['128 Kbps','1.544 Mbps','10 Mbps','45 Mbps'],
+    answer: 'b',
+    explanation: 'T1 = 1.544 Mbps (24 channels × 64 Kbps).',
+    optionNotes: [
+      '128 Kbps is ISDN BRI, not T1.',
+      'T1 = 1.544 Mbps. Correct.',
+      '10 Mbps is old Ethernet, not a T1.',
+      '~45 Mbps is roughly T3.'
+    ]
+  },
+  { section: 'wan', q: 'Which WAN technology runs over existing copper telephone wires?',
+    choices: ['Fiber','DSL','Cable','Satellite'],
+    answer: 'b',
+    explanation: 'DSL (ADSL, VDSL) uses existing copper telephone lines.',
+    optionNotes: [
+      'Fiber uses optical fiber, not copper phone lines.',
+      'DSL uses existing phone lines — ADSL, VDSL, etc. Correct.',
+      'Cable internet uses coaxial cable from cable TV.',
+      'Satellite uses radio waves — no phone lines.'
+    ]
+  },
+  { section: 'wan', q: 'What is the maximum speed of a dial-up connection?',
+    choices: ['56 Kbps','128 Kbps','1.5 Mbps','10 Mbps'],
+    answer: 'a',
+    explanation: 'Dial-up modem over a standard phone line tops out at 56 Kbps.',
+    optionNotes: [
+      'Dial-up = up to 56 Kbps. Correct.',
+      '128 Kbps is ISDN BRI.',
+      '~1.5 Mbps is T1/DSL territory.',
+      '10 Mbps is Ethernet/cable, not dial-up.'
+    ]
+  },
+  { section: 'wan', q: 'What is the bandwidth of an ISDN BRI connection?',
+    choices: ['56 Kbps','128 Kbps','1.544 Mbps','2.048 Mbps'],
+    answer: 'b',
+    explanation: 'ISDN BRI = 2× 64 Kbps B-channels = 128 Kbps total.',
+    optionNotes: [
+      '56 Kbps is dial-up.',
+      'ISDN BRI = 128 Kbps (two 64K B-channels). Correct.',
+      '1.544 Mbps is T1.',
+      '2.048 Mbps is E1.'
+    ]
+  },
+  { section: 'wan', q: 'Which WAN service is known for QoS, traffic engineering, and private carrier backbones?',
+    choices: ['Dial-up','DSL','MPLS','Satellite'],
+    answer: 'c',
+    explanation: 'MPLS is a carrier-grade WAN technology that supports QoS and traffic engineering.',
+    optionNotes: [
+      'Dial-up is legacy and best-effort, no QoS.',
+      'DSL is consumer broadband, no QoS guarantees.',
+      'MPLS — carrier-grade WAN with label-switched paths, QoS, traffic engineering. Correct.',
+      'Satellite has high latency and no carrier QoS guarantees.'
+    ]
+  },
+  { section: 'wan', q: 'Which residential internet option typically delivers the fastest speeds?',
+    choices: ['Dial-up','DSL','Cable','Fiber to the Home (FTTH)'],
+    answer: 'd',
+    explanation: 'FTTH delivers multi-gigabit speeds over fiber optics.',
+    optionNotes: [
+      'Dial-up is 56 Kbps — slowest.',
+      'DSL ranges from 1 to 100+ Mbps.',
+      'Cable can reach ~1 Gbps but shared bandwidth.',
+      'FTTH = multi-Gbps over dedicated fiber — fastest residential option. Correct.'
+    ]
+  },
+  { section: 'wan', q: 'What type of cable is used for cable-internet connections into a home?',
+    choices: ['UTP Cat 5e','Coaxial','Fiber','Serial'],
+    answer: 'b',
+    explanation: 'Cable internet uses coaxial cable (DOCSIS) from the cable provider.',
+    optionNotes: [
+      'UTP is for Ethernet, not cable internet from the ISP.',
+      'Coaxial — DOCSIS over coax from the cable company. Correct.',
+      'Fiber is FTTH/FTTP, not standard cable internet.',
+      'Serial cables are for old WAN router connections, not cable internet.'
+    ]
+  },
+  { section: 'wan', q: 'A T3 line approximately equals how many T1 lines?',
+    choices: ['6','12','28','100'],
+    answer: 'c',
+    explanation: 'T3 ≈ 44.736 Mbps = 28 × 1.544 Mbps T1s bundled.',
+    optionNotes: [
+      '6 is too few — that’d be ~9 Mbps.',
+      '12 is too few — that’d be ~18 Mbps.',
+      '28 T1s = 1 T3 (≈ 44.736 Mbps). Correct.',
+      '100 is way too many — that’s OC-3+ territory.'
+    ]
+  },
+
+  // ===== Network Security & VPN =====
+  { section: 'security', q: 'What does a firewall primarily do?',
+    choices: ['Resolves hostnames','Allows or blocks traffic based on rules','Assigns IP addresses','Translates addresses'],
+    answer: 'b',
+    explanation: 'Firewalls enforce traffic policy by source/destination IP, ports, and protocols.',
+    optionNotes: [
+      'Hostname resolution is DNS, not firewalls.',
+      'Firewalls allow or block traffic based on rules (IP, port, protocol, app). Correct.',
+      'IP assignment is DHCP, not firewalls.',
+      'Address translation is NAT, not the primary firewall job (though some firewalls do NAT too).'
+    ]
+  },
+  { section: 'security', q: 'What is a DMZ (demilitarized zone) in networking?',
+    choices: ['An unmonitored backup network','A perimeter network hosting public-facing services, isolated from the internal LAN','A network for administrators only','A wireless guest network'],
+    answer: 'b',
+    explanation: 'DMZ hosts public-facing servers with firewalls between it and the internal LAN.',
+    optionNotes: [
+      'DMZs are heavily monitored — not unmonitored backups.',
+      'A DMZ hosts public-facing servers (web, mail, DNS) with firewalls isolating it from the internal LAN. Correct.',
+      'Admin-only networks are typically internal management VLANs, not DMZs.',
+      'Guest Wi-Fi is a guest LAN, not a DMZ for public servers.'
+    ]
+  },
+  { section: 'security', q: 'What does a VPN provide?',
+    choices: ['Faster internet','An encrypted tunnel over a public network','More IP addresses','Wireless signal boost'],
+    answer: 'b',
+    explanation: 'A VPN creates an encrypted tunnel over untrusted networks.',
+    optionNotes: [
+      'VPNs typically add latency/overhead, not speed.',
+      'VPN = encrypted tunnel over a public network. Correct.',
+      'NAT/PAT lets devices share public IPs; VPNs aren’t about getting more IPs.',
+      'Signal boost is a wireless hardware concern, unrelated to VPNs.'
+    ]
+  },
+  { section: 'security', q: 'A VPN connecting two entire networks (e.g., HQ to branch office) is called?',
+    choices: ['Client-to-site VPN','Site-to-site VPN','Split-tunnel VPN','SSL VPN'],
+    answer: 'b',
+    explanation: 'Site-to-site VPN connects two networks via gateway-to-gateway tunnels.',
+    optionNotes: [
+      'Client-to-site is for individual remote users, not entire networks.',
+      'Site-to-site connects two entire networks (HQ ↔ branch). Correct.',
+      'Split-tunnel is a routing option for VPN traffic, not the architecture.',
+      'SSL VPN is a type of VPN (typically client-to-site), not the architecture for networks.'
+    ]
+  },
+  { section: 'security', q: 'Which IPsec component provides encryption (confidentiality)?',
+    choices: ['AH','ESP','IKE','SSL'],
+    answer: 'b',
+    explanation: 'ESP provides confidentiality, integrity, and authentication. AH only provides integrity/authentication.',
+    optionNotes: [
+      'AH (Authentication Header) provides integrity and authentication only — NO encryption.',
+      'ESP (Encapsulating Security Payload) provides encryption AND auth/integrity. Correct.',
+      'IKE handles key exchange, not the encryption itself.',
+      'SSL is a different protocol family (used by SSL VPNs), not part of IPsec.'
+    ]
+  },
+  { section: 'security', q: 'Which VPN protocol uses TCP port 443, letting it pass through most firewalls easily?',
+    choices: ['PPTP','L2TP','IPsec (AH)','SSTP'],
+    answer: 'd',
+    explanation: 'SSTP wraps VPN traffic in SSL/TLS on port 443.',
+    optionNotes: [
+      'PPTP uses TCP 1723 (legacy, weak).',
+      'L2TP uses UDP 1701 (typically wrapped in IPsec).',
+      'IPsec uses IP protocols 50/51 (ESP/AH), not port 443.',
+      'SSTP wraps in SSL/TLS on TCP 443 — passes firewalls that allow HTTPS. Correct.'
+    ]
+  },
+  { section: 'security', q: 'Which of these is the oldest and weakest VPN protocol?',
+    choices: ['IPsec','PPTP','L2TP/IPsec','OpenVPN'],
+    answer: 'b',
+    explanation: 'PPTP has known vulnerabilities and is the legacy/weakest option.',
+    optionNotes: [
+      'IPsec is modern and secure.',
+      'PPTP — Point-to-Point Tunneling Protocol; oldest and weakest with known cryptographic weaknesses. Correct.',
+      'L2TP/IPsec is secure when paired with IPsec.',
+      'OpenVPN is modern and secure.'
+    ]
+  },
+  { section: 'security', q: 'What is the purpose of an ACL (Access Control List) on a router?',
+    choices: ['Assign IP addresses','Block or permit traffic based on criteria like IP, port, protocol','Resolve hostnames','Encrypt traffic'],
+    answer: 'b',
+    explanation: 'ACLs are ordered permit/deny rules used to filter traffic.',
+    optionNotes: [
+      'IP assignment is DHCP, not ACLs.',
+      'ACLs permit or deny traffic by source/destination IP, port, and protocol. Correct.',
+      'DNS resolves hostnames, not ACLs.',
+      'Encryption is VPN/IPsec, not ACLs.'
+    ]
+  },
+  { section: 'security', q: 'Which attack overwhelms a service with traffic to make it unavailable?',
+    choices: ['Phishing','SQL injection','DoS / DDoS','Man-in-the-middle'],
+    answer: 'c',
+    explanation: 'DoS or DDoS floods the target with traffic.',
+    optionNotes: [
+      'Phishing is social engineering via fake emails/sites.',
+      'SQL injection targets databases via crafted queries.',
+      'DoS / DDoS — overwhelms a target with traffic so legitimate users can’t reach it. Correct.',
+      'Man-in-the-middle intercepts/relays communications, not flooding.'
+    ]
+  },
+  { section: 'security', q: 'What does 802.1X provide?',
+    choices: ['Wireless frequency allocation','Port-based network access control (authentication before access)','DHCP service','Encryption of hard drives'],
+    answer: 'b',
+    explanation: '802.1X is the IEEE standard for port-based network access control.',
+    optionNotes: [
+      'Wireless frequencies are managed by 802.11 standards and regulators, not 802.1X.',
+      '802.1X — port-based access control; commonly used with RADIUS for wired/wireless authentication. Correct.',
+      'DHCP is a different service entirely.',
+      'Disk encryption is BitLocker/FileVault/LUKS, not 802.1X.'
+    ]
+  },
+  { section: 'security', q: 'Port security on a switch limits:',
+    choices: ['Encryption strength','Which MAC addresses can connect on each port','DHCP leases','Firewall rules'],
+    answer: 'b',
+    explanation: 'Port security restricts which MAC addresses are allowed on a switch port.',
+    optionNotes: [
+      'Encryption is unrelated to port security.',
+      'Port security restricts which MAC addresses can transmit on a given switch port. Correct.',
+      'DHCP leases are managed by DHCP server scopes, not switch port security.',
+      'Firewall rules are configured on firewalls, not switch ports.'
+    ]
+  },
+  { section: 'security', q: 'Which appliance inspects traffic and blocks known attack signatures?',
+    choices: ['Hub','Repeater','IDS/IPS','NAT gateway'],
+    answer: 'c',
+    explanation: 'IDS detects attacks; IPS actively blocks them.',
+    optionNotes: [
+      'Hubs don’t inspect traffic, just repeat signals.',
+      'Repeaters just amplify signals.',
+      'IDS (Intrusion Detection) alerts on attacks; IPS (Intrusion Prevention) actively blocks them. Correct.',
+      'NAT gateways do address translation, not signature-based attack inspection.'
+    ]
+  },
+
+  // ===== Troubleshooting & CLI Tools =====
+  { section: 'troubleshoot', q: 'Which command displays IP configuration on a Windows PC?',
+    choices: ['ifconfig','ipconfig','netstat','ping'],
+    answer: 'b',
+    explanation: 'Windows uses ipconfig. ipconfig /all adds MAC, DHCP, and DNS info.',
+    optionNotes: [
+      'ifconfig is for Linux/macOS (older) — Windows doesn’t use it.',
+      'ipconfig — the Windows command for IP configuration. ipconfig /all shows MAC and DHCP info too.',
+      'netstat shows connections, not IP config.',
+      'ping tests reachability, not IP config.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'Which command tests basic reachability to a host using ICMP Echo?',
+    choices: ['tracert','ping','netstat','nslookup'],
+    answer: 'b',
+    explanation: 'ping sends ICMP Echo Request and waits for Echo Reply.',
+    optionNotes: [
+      'tracert traces a path hop-by-hop, not basic reachability.',
+      'ping — sends ICMP Echo to check reachability and measure RTT. Correct.',
+      'netstat shows active connections, not reachability tests.',
+      'nslookup queries DNS, not reachability.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'Which command traces the path a packet takes across routers?',
+    choices: ['ping','tracert / traceroute','arp','netstat'],
+    answer: 'b',
+    explanation: 'tracert/traceroute uses increasing TTL values to discover each hop.',
+    optionNotes: [
+      'ping tests one endpoint, not the path.',
+      'tracert (Windows) / traceroute (Linux/macOS) — shows each router hop. Correct.',
+      'arp shows the local IP-to-MAC cache.',
+      'netstat shows local connections, not the path to a destination.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'Which Windows command combines ping and tracert to show per-hop loss?',
+    choices: ['pathping','netstat','arp','nslookup'],
+    answer: 'a',
+    explanation: 'pathping pings each hop discovered by tracert and reports loss/latency per hop.',
+    optionNotes: [
+      'pathping = ping + tracert; reports per-hop loss/latency. Correct.',
+      'netstat shows connections, not path/loss.',
+      'arp shows IP-to-MAC mappings.',
+      'nslookup queries DNS.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'Which command queries DNS for specific records?',
+    choices: ['netstat','arp','nslookup','ipconfig'],
+    answer: 'c',
+    explanation: 'nslookup queries DNS for A, AAAA, MX, CNAME, etc.',
+    optionNotes: [
+      'netstat shows network connections, not DNS.',
+      'arp shows IP-to-MAC mappings.',
+      'nslookup queries DNS for records (A, AAAA, MX, etc.). Correct. (dig is the Linux equivalent.)',
+      'ipconfig shows IP config, not DNS records.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'Which command shows active TCP connections and listening ports?',
+    choices: ['arp','netstat','ping','tracert'],
+    answer: 'b',
+    explanation: 'netstat shows active connections, listening ports, and network statistics.',
+    optionNotes: [
+      'arp shows IP-to-MAC, not connections.',
+      'netstat — shows active TCP/UDP connections and listening ports. Correct.',
+      'ping tests reachability.',
+      'tracert traces paths.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'Which command displays the ARP cache on a Windows PC?',
+    choices: ['arp -a','ping arp','netstat -a','ipconfig /arp'],
+    answer: 'a',
+    explanation: 'arp -a lists IP-to-MAC mappings the PC has learned recently.',
+    optionNotes: [
+      'arp -a — shows the ARP cache. Correct.',
+      '"ping arp" is not a real command.',
+      'netstat -a shows all connections and listening ports, not the ARP cache.',
+      'ipconfig has no /arp switch.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'A user can browse by IP but not by name. What is most likely wrong?',
+    choices: ['Default gateway','DNS resolution','Physical cable','DHCP lease'],
+    answer: 'b',
+    explanation: 'IP works but names fail = name resolution (DNS) is broken.',
+    optionNotes: [
+      'Gateway is fine — outbound IP traffic works.',
+      'DNS is the issue — without name resolution, hostnames fail while IPs still work. Correct.',
+      'Cable is fine — IP traffic is flowing.',
+      'DHCP is fine — the user has a working IP.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'A user can ping the default gateway but cannot reach external websites. What is the most likely cause?',
+    choices: ['NIC is disabled','DNS cache full','ISP or gateway WAN connection','ARP cache corruption'],
+    answer: 'c',
+    explanation: 'Local works but external doesn’t = upstream issue at gateway WAN or ISP.',
+    optionNotes: [
+      'NIC is fine — local traffic works.',
+      'DNS cache being full is essentially never the issue here.',
+      'Reaching the gateway works, but external doesn’t — issue is upstream (gateway WAN or ISP). Correct.',
+      'ARP would prevent local LAN communication, not just external.'
+    ]
+  },
+  { section: 'troubleshoot', q: 'Which command clears the DNS resolver cache on Windows?',
+    choices: ['ipconfig /renew','ipconfig /flushdns','netsh dns reset','ping -f'],
+    answer: 'b',
+    explanation: 'ipconfig /flushdns clears the local DNS cache.',
+    optionNotes: [
+      'ipconfig /renew renews a DHCP lease, not DNS cache.',
+      'ipconfig /flushdns — clears the local DNS resolver cache. Correct.',
+      '"netsh dns reset" is not a standard command.',
+      'ping -f sets the "don’t fragment" flag, unrelated to DNS.'
+    ]
+  },
+
+  // ===== Windows Networking & Active Directory =====
+  { section: 'windows', q: 'What is Active Directory?',
+    choices: ['A web server','Microsoft’s directory service for managing users, computers, and resources in a Windows domain','A file-sharing protocol','A routing protocol'],
+    answer: 'b',
+    explanation: 'AD centrally manages users, computers, groups, and policies in a Windows domain.',
+    optionNotes: [
+      'Microsoft’s web server is IIS, not AD.',
+      'AD = directory service for managing users, computers, groups, and policies. Correct.',
+      'File sharing on Windows is SMB, not AD itself (though AD authorizes access).',
+      'AD is not a routing protocol.'
+    ]
+  },
+  { section: 'windows', q: 'What is a domain controller (DC)?',
+    choices: ['A router that controls domains','A server hosting Active Directory that authenticates users and enforces policy','A DNS-only server','A printer server'],
+    answer: 'b',
+    explanation: 'DCs host the AD database, authenticate users, and enforce security policy.',
+    optionNotes: [
+      'A DC isn’t a router.',
+      'DCs host AD, authenticate users, and enforce policy. Correct.',
+      'A DC may also run DNS, but it’s much more than a DNS-only server.',
+      'A print server is a separate role; DCs aren’t print servers by definition.'
+    ]
+  },
+  { section: 'windows', q: 'What is Group Policy (GPO)?',
+    choices: ['A firewall setting','Centralized configuration and policy management for Windows users/computers in a domain','An ACL protocol','A DNS zone type'],
+    answer: 'b',
+    explanation: 'GPOs let admins centrally configure settings for users and computers in a domain.',
+    optionNotes: [
+      'GPOs can configure firewall settings, but Group Policy itself is broader configuration.',
+      'GPOs centrally enforce settings (security, software, scripts, prefs) on domain users/computers. Correct.',
+      'ACLs are access control lists, not Group Policy.',
+      'DNS zones are unrelated to Group Policy.'
+    ]
+  },
+  { section: 'windows', q: 'Which port does modern SMB (Windows file sharing) use?',
+    choices: ['80','443','445','3389'],
+    answer: 'c',
+    explanation: 'Modern SMB over TCP runs on port 445.',
+    optionNotes: [
+      '80 is HTTP.',
+      '443 is HTTPS.',
+      '445 — modern SMB (file/print sharing). Correct. (Older NetBIOS-over-TCP SMB used 137-139.)',
+      '3389 is RDP.'
+    ]
+  },
+  { section: 'windows', q: 'What does the UNC path "\\\\fileserver\\finance" represent?',
+    choices: ['A local folder','A network share on fileserver named finance','A web URL','A printer queue'],
+    answer: 'b',
+    explanation: 'UNC paths follow \\\\server\\share\\subfolder format for accessing shared resources.',
+    optionNotes: [
+      'Local folders use drive letters (e.g., C:\\folder), not UNC.',
+      'UNC = Universal Naming Convention — \\\\server\\share format for accessing network shares. Correct.',
+      'Web URLs use http:// or https:// schemes.',
+      'Printer queues can use UNC, but the format here is a file/folder share.'
+    ]
+  },
+  { section: 'windows', q: 'Why is DNS critical to an Active Directory domain?',
+    choices: ['Only for web browsing','It resolves hostnames AND locates domain services via SRV records','It manages IP assignments','It is the same as DHCP'],
+    answer: 'b',
+    explanation: 'AD relies on DNS SRV records to locate domain controllers, Kerberos, and other services.',
+    optionNotes: [
+      'DNS does much more than web browsing in an AD domain.',
+      'DNS resolves names AND uses SRV records to locate DCs, Kerberos, etc. AD will not work without DNS. Correct.',
+      'IP management is DHCP, not DNS.',
+      'DNS and DHCP are different services — DNS resolves names; DHCP assigns IPs.'
+    ]
+  },
+  { section: 'windows', q: 'What is an AD forest?',
+    choices: ['A single domain','A collection of AD domain trees sharing a common schema and global catalog','A cluster of servers','A DNS zone'],
+    answer: 'b',
+    explanation: 'A forest is the top-level AD container — one or more trees of domains sharing a schema.',
+    optionNotes: [
+      'A single domain is just a domain — a forest can contain many.',
+      'A forest is the top-level AD container — collection of domain trees sharing schema/configuration/global catalog. Correct.',
+      'A cluster of servers is a different concept (server clustering for HA).',
+      'A DNS zone is a DNS construct, not an AD forest.'
+    ]
+  },
+  { section: 'windows', q: 'Which Windows tool joins a computer to an AD domain?',
+    choices: ['Control Panel → System → Change (Domain/Workgroup)','DNS Manager','Event Viewer','Task Manager'],
+    answer: 'a',
+    explanation: 'Domain join is done via System Properties (Control Panel/Settings).',
+    optionNotes: [
+      'System Properties / Settings → Rename PC, Change Domain. Correct.',
+      'DNS Manager is for managing DNS records, not joining domains.',
+      'Event Viewer is for logs, not domain join.',
+      'Task Manager manages processes, not domain join.'
+    ]
+  },
+
+  // ===== Scenario-Based =====
+  { section: 'scenario', q: 'A user’s PC is assigned 169.254.12.7 while other PCs on the same switch have 10.0.0.x. What should you investigate first?',
+    choices: ['Restart the router','Check DHCP reachability for that user (cable, NIC, port, VLAN)','Replace the monitor','Change the SSID'],
+    answer: 'b',
+    explanation: '169.254.x.x = APIPA. Other users work fine, so the issue is specific to this user.',
+    optionNotes: [
+      'Others work fine; rebooting the router is unnecessary and disruptive.',
+      'APIPA means DHCP failed for THIS user. Check their cable, NIC, switch port, VLAN. Correct.',
+      'Monitor is unrelated to network connectivity.',
+      'SSID is wireless; this user is on a switch (wired).'
+    ]
+  },
+  { section: 'scenario', q: 'A small business needs 25 employees to share internet access using only ONE public IP. What technology enables this?',
+    choices: ['Static NAT','Dynamic NAT','PAT (NAT Overload)','Direct public assignment'],
+    answer: 'c',
+    explanation: 'PAT multiplexes many private hosts onto one public IP using port numbers.',
+    optionNotes: [
+      'Static NAT is one-to-one — wouldn’t share among 25 users.',
+      'Dynamic NAT needs a pool of public IPs (and you only have one).',
+      'PAT shares one public IP among many private hosts via unique port numbers. Standard SOHO setup. Correct.',
+      'Direct public assignment requires 25 public IPs.'
+    ]
+  },
+  { section: 'scenario', q: 'An engineer installs a new server in the DMZ. Internal users can access it, but external users cannot. What should be checked first?',
+    choices: ['Server monitor cable','Firewall inbound rules for the required ports (80/443)','Switch duplex settings','User passwords'],
+    answer: 'b',
+    explanation: 'Internal works, external fails = perimeter firewall isn’t allowing inbound traffic.',
+    optionNotes: [
+      'Monitor is unrelated to network access.',
+      'Firewall inbound rules — internal works, external doesn’t, so the perimeter firewall isn’t allowing the public ports inbound. Correct.',
+      'Duplex would affect ALL connections, not just external.',
+      'Passwords don’t determine whether a connection can be made.'
+    ]
+  },
+  { section: 'scenario', q: 'After replacing a switch, users in different VLANs can no longer communicate with each other. What is likely missing?',
+    choices: ['A DNS server','A router or Layer 3 switch with inter-VLAN routing','A DHCP scope','A VPN'],
+    answer: 'b',
+    explanation: 'VLANs are separate broadcast domains at L2; inter-VLAN traffic needs Layer 3.',
+    optionNotes: [
+      'DNS is unrelated to VLAN-to-VLAN connectivity.',
+      'VLANs are isolated at L2 — they require a router or L3 switch with inter-VLAN routing to communicate. Correct.',
+      'A DHCP scope assigns IPs but doesn’t route between VLANs.',
+      'A VPN is for remote access, not local VLAN routing.'
+    ]
+  },
+  { section: 'scenario', q: 'A remote worker needs secure access to internal corporate file shares from home. What should you deploy?',
+    choices: ['Public FTP server','Remote-access (client-to-site) VPN','Telnet','Email attachments'],
+    answer: 'b',
+    explanation: 'Remote-access VPN creates an encrypted tunnel from the user’s device to the corporate network.',
+    optionNotes: [
+      'Public FTP is unencrypted and exposes files.',
+      'Remote-access (client-to-site) VPN — encrypted tunnel for secure access to internal resources. Correct.',
+      'Telnet is unencrypted and dangerous over the internet.',
+      'Email attachments aren’t a sustainable, secure solution for ongoing file access.'
+    ]
+  },
+  { section: 'scenario', q: 'A company needs to run network cable between two offices 800 meters apart in a campus environment. Which medium is appropriate?',
+    choices: ['Cat 5e UTP','Cat 6a UTP','Fiber optic','Coaxial RG-6'],
+    answer: 'c',
+    explanation: 'Twisted pair maxes out at 100 m. Fiber easily handles hundreds of meters to kilometers.',
+    optionNotes: [
+      'Cat 5e maxes at 100 m, not 800.',
+      'Cat 6a also maxes at 100 m, not 800.',
+      'Fiber easily handles 800 m and beyond, with no EMI concerns. Correct.',
+      'Coaxial RG-6 is for cable TV/internet feeds, not LAN runs at 800 m.'
+    ]
+  },
+  { section: 'scenario', q: 'You run "ping google.com" and get "Request timed out," but "ping 8.8.8.8" succeeds. What is the problem?',
+    choices: ['Cable is unplugged','DNS resolution is failing','Default gateway is down','NIC is disabled'],
+    answer: 'b',
+    explanation: 'Ping by IP works but ping by name fails = name resolution (DNS) is broken.',
+    optionNotes: [
+      'Cable is fine — ICMP to 8.8.8.8 works.',
+      'DNS resolution is failing — IP works, name doesn’t. Correct.',
+      'Gateway is fine — external IP is reachable.',
+      'NIC is fine — packets are flowing.'
+    ]
+  },
+  { section: 'scenario', q: 'Wireless clients in a new conference room get weak signal (low dBm). What is the best first fix?',
+    choices: ['Buy new laptops','Install an additional access point or mesh node in that area','Disable WPA2','Hide the SSID'],
+    answer: 'b',
+    explanation: 'Low signal = coverage gap. Add an AP/mesh node closer to the area.',
+    optionNotes: [
+      'Replacing laptops doesn’t fix coverage gaps.',
+      'Add a WAP or mesh node to improve coverage in that area. Correct.',
+      'Disabling WPA2 doesn’t help signal strength and weakens security.',
+      'Hiding the SSID has no effect on signal strength.'
+    ]
+  },
+  { section: 'scenario', q: 'After plugging their laptop into a new Ethernet jack, a user has no link light and no connectivity. Where do you start troubleshooting?',
+    choices: ['Layer 7 (Application)','Layer 4 (Transport)','Layer 3 (Network)','Layer 1 (Physical)'],
+    answer: 'd',
+    explanation: 'No link light = no physical connection. Always troubleshoot bottom-up for layered issues.',
+    optionNotes: [
+      'L7 (Application) is way too high to start.',
+      'L4 (Transport) — also too high; no need to think about ports yet.',
+      'L3 (Network) — addresses don’t matter until physical link is up.',
+      'L1 (Physical) — no link light means no physical connection. Always start at L1. Correct.'
+    ]
+  },
+  { section: 'scenario', q: 'After a power outage, all PCs on one switch show "duplicate IP address" warnings. What likely happened?',
+    choices: ['The ISP changed their policy','Two devices received overlapping addresses, often a static IP conflicting with a DHCP lease','The router is broken','Windows needs reinstalling'],
+    answer: 'b',
+    explanation: 'After DHCP restart, devices with static IPs sometimes overlap with DHCP-assigned addresses.',
+    optionNotes: [
+      'ISP policy doesn’t cause local duplicate IP warnings.',
+      'Static IP + DHCP overlap is the classic cause of duplicate-IP warnings after a DHCP restart. Correct.',
+      'Router being broken would cause no connectivity, not duplicate-IP warnings.',
+      'Reinstalling Windows wouldn’t fix or cause this.'
+    ]
+  },
+  { section: 'scenario', q: 'Employees report intermittent Wi-Fi issues on 2.4 GHz Wi-Fi, but only around lunchtime. What is a likely cause?',
+    choices: ['The router overheats at noon','Microwave ovens in the kitchen emit 2.4 GHz and interfere','Too many HTTPS requests','Weak passwords'],
+    answer: 'b',
+    explanation: 'Microwaves operate at 2.4 GHz and interfere with 2.4 GHz Wi-Fi when running.',
+    optionNotes: [
+      'Routers don’t systematically overheat at lunch — pattern doesn’t match.',
+      'Microwaves emit 2.4 GHz; lunch correlates with their use. Switch to 5 GHz or change channels. Correct.',
+      'HTTPS request volume doesn’t cause this kind of interference pattern.',
+      'Weak passwords don’t cause time-of-day interference.'
+    ]
+  },
+  { section: 'scenario', q: 'A user can access the file server and print, but cannot reach the internet. What should you check?',
+    choices: ['Wall jack and cable','The default gateway / router’s WAN connection','USB drivers','Monitor resolution'],
+    answer: 'b',
+    explanation: 'Local works, internet doesn’t = upstream issue at the router’s WAN link or ISP.',
+    optionNotes: [
+      'Local resources work, so the cable/jack are fine.',
+      'Local works, internet doesn’t — issue is at the gateway WAN connection or ISP. Correct.',
+      'USB drivers are unrelated to network access.',
+      'Monitor resolution doesn’t affect internet access.'
+    ]
+  }
+];
+
+let ORIGINAL_ORDER = QUESTIONS.slice();
+let order = QUESTIONS.slice();
+let currentIdx = 0;
+let currentSection = 'all';
+
+QUESTIONS.forEach((q, i) => { q.__idx = i; });
+let graded = {};
+
+const questionArea = document.getElementById('questionArea');
+const qPrevBtn = document.getElementById('qPrevBtn');
+const qNextBtn = document.getElementById('qNextBtn');
+const qRevealBtn = document.getElementById('qRevealBtn');
+const qGotoInput = document.getElementById('qGotoInput');
+const qpCurrent = document.getElementById('qpCurrent');
+const qpTotal = document.getElementById('qpTotal');
+const qCounterCurrent = document.getElementById('qCounterCurrent');
+const qCounterTotal = document.getElementById('qCounterTotal');
+const qpFill = document.getElementById('qpFill');
+const qpSectionTag = document.getElementById('qpSectionTag');
+const sectionSelect = document.getElementById('sectionSelect');
+const totalMeta = document.getElementById('totalMeta');
+
+function populateSectionSelect() {
+    sectionSelect.innerHTML = '';
+    const allOpt = document.createElement('option');
+    allOpt.value = 'all';
+    allOpt.textContent = 'All sections (' + QUESTIONS.length + ')';
+    sectionSelect.appendChild(allOpt);
+    Object.keys(SECTIONS).forEach(function(key) {
+        const count = QUESTIONS.filter(q => q.section === key).length;
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = SECTIONS[key] + ' (' + count + ')';
+        sectionSelect.appendChild(opt);
+    });
+    sectionSelect.value = currentSection;
+}
+
+function getActiveQuestions() {
+    if (currentSection === 'all') return order;
+    return order.filter(q => q.section === currentSection);
+}
+
+function renderQuestion() {
+    const active = getActiveQuestions();
+    totalMeta.textContent = active.length + ' Questions';
+    qpTotal.textContent = active.length;
+    qCounterTotal.textContent = active.length;
+    if (active.length === 0) {
+        questionArea.innerHTML = '<p style="text-align:center;color:#6b7780;padding:40px;">No questions for this section.</p>';
+        return;
+    }
+    if (currentIdx >= active.length) currentIdx = 0;
+
+    const q = active[currentIdx];
+    const sectionLabel = SECTIONS[q.section] || q.section;
+    qpSectionTag.textContent = sectionLabel;
+
+    const choicesHTML = q.choices.map(function(choice, i) {
+        const letter = String.fromCharCode(97 + i);
+        const note = (q.optionNotes && q.optionNotes[i]) ? q.optionNotes[i] : '';
+        return '<div class="choice-block">' +
+                  '<label><input type="radio" name="answer" value="' + letter + '"> <b>' + letter + ')</b> ' + choice + '</label>' +
+                  '<div class="option-note" data-letter="' + letter + '">' +
+                      '<span class="marker"></span><span class="note-text">' + note + '</span>' +
+                  '</div>' +
+              '</div>';
+    }).join('');
+
+    const html =
+        '<div class="question" id="currentQuestion" data-answer="' + q.answer + '">' +
+            '<div class="q-meta">' +
+                '<span class="q-num">Question ' + (currentIdx + 1) + ' of ' + active.length + '</span>' +
+                '<span class="q-section">' + sectionLabel + '</span>' +
+            '</div>' +
+            '<div class="q-text">' + q.q + '</div>' +
+            '<div class="choices">' + choicesHTML + '</div>' +
+            '<div class="feedback" id="feedback"></div>' +
+        '</div>';
+    questionArea.innerHTML = html;
+
+    qpCurrent.textContent = currentIdx + 1;
+    qCounterCurrent.textContent = currentIdx + 1;
+    qpFill.style.width = (((currentIdx + 1) / active.length) * 100) + '%';
+    qGotoInput.value = currentIdx + 1;
+    qGotoInput.max = active.length;
+    qPrevBtn.disabled = currentIdx === 0;
+
+    const isLast = currentIdx === active.length - 1;
+    qNextBtn.innerHTML = isLast ? 'Submit Quiz' : 'Next &rarr;';
+    qRevealBtn.disabled = false;
+    qRevealBtn.innerHTML = '&#128161; Reveal Answer';
+
+    // Restore previously graded state
+    const state = graded[q.__idx];
+    if (state) {
+        if (state.picked) {
+            const input = document.querySelector('#currentQuestion input[value="' + state.picked + '"]');
+            if (input) input.checked = true;
+        }
+        if (state.revealed) {
+            applyReveal(false);
+        }
+    }
+}
+
+function applyReveal(saveState) {
+    const qEl = document.getElementById('currentQuestion');
+    if (!qEl) return false;
+    if (qEl.classList.contains('revealed')) return false;
+
+    const correctAns = qEl.dataset.answer;
+    const active = getActiveQuestions();
+    const q = active[currentIdx];
+    const selected = qEl.querySelector('input[type="radio"]:checked');
+    const pickedLetter = selected ? selected.value : null;
+
+    qEl.classList.add('revealed');
+
+    // Mark labels: correct in green; user’s wrong pick in red
+    const correctLabel = qEl.querySelector('input[value="' + correctAns + '"]').closest('label');
+    correctLabel.classList.add('correct-answer');
+
+    const isCorrect = pickedLetter === correctAns;
+    if (pickedLetter && !isCorrect) {
+        selected.closest('label').classList.add('user-wrong');
+    }
+
+    // Mark each option-note with correct/wrong styling and a ✓/✗ marker
+    qEl.querySelectorAll('.option-note').forEach(function(noteEl) {
+        const letter = noteEl.dataset.letter;
+        const markerEl = noteEl.querySelector('.marker');
+        if (letter === correctAns) {
+            noteEl.classList.add('correct-note');
+            markerEl.textContent = '✓ Correct —';
+        } else {
+            noteEl.classList.add('wrong-note');
+            markerEl.textContent = '✗ Wrong —';
+        }
+    });
+
+    // Top feedback summary
+    const feedback = document.getElementById('feedback');
+    feedback.classList.add('show');
+    if (pickedLetter === null) {
+        qEl.classList.add('wrong');
+        feedback.classList.add('wrong-fb');
+        feedback.innerHTML = '<strong>✗ Not answered.</strong> The correct answer is <b>(' + correctAns.toUpperCase() + ')</b>.<span class="explain"><b>Summary:</b> ' + q.explanation + '</span>';
+    } else if (isCorrect) {
+        qEl.classList.add('correct');
+        feedback.classList.add('correct-fb');
+        feedback.innerHTML = '<strong>✓ Correct!</strong> The answer is <b>(' + correctAns.toUpperCase() + ')</b>.<span class="explain"><b>Summary:</b> ' + q.explanation + '</span>';
+    } else {
+        qEl.classList.add('wrong');
+        feedback.classList.add('wrong-fb');
+        feedback.innerHTML = '<strong>✗ Incorrect.</strong> You picked <b>(' + pickedLetter.toUpperCase() + ')</b>; the correct answer is <b>(' + correctAns.toUpperCase() + ')</b>.<span class="explain"><b>Summary:</b> ' + q.explanation + '</span>';
+    }
+
+    qEl.querySelectorAll('input[type="radio"]').forEach(r => r.disabled = true);
+
+    qRevealBtn.disabled = true;
+    qRevealBtn.innerHTML = '&#128161; Revealed';
+
+    if (saveState) {
+        graded[q.__idx] = { picked: pickedLetter, correct: isCorrect, revealed: true };
+    }
+    return true;
+}
+
+qPrevBtn.addEventListener('click', function() {
+    if (currentIdx > 0) { currentIdx--; renderQuestion(); }
+});
+
+qRevealBtn.addEventListener('click', function() {
+    applyReveal(true);
+});
+
+qNextBtn.addEventListener('click', function() {
+    const active = getActiveQuestions();
+    const isLast = currentIdx === active.length - 1;
+    if (isLast) submitQuiz();
+    else { currentIdx++; renderQuestion(); }
+});
+
+qGotoInput.addEventListener('change', function() {
+    const n = parseInt(this.value, 10);
+    const active = getActiveQuestions();
+    if (!isNaN(n) && n >= 1 && n <= active.length) { currentIdx = n - 1; renderQuestion(); }
+    else this.value = currentIdx + 1;
+});
+
+sectionSelect.addEventListener('change', function() {
+    currentSection = this.value;
+    currentIdx = 0;
+    renderQuestion();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    const active = getActiveQuestions();
+    if (e.key === 'ArrowRight') { if (currentIdx < active.length - 1) { currentIdx++; renderQuestion(); e.preventDefault(); } }
+    else if (e.key === 'ArrowLeft') { if (currentIdx > 0) { currentIdx--; renderQuestion(); e.preventDefault(); } }
+});
+
+function submitQuiz() {
+    const active = getActiveQuestions();
+    let total = active.length, correctCount = 0, answered = 0;
+    active.forEach(q => {
+        const g = graded[q.__idx];
+        if (g) {
+            answered++;
+            if (g.correct) correctCount++;
+        }
+    });
+    const percentage = total === 0 ? 0 : Math.round((correctCount / total) * 100);
+    const scoreBar = document.getElementById('scoreBar');
+    scoreBar.classList.add('show');
+    const scoreText = document.getElementById('scoreText');
+    scoreText.textContent = correctCount + ' / ' + total;
+    scoreText.className = 'score ' + (percentage >= 75 ? 'pass' : 'fail');
+    document.getElementById('percentText').textContent = percentage + '%';
+
+    const banner = document.getElementById('resultsBanner');
+    banner.classList.add('show');
+    banner.classList.remove('pass', 'fail');
+    if (percentage >= 90) { banner.classList.add('pass'); document.getElementById('resultsTitle').textContent = 'Excellent! ' + percentage + '%'; }
+    else if (percentage >= 75) { banner.classList.add('pass'); document.getElementById('resultsTitle').textContent = 'Passed: ' + percentage + '%'; }
+    else { banner.classList.add('fail'); document.getElementById('resultsTitle').textContent = 'Keep Reviewing: ' + percentage + '%'; }
+    document.getElementById('resultsDetail').textContent = 'You got ' + correctCount + ' out of ' + total + ' correct.';
+    document.getElementById('resultsBreakdown').textContent = answered + ' of ' + total + ' questions answered.';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetQuiz() {
+    graded = {};
+    currentIdx = 0;
+    document.getElementById('scoreBar').classList.remove('show');
+    document.getElementById('resultsBanner').classList.remove('show', 'pass', 'fail');
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function shuffleQuiz() {
+    graded = {};
+    const shuffled = order.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    order = shuffled;
+    currentIdx = 0;
+    document.getElementById('scoreBar').classList.remove('show');
+    document.getElementById('resultsBanner').classList.remove('show', 'pass', 'fail');
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restoreOrder() {
+    graded = {};
+    order = ORIGINAL_ORDER.slice();
+    currentIdx = 0;
+    document.getElementById('scoreBar').classList.remove('show');
+    document.getElementById('resultsBanner').classList.remove('show', 'pass', 'fail');
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+populateSectionSelect();
+renderQuestion();
+</script>
+
+</body>
+</html>
